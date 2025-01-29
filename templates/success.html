@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+</head>
+<body>
+    <h1>Family Reunion 2025</h1>
+    <p>Thank you for your payment!</p>
+
+    <h2>Payment Summary</h2>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>T-Shirt Size</th>
+            <th>Age Group</th>
+            <th>Price</th>
+        </tr>
+        {% for reg in payment_details.registrations %}
+        <tr>
+            <td>{{ reg.name }}</td>
+            <td>{{ reg.tshirt_size }}</td>
+            <td>{{ reg.age_group }}</td>
+            <td>${{ "%.2f"|format(reg.price) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Total Paid: ${{ "%.2f"|format(payment_details.total_paid) }}</h3>
+
+    <button onclick="window.print()">Print Receipt</button>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
