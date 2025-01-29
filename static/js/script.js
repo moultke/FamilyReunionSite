@@ -1,47 +1,44 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Stripe (replace with your publishable key)
-    const stripe = Stripe('pk_test_...');
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ JavaScript Loaded...");
 
-    // Countdown Timer
-    const targetDate = new Date('2025-07-17T00:00:00').getTime();
+    // Initialize Stripe (Replace with your actual publishable key)
+    const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D");
 
-    const countdownInterval = setInterval(function () {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
+    // Select elements
+    const addPersonButton = document.getElementById("addPerson");
+    const registrantFields = document.getElementById("registrantFields");
+    const registrantList = document.getElementById("registrantList");
+    const totalCostSpan = document.getElementById("totalCost");
+    const paymentButton = document.getElementById("paymentButton");
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById('countdown-timer').innerHTML = `
-            ${days}d ${hours}h ${minutes}m ${seconds}s
-        `;
-
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('countdown-timer').innerHTML = 'Reunion Time!';
-        }
-    }, 1000);
-
-    // Add Person Button
-    const addPersonButton = document.getElementById('addPerson');
-    const registrantFields = document.getElementById('registrantFields');
     let registrantCount = 1;
+    let totalCost = 0;
 
-    addPersonButton.addEventListener('click', function () {
-        registrantCount++;
+    // Function to update the total cost
+    function updateTotalCost() {
+        totalCost = 0;
+        document.querySelectorAll(".registrant").forEach(registrantDiv => {
+            const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
+            const price = ageGroup === "adult" ? 125 : 50; // Adult: 125, Child: 50
+            totalCost += price;
+        });
 
-        const newRegistrantDiv = document.createElement('div');
-        newRegistrantDiv.classList.add('registrant');
+        // Ensure single $ symbol and update UI
+        totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
+    }
+
+    // Function to create a registrant block
+    function createRegistrantBlock(count) {
+        const newRegistrantDiv = document.createElement("div");
+        newRegistrantDiv.classList.add("registrant", "border", "p-3", "mb-3");
         newRegistrantDiv.innerHTML = `
             <div class="mb-3">
-                <label for="name${registrantCount}" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name${registrantCount}" name="name" required>
+                <label for="name${count}" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name${count}" name="name" required>
             </div>
             <div class="mb-3">
-                <label for="tshirtSize${registrantCount}" class="form-label">T-Shirt Size</label>
-                <select class="form-select" id="tshirtSize${registrantCount}" name="tshirtSize">
+                <label for="tshirtSize${count}" class="form-label">T-Shirt Size</label>
+                <select class="form-select" id="tshirtSize${count}" name="tshirtSize">
                     <option value="S">S</option>
                     <option value="M">M</option>
                     <option value="L">L</option>
@@ -50,225 +47,136 @@ document.addEventListener('DOMContentLoaded', function () {
                 </select>
             </div>
             <div class="mb-3">
-                <label for="ageGroup${registrantCount}" class="form-label">Age Group</label>
-                <select class="form-select" id="ageGroup${registrantCount}" name="ageGroup">
-                    <option value="adult">Adult</option>
-                    <option value="child">Child</option>
+                <label for="ageGroup${count}" class="form-label">Age Group</label>
+                <select class="form-select age-group-select" id="ageGroup${count}" name="ageGroup">
+                    <option value="adult">Adult ($125)</option>
+                    <option value="child">Child ($50)</option>
                 </select>
             </div>
-            <button type="button" class="btn btn-sm btn-danger remove-added-registrant float-end">Remove</button>
+            <button type="button" class="btn btn-sm btn-danger remove-registrant">Remove</button>
         `;
 
-        registrantFields.appendChild(newRegistrantDiv);
+        // Add event listener to update price on selection change
+        newRegistrantDiv.querySelector(".age-group-select").addEventListener("change", updateTotalCost);
+
+        return newRegistrantDiv;
+    }
+
+    // Ensure only ONE initial registrant
+    registrantFields.innerHTML = "";  // Clear any extra registrants
+    registrantFields.appendChild(createRegistrantBlock(registrantCount));
+
+    // Add Person Button Click Event
+    addPersonButton.addEventListener("click", function () {
+        registrantCount++;
+        registrantFields.appendChild(createRegistrantBlock(registrantCount));
+        updateTotalCost(); // Update total when new registrant is added
     });
 
-    // Event listener for removing dynamically added registrant fields
-    registrantFields.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-added-registrant')) {
-            const registrantDiv = event.target.closest('.registrant');
-            registrantDiv.remove();
+    // Event listener to remove registrants and update total cost
+    registrantFields.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-registrant")) {
+            event.target.closest(".registrant").remove();
+            updateTotalCost();
         }
     });
 
-    // Registration Form Submission
-    const registrationForm = document.getElementById('registrationForm');
-    const paymentButton = document.getElementById('paymentButton');
-    const registrantList = document.getElementById('registrantList');
-    const totalCostSpan = document.getElementById('totalCost');
-    let totalCost = 0;
+    // Payment Button Click Event
+    paymentButton.addEventListener("click", async () => {
+        try {
+            let registrants = [];
+            document.querySelectorAll(".registrant").forEach(registrantDiv => {
+                const name = registrantDiv.querySelector('[name="name"]').value;
+                const tshirtSize = registrantDiv.querySelector('[name="tshirtSize"]').value;
+                const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
 
-    paymentButton.addEventListener('click', function () {
-        let registrants = [];
-        totalCost = 0; // Reset total cost
-        registrantList.innerHTML = ''; // Clear the summary list
-
-        const registrantDivs = document.querySelectorAll('.registrant');
-
-        registrantDivs.forEach((registrantDiv) => {
-            const name = registrantDiv.querySelector('[name="name"]').value;
-            const tshirtSize = registrantDiv.querySelector('[name="tshirtSize"]').value;
-            const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
-
-            let price;
-            if (ageGroup === 'adult') {
-                price = 50;
-            } else {
-                price = 25;
-            }
-
-            totalCost += price;
-
-            registrants.push({
-                name: name,
-                tshirtSize: tshirtSize,
-                ageGroup: ageGroup,
-                price: price
-            });
-
-            // Add to summary list
-            const listItem = document.createElement('li');
-            listItem.classList.add('list-group-item');
-            listItem.innerHTML = `
-                ${name} - ${tshirtSize} - ${ageGroup} - $${price}
-                <button type="button" class="btn btn-sm btn-danger float-end remove-registrant">Remove</button>
-            `;
-            registrantList.appendChild(listItem);
-        });
-
-        // Update total cost display
-        totalCostSpan.textContent = totalCost.toFixed(2);
-
-        // Send data to backend for validation and processing
-        fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ registrants: registrants })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                fetch('/create-checkout-session', {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(session => {
-                    return stripe.redirectToCheckout({ sessionId: session.id });
-                })
-                .then(result => {
-                    if (result.error) {
-                        alert(result.error.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error creating payment session.');
-                });
-            } else if (data.error) {
-                alert(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error registering. Please try again.');
-        });
-    });
-
-    // Remove Registrant from Summary
-    registrantList.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-registrant')) {
-            const listItem = event.target.closest('li');
-            const priceString = listItem.textContent.split('- $')[1];
-            const price = parseFloat(priceString);
-
-            totalCost -= price;
-            totalCostSpan.textContent = totalCost.toFixed(2);
-
-            listItem.remove();
-        }
-    });
-
-    // Volunteer Form Submission
-    const volunteerForm = document.getElementById('volunteerForm');
-
-    volunteerForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const name = document.getElementById('volunteerName').value;
-        const email = document.getElementById('volunteerEmail').value;
-
-        fetch('/volunteer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `name=${name}&email=${email}`
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                // Reset the form and close the modal
-                volunteerForm.reset();
-                const volunteerModal = bootstrap.Modal.getInstance(document.getElementById('volunteerModal'));
-                volunteerModal.hide();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error submitting form.');
-            });
-    });
-
-    // Contact Form Submission
-    const contactForm = document.getElementById('contactForm');
-
-    contactForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const name = document.getElementById('contactName').value;
-        const email = document.getElementById('contactEmail').value;
-        const message = document.getElementById('contactMessage').value;
-
-        fetch('/contact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `name=${name}&email=${email}&message=${message}`
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                // Reset the form
-                contactForm.reset();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error submitting form.');
-            });
-    });
-
-    // Function to upload image
-    window.uploadImage = function() {
-        const fileInput = document.getElementById('uploadPhoto');
-        const file = fileInput.files[0];
-
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                    addImageToGallery(data.url);
-                } else {
-                    alert(data.error);
+                if (!name) {
+                    alert("Please enter all registrant names.");
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error uploading image.');
+
+                const price = ageGroup === "adult" ? 125 : 50;
+                registrants.push({ name, tshirtSize, ageGroup, price });
             });
-        } else {
-            alert('Please select a file to upload.');
+
+            if (registrants.length === 0) {
+                alert("Please add at least one registrant.");
+                return;
+            }
+
+            console.log("📌 Sending registration data:", registrants);
+
+            const registerResponse = await fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ registrants })
+            });
+
+            const registerData = await registerResponse.json();
+
+            if (!registerResponse.ok) {
+                throw new Error(registerData.error || "Registration failed.");
+            }
+
+            console.log("✅ Registration successful. Proceeding to checkout...");
+
+            // Create Checkout Session
+            const checkoutResponse = await fetch("/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const checkoutData = await checkoutResponse.json();
+
+            if (!checkoutResponse.ok) {
+                throw new Error(checkoutData.error || "Failed to create checkout session.");
+            }
+
+            console.log("✅ Checkout session created:", checkoutData.id);
+
+            // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({ sessionId: checkoutData.id });
+
+            if (result.error) {
+                console.error("Stripe Checkout Error:", result.error);
+                alert(result.error.message);
+            }
+        } catch (error) {
+            console.error("❌ Error during checkout:", error);
+            alert("Error creating payment session. Please check the console for details.");
         }
+    });
+
+    // Countdown Timer Fix
+    const countdownDisplay = document.getElementById("countdown-timer");
+
+    if (!countdownDisplay) {
+        console.error("❌ Error: Countdown timer element not found in the DOM!");
+    } else {
+        const targetDate = new Date("2025-07-17T00:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = targetDate - now;
+
+            if (timeLeft <= 0) {
+                countdownDisplay.innerHTML = "🎉 Reunion Time!";
+                clearInterval(countdownInterval); // Stop the countdown
+                return;
+            }
+
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            countdownDisplay.innerHTML = `<strong>${days}d ${hours}h ${minutes}m ${seconds}s</strong>`;
+        }
+
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000);
     }
 
-    // Function to add an image to the gallery
-    function addImageToGallery(imageUrl) {
-        const galleryGrid = document.getElementById('galleryGrid');
-        const newImageDiv = document.createElement('div');
-        newImageDiv.className = 'col-md-4 mb-3';
-        newImageDiv.innerHTML = `
-            <div class="card gallery-card">
-                <img src="${imageUrl}" class="card-img-top" alt="Uploaded Image">
-            </div>
-        `;
-        galleryGrid.appendChild(newImageDiv);
-    }
+    // Update total cost initially
+    updateTotalCost();
 });
