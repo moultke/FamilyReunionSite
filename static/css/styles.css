@@ -1,0 +1,103 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: white;
+    color: #333;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #dc3545;
+    /* Red color for headings */
+    font-weight: 600;
+}
+
+.container {
+    max-width: 1100px;
+}
+
+/* Navigation Bar */
+.navbar {
+    background-color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.nav-link {
+    color: #333;
+}
+
+.nav-link:hover {
+    color: #dc3545;
+}
+
+/* Hero Section */
+.hero {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.carousel-caption h3,
+.carousel-caption p {
+    color: #fff;
+}
+
+/* Countdown Timer */
+.countdown {
+    color: #dc3545;
+    font-size: 1.2rem;
+}
+
+/* Banner */
+.banner {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 5px;
+}
+
+/* Registration Section */
+.summary {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+/* Gallery Section */
+.gallery-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.gallery-card:hover {
+    transform: translateY(-5px);
+}
+
+/* FAQ Section */
+.accordion-button {
+    color: #dc3545;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid #ddd;
+    color: #333;
+}

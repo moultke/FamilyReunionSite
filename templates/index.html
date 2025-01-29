@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Reunion 2025</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Family Reunion 2025</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#register">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#gallery">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#volunteer">Volunteer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{{ url_for('static', filename='images/family1.jpg') }}" class="d-block w-100" alt="Family 1">
+                    <div class="carousel-caption">
+                        <h3>Family Reunion</h3>
+                        <p>Celebrating Family!</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/family2.jpg') }}" class="d-block w-100" alt="Family 2">
+                    <div class="carousel-caption">
+                        <h3>Together Again</h3>
+                        <p>Creating new memories.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/family3.jpg') }}" class="d-block w-100" alt="Family 3">
+                    <div class="carousel-caption">
+                        <h3>Family First</h3>
+                        <p>Join us in Charleston!</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/family4.jpg') }}" class="d-block w-100" alt="Family 3">
+                    <div class="carousel-caption">
+                        <h3>Family First</h3>
+                        <p>Join us in Charleston!</p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <div class="countdown text-center mt-3">
+            <h4>Time Until Reunion</h4>
+            <div id="countdown-timer"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="banner my-4 p-3">
+            <h4 class="text-center">Saturday Park Gathering - Bring Your Own Beverages!</h4>
+        </div>
+
+        <section id="register" class="row">
+            <div class="col-md-7">
+                <h2>Register Now</h2>
+                <form id="registrationForm">
+                    <div id="registrantFields">
+                        <div class="registrant">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tshirtSize" class="form-label">T-Shirt Size</label>
+                                <select class="form-select" id="tshirtSize" name="tshirtSize">
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ageGroup" class="form-label">Age Group</label>
+                                <select class="form-select" id="ageGroup" name="ageGroup">
+                                    <option value="adult">Adult</option>
+                                    <option value="child">Child</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>
+                </form>
+            </div>
+            <div class="col-md-5">
+                <div class="summary">
+                    <h4>Registration Summary</h4>
+                    <ul id="registrantList" class="list-group">
+                        </ul>
+                    <div class="mt-3">
+                        <strong>Total: $<span id="totalCost">0.00</span></strong>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="schedule" class="mt-5">
+            <h2>Event Schedule</h2>
+            <p><strong>Dates:</strong> July 17-20, 2025</p>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <strong>July 17:</strong> Arrival and Check-in at Hotel
+                </li>
+                <li class="list-group-item">
+                    <strong>July 18:</strong> Family Dinner at Aaron's (food included, BYOB)
+                </li>
+                <li class="list-group-item">
+                    <strong>July 19:</strong> Park Gathering (food included, BYOB)
+                </li>
+                <li class="list-group-item">
+                    <strong>July 20:</strong> Departure
+                </li>
+            </ul>
+        </section>
+
+        <section id="hotel" class="mt-5">
+            <h2>Hotel Information</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Aloft Charleston Airport</h5>
+                            <p class="card-text">
+                                <strong>Price:</strong> $129/night (example)
+                            </p>
+                            <a href="#" class="btn btn-primary" target="_blank">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Hyatt Place Charleston</h5>
+                            <p class="card-text">
+                                <strong>Price:</strong> $149/night (example)
+                            </p>
+                            <a href="#" class="btn btn-primary" target="_blank">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery" class="mt-5">
+            <h2>Gallery</h2>
+            <div class="row" id="galleryGrid">
+                </div>
+            <div class="mt-3">
+                <input type="file" id="uploadPhoto" accept="image/*">
+                <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload Photo</button>
+            </div>
+        </section>
+
+        <section id="faq" class="mt-5">
+            <h2>Frequently Asked Questions</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            What is included in the registration fee?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                        data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            The registration fee includes a T-shirt, food at Aaron's on Friday, and food at the Saturday
+                            park gathering.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Are alcoholic beverages provided?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            No, alcoholic beverages are BYOB (Bring Your Own Beverage) for both the dinner at Aaron's
+                            and the park gathering.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Can I upload photos to the gallery?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                        data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yes, there is an option to upload photos to the gallery section.
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </section>
+
+        <section id="volunteer" class="mt-5">
+            <h2>Volunteer</h2>
+            <p>We need volunteers to help make this reunion a success! If you're interested, please sign up.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#volunteerModal">
+                Volunteer Signup
+            </button>
+
+            <div class="modal fade" id="volunteerModal" tabindex="-1" aria-labelledby="volunteerModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="volunteerModalLabel">Volunteer Signup</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="volunteerForm">
+                                <div class="mb-3">
+                                    <label for="volunteerName" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="volunteerName" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="volunteerEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="volunteerEmail" name="email" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="mt-5">
+            <h2>Contact Us</h2>
+            <form id="contactForm">
+                <div class="mb-3">
+                    <label for="contactName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="contactName" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contactEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="contactEmail" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contactMessage" class="form-label">Message</label>
+                    <textarea class="form-control" id="contactMessage" name="message" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Family Reunion</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
