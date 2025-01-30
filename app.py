@@ -190,8 +190,5 @@ def success():
     return render_template('success.html', payment_details=payment_details)
 
 
-#if __name__ == '__main__':
-#    app.run(debug=True)
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
