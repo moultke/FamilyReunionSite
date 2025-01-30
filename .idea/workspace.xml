@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="Final site">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="update app.py with host details" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -94,12 +92,21 @@
       <option name="project" value="LOCAL" />
       <updated>1738191648212</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="update app.py with host details">
+      <option name="closed" value="true" />
+      <created>1738241215514</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1738241215514</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="updates" />
     <MESSAGE value="Final site" />
-    <option name="LAST_COMMIT_MESSAGE" value="Final site" />
+    <MESSAGE value="update app.py with host details" />
+    <option name="LAST_COMMIT_MESSAGE" value="update app.py with host details" />
   </component>
 </project>
