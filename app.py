@@ -2,19 +2,24 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, g
 import sqlite3
 import os
 import stripe
+import pyheif
+from PIL import Image
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+def convert_heic_to_jpg(heic_path, output_path):
+    heif_file = pyheif.read(heic_path)
+    image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data)
+    image.save(output_path, "JPEG")
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-
 
 # Load environment variables
 load_dotenv()
@@ -72,22 +77,48 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/upload', methods=['POST'])
+@app.route("/upload", methods=["POST"])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+    if "file" not in request.files:
+        return "No file part"
 
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return "No selected file"
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+        ext = file.filename.rsplit(".", 1)[-1].lower()
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
 
-    return jsonify({'error': 'Invalid file type'}), 400
+        file.save(file_path)
+
+        # Convert HEIC to JPG if needed
+        if ext == "heic":
+            jpg_path = file_path.rsplit(".", 1)[0] + ".jpg"
+            convert_heic_to_jpg(file_path, jpg_path)
+            os.remove(file_path)  # Remove HEIC file after conversion
+            return f"File converted and saved as {jpg_path}"
+
+        return f"File uploaded successfully: {file_path}"
+
+    return "Invalid file type"
+
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     if 'file' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
+#
+#     file = request.files['file']
+#
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
+#
+#     if file and allowed_file(file.filename):
+#         filename = secure_filename(file.filename)
+#         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#         return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+#
+#     return jsonify({'error': 'Invalid file type'}), 400
 
 
 @app.route('/images')
