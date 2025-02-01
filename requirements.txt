@@ -3,4 +3,3 @@ stripe
 python-dotenv
 gunicorn
 Werkzeug
-uvicorn
