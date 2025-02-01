@@ -186,15 +186,37 @@
             </div>
         </section>
 
-        <section id="gallery" class="mt-5">
-            <h2>Gallery</h2>
-            <div class="row" id="galleryGrid">
-                </div>
-            <div class="mt-3">
-                <input type="file" id="uploadPhoto" accept="image/*">
-                <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload Photo</button>
+ <!-- Gallery -->
+<section id="gallery" class="mt-5">
+    <h2>Gallery</h2>
+    <div class="row" id="galleryGrid"></div>
+
+    <div class="mt-3">
+        <input type="file" id="uploadPhoto" accept="image/*">
+        <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload Photo</button>
+    </div>
+
+    <!-- Pagination Controls -->
+    <nav>
+        <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+    </nav>
+</section>
+
+<!-- Modal for Enlarged Images -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">View Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </section>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid" alt="Uploaded Image">
+            </div>
+        </div>
+    </div>
+</div>
+
 
         <section id="faq" class="mt-5">
             <h2>Frequently Asked Questions</h2>
