@@ -1,5 +1,8 @@
-flask
-stripe
-python-dotenv
-gunicorn
-Werkzeug
+Flask==2.2.2  # Replace with the actual version you want
+stripe==12.0.0 # Replace with the actual version you want
+python-dotenv==1.0.0 # Replace with the actual version you want
+gunicorn==20.1.0 # Replace with the actual version you want
+Werkzeug==2.2.2 # Replace with the actual version you want
+uvicorn==0.20.0 # Replace with the actual version you want
+Pillow==9.5.0  # Replace with the actual version you want (for PIL)
+pyheif==1.7.0  # Replace with the actual version you want
