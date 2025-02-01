@@ -1,7 +1,7 @@
 Flask==2.2.2
 gunicorn==20.1.0
 Pillow==9.5.0
-pyheif==1.7.0
+pyheif==0.8.0  # Updated to the latest available version
 python-dotenv==1.0.0
 stripe==11.5.0
 uvicorn==0.20.0
