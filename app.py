@@ -329,6 +329,7 @@ def success():
         # Fetch Payment Intent
         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
+        # Print statement
         print(f"Payment Intent Status: {payment_intent.status}")
 
         # Ensure payment was successful
