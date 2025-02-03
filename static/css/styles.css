@@ -11,80 +11,121 @@ h3,
 h4,
 h5,
 h6 {
-    color: #dc3545;
-    /* Red color for headings */
+    color: #dc3545; /* Red color for headings */
     font-weight: 600;
-}.container {
+}
+
+.container {
     max-width: 1100px;
 }
 
-/* Navigation Bar */.navbar {
-    background-color: white!important;
+/* Alternating background colors for sections */
+main section:nth-child(odd) {
+    background-color: #e0e0e0;
+    padding: 20px;
+}
+
+main section:nth-child(even) {
+    background-color: white; /* Light grey */
+    padding: 20px;
+}
+
+/* Navigation Bar */
+.navbar {
+    background-color: white !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}.navbar-brand {
+}
+
+.navbar-brand {
     font-weight: bold;
-    color: #dc3545;
-}.nav-link {
-    color: #333;
-}.nav-link:hover {
     color: #dc3545;
 }
 
-/* Hero Section */.hero {
+.nav-link {
+    color: #333;
+}
+
+.nav-link:hover {
+    color: #dc3545;
+}
+
+/* Hero Section */
+.hero {
     background-color: #f8f9fa;
     padding: 2rem 0;
     margin-bottom: 2rem;
-}.carousel-caption {
+}
+
+.carousel-caption {
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     padding: 10px;
-}.carousel-caption h3,.carousel-caption p {
+}
+
+.carousel-caption h3,
+.carousel-caption p {
     color: #fff;
 }
 
-/* Countdown Timer */.countdown {
+/* Countdown Timer */
+.countdown {
     color: #dc3545;
     font-size: 1.2rem;
 }
 
-/* Banner */.banner {
+/* Banner */
+.banner {
     background-color: #dc3545;
     color: white;
     border-radius: 5px;
 }
 
-/* Registration Section */.summary {
+/* Registration Section */
+.summary {
     background-color: #f8f9fa;
     border: 1px solid #ddd;
     padding: 1rem;
     border-radius: 5px;
 }
 
-/* Gallery Section */.gallery-card {
+/* Gallery Section */
+.gallery-card {
     transition: transform 0.2s ease-in-out;
     cursor: pointer; /* Make images clickable */
-}.gallery-card:hover {
+}
+
+.gallery-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow on hover */
 }
 
-/* Magnific Popup Overrides (Optional) */.mfp-bg {
+/* Magnific Popup Overrides (Optional) */
+.mfp-bg {
     opacity: 0.95; /* Slightly darker background for the popup */
-}.mfp-figure {
+}
+
+.mfp-figure {
     background: #fff; /* White background for the image container */
-}.mfp-img {
+}
+
+.mfp-img {
     padding: 20px; /* Add some padding around the image */
     box-sizing: border-box; /* Include padding in the image's total width and height */
     max-width: 90%;
     max-height: 90%; /* Ensure image fits within the viewport */
     margin: 0 auto; /* Center the image */
-}.mfp-zoom-out-cur {
+}
+
+.mfp-zoom-out-cur {
     cursor: zoom-out; /* Show zoom-out cursor when hovering over the image */
 }
 
-/* FAQ Section */.accordion-button {
+/* FAQ Section */
+.accordion-button {
     color: #dc3545;
-}.accordion-button:not(.collapsed) {
+}
+
+.accordion-button:not(.collapsed) {
     background-color: #f8f9fa;
 }
 
@@ -117,4 +158,69 @@ footer {
 .pagination .page-item.active .page-link {
     background-color: #dc3545;
     border-color: #dc3545;
+}
+
+/* Ticker Container */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    position: relative;
+    white-space: nowrap;
+}
+
+/* Ticker Scrolling Effect */
+.ticker {
+    display: flex;
+    white-space: nowrap;
+    animation: tickerScroll 20s linear infinite;
+}
+
+/* Scrolling Animation */
+@keyframes tickerScroll {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+/* Ticker Item Styling */
+.ticker__item {
+    display: inline-block;
+    padding: 0 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+#contact {
+    background-color: #dc3545 !important;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#contact h2,
+#contact label {
+    color: white; /* Ensure headings and labels are readable */
+}
+
+#contact .form-control {
+    border: 1px solid white;
+    background-color: white;
+    color: black;
+}
+
+#contact .btn-primary {
+    background-color: white;
+    color: #dc3545;
+    border: none;
+}
+
+#contact .btn-primary:hover {
+    background-color: #f8d7da;
+    color: #dc3545;
 }
