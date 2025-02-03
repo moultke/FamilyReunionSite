@@ -315,7 +315,7 @@ def success():
 
         stripe_session_id = result['stripe_session_id']
 
-        # Retrieve checkout session from Stripe
+        # Retrieve checkout session from Stripe.
         checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
 
         # Retrieve the Payment Intent for checkout
