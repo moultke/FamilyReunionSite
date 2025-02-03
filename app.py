@@ -318,7 +318,7 @@ def success():
         # Retrieve checkout session from Stripe
         checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
 
-        # Retrieve the Payment Intent
+        # Retrieve the Payment Intent for checkout
         payment_intent_id = checkout_session.payment_intent
         if not payment_intent_id:
             print("⚠️ No Payment Intent found in checkout session")
