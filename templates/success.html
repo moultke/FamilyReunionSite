@@ -3,33 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success</title>
+    <title>Payment Successful</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Family Reunion 2025</h1>
-    <p>Thank you for your payment!</p>
+    <div class="container">
+        <h1>🎉 Payment Successful!</h1>
 
-    <h2>Payment Summary</h2>
-    <table border="1">
-        <tr>
-            <th>Name</th>
-            <th>T-Shirt Size</th>
-            <th>Age Group</th>
-            <th>Price</th>
-        </tr>
-        {% for reg in payment_details.registrations %}
-        <tr>
-            <td>{{ reg.name }}</td>
-            <td>{{ reg.tshirt_size }}</td>
-            <td>{{ reg.age_group }}</td>
-            <td>${{ "%.2f"|format(reg.price) }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <div class="payment-summary">
+            <h2>💳 Payment Details</h2>
+            <p><strong>Amount Paid:</strong> ${{ total_paid }}</p>
+            <p><strong>Currency:</strong> {{ checkout_session.currency.upper() }}</p>
 
-    <h3>Total Paid: ${{ "%.2f"|format(payment_details.total_paid) }}</h3>
+            {% if latest_charge %}
+                {% set card_details = latest_charge.payment_method_details.get('card', {}) %}
+                {% if card_details %}
+                    <p><strong>Card Brand:</strong> {{ card_details.brand | capitalize }}</p>
+                    <p><strong>Card Last 4 Digits:</strong> **** **** **** {{ card_details.last4 }}</p>
+                {% else %}
+                    <p><strong>Payment Method:</strong> Details not available</p>
+                {% endif %}
+            {% else %}
+                <p><strong>Payment Method:</strong> Details not available</p>
+            {% endif %}
+        </div>
 
-    <button onclick="window.print()">Print Receipt</button>
-    <a href="{{ url_for('index') }}">Back to Home</a>
+        <div class="registrants">
+            <h2>📝 Registered Participants</h2>
+            <ul>
+                {% for registrant in registrations %}
+                    <li>
+                        <strong>Name:</strong> {{ registrant.name }} |
+                        <strong>Age Group:</strong> {{ registrant.age_group }} |
+                        <strong>T-Shirt Size:</strong> {{ registrant.tshirt_size }} |
+                        <strong>Price:</strong> ${{ registrant.price }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="btn">Return Home</a>
+    </div>
+
 </body>
 </html>

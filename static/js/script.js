@@ -1,33 +1,376 @@
+// Define openImageModal in the global scope (outside DOMContentLoaded)
+function openImageModal(imageUrl) {
+    document.getElementById("modalImage").src = imageUrl;
+    const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
+    imageModal.show();
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ JavaScript Loaded...");
 
-    // Initialize Stripe (Replace with your actual publishable key)
-    const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D");
+//    fetchAttendees();
 
-    // Select elements
+    // Ensure attendeeTicker exists before running anything
+    const attendeeTickerContainer = document.getElementById("attendeeTicker");
+
+    // Gallery variables
+    const galleryGrid = document.getElementById("galleryGrid");
+    const uploadPhoto = document.getElementById("uploadPhoto");
+    const galleryNotification = document.getElementById("galleryNotification");
+    const baseUrl = window.location.origin;
+
+    // Registration/Payment variables
+    const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D"); // Replace with your publishable key
     const addPersonButton = document.getElementById("addPerson");
     const registrantFields = document.getElementById("registrantFields");
-    const registrantList = document.getElementById("registrantList"); // This might not be needed, confirm its use
     const totalCostSpan = document.getElementById("totalCost");
     const paymentButton = document.getElementById("paymentButton");
+    const registrationNotification = document.getElementById("registrationNotification");
+    // Countdown Timer Code:
+    const countdownTimer = document.getElementById('countdown-timer');
+    const reunionDate = new Date('2025-07-17T00:00:00'); // Set your reunion date and time
+    // RSVP Form Handling
+    const rsvpForm = document.getElementById('rsvpForm');
+    //    const attendeeTicker = document.getElementById('attendeeTicker').querySelector('.ticker');
+    // Check if attendeeTicker exists before accessing it
+    //    const attendeeTickerContainer = document.getElementById("attendeeTicker");
+    const attendeeTicker = attendeeTickerContainer ? attendeeTickerContainer.querySelector(".ticker") : null;
 
     let registrantCount = 1;
     let totalCost = 0;
+    let currentPage = 1;
+    let imagesPerPage = 10;
+    let totalImages = 0;
+    let pagination;
 
-    // Function to update the total cost
+     if (!attendeeTicker) {
+        console.error("⚠️ Error: attendeeTicker not found in the DOM.");
+        return; // Stop execution to prevent further errors
+    }
+
+
+    rsvpForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const name = document.getElementById('rsvpName').value;
+        const email = document.getElementById('rsvpEmail').value;
+        const phone = document.getElementById('rsvpPhone').value; // Get phone number
+        const attending = document.getElementById('rsvpAttending').value;
+
+
+        // Send RSVP data to server
+        fetch('/rsvp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, phone, attending }) // Include phone number
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update attendee ticker
+                    addAttendeeToTicker(name);
+                    rsvpForm.reset(); // Clear the form
+                    alert("Thank you for your RSVP!"); // Or use a nicer notification
+                } else {
+                    alert(data.error || "Error submitting RSVP. Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred. Please try again later.");
+            });
+    });
+
+
+    function fetchAttendees() {
+    fetch('/attendees', { cache: 'no-store' })  // Ensure fresh data
+        .then(response => response.json())
+        .then(attendees => {
+            console.log("✅ Fetching attendees from database:", attendees);
+
+            const attendeeTicker = document.querySelector(".ticker");
+            attendeeTicker.innerHTML = ""; // Clear previous attendees
+
+            if (!attendees || attendees.length === 0) {
+                console.log("⚠️ No attendees found in database.");
+                attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+                return;
+            }
+
+            console.log("✅ Displaying attendees:", attendees);
+            populateTicker(attendees);
+        })
+        .catch(error => {
+            console.error("❌ Error fetching attendees:", error);
+        });
+    }
+
+
+
+
+
+
+
+    function populateTicker(attendees) {
+    attendeeTicker.innerHTML = ""; // Clear previous content
+
+    attendees.forEach(name => {
+        let attendeeElement = document.createElement("span");
+        attendeeElement.textContent = name;
+        attendeeElement.classList.add("ticker__item");
+        attendeeTicker.appendChild(attendeeElement);
+    });
+
+    // Duplicate the list to create an infinite scroll effect
+    attendees.forEach(name => {
+        let cloneElement = document.createElement("span");
+        cloneElement.textContent = name;
+        cloneElement.classList.add("ticker__item");
+        attendeeTicker.appendChild(cloneElement);
+    });
+
+    // ✅ Start animation if attendees exist
+    if (attendeeTicker.children.length > 0) {
+        startTickerAnimation();
+    }
+    }
+
+
+    function startTickerAnimation() {
+        attendeeTicker.style.animation = `tickerScroll 20s linear infinite`; // Smooth animation
+    }
+
+    fetchAttendees(); // ✅ Fetch attendees only if attendeeTicker exists
+
+    function addAttendeeToTicker(name) {
+        if (!attendeeTicker) {
+            console.error("⚠️ attendeeTicker not found in the DOM.");
+            return;
+        }
+
+        let attendeeElement = document.createElement("span");
+        attendeeElement.textContent = name;
+        attendeeElement.classList.add("ticker__item");
+
+        attendeeTicker.appendChild(attendeeElement);
+
+        // Ensure ticker animation starts if attendees exist
+        if (attendeeTicker.children.length > 0) {
+            startTickerAnimation();
+        }
+    }
+
+
+
+    // General notification function
+    function showNotification(message, type = "success", targetElement) {  // No default value
+        if (targetElement) { // Check if targetElement exists
+            targetElement.textContent = message;
+            targetElement.className = `alert alert-${type}`;
+            targetElement.style.display = "block";
+
+            setTimeout(() => {
+                targetElement.style.display = "none";
+            }, 5000);
+        } else {
+            console.error("Notification target element not found!");
+        }
+    }
+
+    function updatePagination() {
+        // Get pagination element inside the function, after DOM is ready
+        pagination = document.getElementById('pagination');
+
+        if (!pagination) {
+            console.error("Pagination element not found!");
+            return; // Exit if the element is not found
+        }
+
+        const totalPages = Math.ceil(totalImages / imagesPerPage);
+        pagination.innerHTML = ''; // Clear existing pagination links
+
+        for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement('li');
+            li.className = 'page-item';
+            const a = document.createElement('a');
+            a.className = 'page-link';
+            a.href = '#';
+            a.textContent = i;
+
+            a.addEventListener('click', function (event) {
+                event.preventDefault();
+                currentPage = i;
+                fetchGalleryImages(currentPage);
+            });
+
+            li.appendChild(a);
+            pagination.appendChild(li);
+        }
+    }
+
+    function updatePagination() {
+            pagination = document.getElementById('pagination');
+
+            if (!pagination) {
+                console.error("Pagination element not found!");
+                return;
+            }
+
+            const totalPages = Math.ceil(totalImages / imagesPerPage);
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item';
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+
+                a.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    currentPage = i;
+                    fetchGalleryImages(currentPage);
+                });
+
+                li.appendChild(a);
+                pagination.appendChild(li);
+            }
+    }
+
+    function fetchGalleryImages(page = 1) {
+        const offset = (page - 1) * imagesPerPage;
+
+        console.log("Fetching images...");
+
+        fetch(`/images?limit=${imagesPerPage}&offset=${offset}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("📸 Images fetched:", data);
+                galleryGrid.innerHTML = "";
+
+                if (data.images && data.images.length === 0) {
+                    galleryGrid.innerHTML = "<p class='text-center'>No images uploaded yet.</p>";
+                    return;
+                }
+
+                if (data.images) {
+                    data.images.forEach(imgUrl => {
+                        const fullImageUrl = baseUrl + imgUrl;
+
+                        const col = document.createElement("div");
+                        col.className = "col-md-3 mb-3";
+                        col.innerHTML = `
+                            <div class="card">
+                                <img src="${fullImageUrl}" class="card-img-top img-thumbnail" onclick="openImageModal('${fullImageUrl}')" alt="Uploaded Image">
+                            </div>
+                        `;
+                        galleryGrid.appendChild(col);
+                    });
+                }
+
+                totalImages = data.total_images || 0;
+
+                // Call updatePagination AFTER data is received AND DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', updatePagination);
+                } else {
+                    updatePagination();
+                }
+
+            })
+            .catch(error => {
+                console.error("❌ Error fetching images:", error);
+                showNotification("Error fetching images. Please try again later.", "danger", galleryNotification);
+            });
+    }
+
+
+    //    function openImageModal(imageUrl) {
+    //        document.getElementById("modalImage").src = imageUrl;
+    //        const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
+    //        imageModal.show();
+    //    }
+
+    function uploadImage() {
+        const file = uploadPhoto.files[0];
+        if (!file) {
+            showNotification("Please select an image to upload.", "danger", galleryNotification);
+            return;
+        }
+        const formData = new FormData();
+        formData.append("image", file);
+
+        fetch("/upload-image", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Upload response:", data);
+                if (data.success) {
+                    showNotification("Image uploaded successfully!", "success", galleryNotification);
+                    uploadPhoto.value = "";
+                    fetchGalleryImages();
+                } else {
+                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification);
+                }
+            })
+            .catch(error => {
+                console.error("❌ Upload error:", error);
+                showNotification("An error occurred during upload. Please try again.", "danger", galleryNotification);
+            });
+    }
+
+    fetchGalleryImages();
+    uploadPhoto.addEventListener("change", uploadImage); // Use addEventListener
+
+
+    // Registration/Payment functions
     function updateTotalCost() {
         totalCost = 0;
         document.querySelectorAll(".registrant").forEach(registrantDiv => {
             const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
-            const price = ageGroup === "adult" ? 125 : 50; // Adult: 125, Child: 50
+            const price = ageGroup === "adult" ? 125 : 50;
             totalCost += price;
         });
-
-        // Ensure single $ symbol and update UI
         totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
     }
 
-    // Function to create a registrant block
+
+    function updateCountdown() {
+        const now = new Date();
+        const distance = reunionDate.getTime() - now.getTime();
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownTimer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownTimer.innerHTML = "Reunion Time!";
+        }
+    }
+
+    updateCountdown(); // Initial call to display countdown immediately
+    const countdownInterval = setInterval(updateCountdown, 1000); // Update every second
+
+
     function createRegistrantBlock(count) {
         const newRegistrantDiv = document.createElement("div");
         newRegistrantDiv.classList.add("registrant", "border", "p-3", "mb-3");
@@ -53,39 +396,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     <option value="child">Child ($50)</option>
                 </select>
             </div>
-            <button type="button" class="btn btn-sm btn-danger remove-registrant">Remove</button>
         `;
-
-        // Add event listener to update price on selection change
         newRegistrantDiv.querySelector(".age-group-select").addEventListener("change", updateTotalCost);
-
         return newRegistrantDiv;
     }
 
-    // Ensure only ONE initial registrant
-    registrantFields.innerHTML = "";  // Clear any extra registrants
     registrantFields.appendChild(createRegistrantBlock(registrantCount));
+    updateTotalCost();
 
-    // Add Person Button Click Event
     addPersonButton.addEventListener("click", function () {
         registrantCount++;
         registrantFields.appendChild(createRegistrantBlock(registrantCount));
-        updateTotalCost(); // Update total when new registrant is added
+        updateTotalCost();
     });
 
-    // Event listener to remove registrants and update total cost
-    registrantFields.addEventListener("click", function (event) {
-        if (event.target.classList.contains("remove-registrant")) {
-            event.target.closest(".registrant").remove();
-            updateTotalCost();
-        }
-    });
+    paymentButton.addEventListener("click", async (event) => {
+        event.preventDefault();
 
-    // Payment Button Click Event
-    paymentButton.addEventListener("click", async () => {
         try {
             let registrants = [];
-            let allRegistrantsValid = true; // Flag to track if all registrants are valid
+            let allRegistrantsValid = true;
 
             document.querySelectorAll(".registrant").forEach(registrantDiv => {
                 const name = registrantDiv.querySelector('[name="name"]').value;
@@ -93,7 +423,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
 
                 if (!name) {
-                    allRegistrantsValid = false; // Set the flag to false if a name is missing
+                    allRegistrantsValid = false;
+                    registrantDiv.querySelector('[name="name"]').classList.add("is-invalid");
+                } else {
+                    registrantDiv.querySelector('[name="name"]').classList.remove("is-invalid");
                 }
 
                 const price = ageGroup === "adult" ? 125 : 50;
@@ -101,12 +434,12 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             if (!allRegistrantsValid) {
-                alert("Please enter all registrant names.");
+                showNotification("Please enter all registrant names.", "danger", registrationNotification);
                 return;
             }
 
             if (registrants.length === 0) {
-                alert("Please add at least one registrant.");
+                showNotification("Please add at least one registrant.", "danger", registrationNotification);
                 return;
             }
 
@@ -126,157 +459,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("✅ Registration successful. Proceeding to checkout...");
 
-            // Create Checkout Session
             const checkoutResponse = await fetch("/create-checkout-session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ registrants }) // Pass registrants data
+                body: JSON.stringify({ registrants })
             });
 
             const checkoutData = await checkoutResponse.json();
 
-            if (!checkoutResponse.ok) {
-                throw new Error(checkoutData.error || "Failed to create checkout session.");
+            console.log("✅ Checkout session created:", checkoutData);
+
+            if (!checkoutResponse.ok || !checkoutData.sessionId ) { // Check for sessionId
+                const errorMessage = checkoutData.error || "Invalid checkout session";
+                console.error("❌ Error during checkout:", errorMessage);
+                showNotification(errorMessage, "danger");
+                throw new Error(errorMessage);
             }
 
-            console.log("✅ Checkout session created:", checkoutData.id);
+            await stripe.redirectToCheckout({ sessionId: checkoutData.sessionId }); // Use stripe.redirectToCheckout
 
-            // Redirect to Stripe Checkout
-            const result = await stripe.redirectToCheckout({ sessionId: checkoutData.id });
-
-            if (result.error) {
-                console.error("Stripe Checkout Error:", result.error);
-                alert(result.error.message);
-            }
         } catch (error) {
             console.error("❌ Error during checkout:", error);
-            alert("Error creating payment session. Please check the console for details.");
+            showNotification("An error occurred during checkout. Please try again.", "danger");
         }
     });
 
-    // Countdown Timer Fix
-    const countdownDisplay = document.getElementById("countdown-timer");
-
-    if (!countdownDisplay) {
-        console.error("❌ Error: Countdown timer element not found in the DOM!");
-    } else {
-        const targetDate = new Date("2025-07-17T00:00:00").getTime();
-
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const timeLeft = targetDate - now;
-
-            if (timeLeft <= 0) {
-                countdownDisplay.innerHTML = "🎉 Reunion Time!";
-                clearInterval(countdownInterval); // Stop the countdown
-                return;
-            }
-
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            countdownDisplay.innerHTML = `<strong>${days}d ${hours}h ${minutes}m ${seconds}s</strong>`;
-        }
-
-        updateCountdown();
-        const countdownInterval = setInterval(updateCountdown, 1000);
-    }
-
-    // Update total cost initially
     updateTotalCost();
-
-    // Function to load gallery images
-    function loadGallery(page = 1, perPage = 8) {
-        fetch("/images")
-            .then(response => response.json())
-            .then(data => {
-                let images = data.images;
-                let galleryGrid = document.getElementById("galleryGrid");
-                let pagination = document.getElementById("pagination");
-
-                galleryGrid.innerHTML = "";
-                pagination.innerHTML = "";
-
-                let start = (page - 1) * perPage;
-                let end = start + perPage;
-                let paginatedImages = images.slice(start, end);
-
-                paginatedImages.forEach(imageUrl => {
-                    let colDiv = document.createElement("div");
-                    colDiv.className = "col-md-3 mb-3";
-
-                    let imgElement = document.createElement("img");
-                    imgElement.src = imageUrl;
-                    imgElement.className = "img-thumbnail gallery-img";
-                    imgElement.setAttribute("data-bs-toggle", "modal");
-                    imgElement.setAttribute("data-bs-target", "#imageModal");
-                    imgElement.onclick = () => openModal(imageUrl);
-
-                    colDiv.appendChild(imgElement);
-                    galleryGrid.appendChild(colDiv);
-                });
-
-                // Pagination
-                let totalPages = Math.ceil(images.length / perPage);
-                for (let i = 1; i <= totalPages; i++) {
-                    let pageItem = document.createElement("li");
-                    pageItem.className = "page-item " + (i === page ? "active" : "");
-
-                    let pageLink = document.createElement("a");
-                    pageLink.className = "page-link";
-                    pageLink.href = "#";
-                    pageLink.innerText = i;
-                    pageLink.onclick = (e) => {
-                        e.preventDefault();
-                        loadGallery(i);
-                    };
-
-                    pageItem.appendChild(pageLink);
-                    pagination.appendChild(pageItem);
-                }
-            })
-            .catch(error => console.error("Error loading gallery:", error));
-    }
-
-    // Function to open image in modal
-    function openModal(imageUrl) {
-        document.getElementById("modalImage").src = imageUrl;
-    }
-
-    // Function to upload image
-    window.uploadImage = async function () {
-        let fileInput = document.getElementById("uploadPhoto");
-        let file = fileInput.files[0];
-
-        if (!file) {
-            alert("Please select an image first.");
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            let response = await fetch("/upload", {
-                method: "POST",
-                body: formData
-            });
-
-            let result = await response.json();
-            if (response.ok) {
-                alert("Image uploaded successfully!");
-                fileInput.value = "";
-                loadGallery(); // Refresh the gallery
-            } else {
-                alert(result.error);
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-        }
-    };
-
-    // Load the gallery on DOMContentLoaded
-    loadGallery();
 });

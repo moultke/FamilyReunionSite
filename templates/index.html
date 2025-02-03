@@ -30,9 +30,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#faq">FAQ</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#volunteer">Volunteer</a>
-                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#volunteerModal">Volunteer</a>-->
+<!--                    </li>-->
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img src="{{ url_for('static', filename='images/family4.jpg') }}" class="d-block w-100" alt="Family 3">
+                    <img src="{{ url_for('static', filename='images/family4.jpg') }}" class="d-block w-100" alt="Family 4">
                     <div class="carousel-caption">
                         <h3>Family First</h3>
                         <p>Join us in Charleston!</p>
@@ -94,34 +94,52 @@
             <h4 class="text-center">Saturday Park Gathering - Bring Your Own Beverages!</h4>
         </div>
 
+        <div id="notification" class="alert" style="display: none;"></div>
+
+        <section id="rsvp" class="mt-5">
+            <h2>RSVP / Confirm Attendance</h2>
+            <form id="rsvpForm">
+                <div class="mb-3">
+                    <label for="rsvpName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="rsvpName" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="rsvpEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="rsvpEmail" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="rsvpPhone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="rsvpPhone" name="phone" required>
+                </div>
+                <div class="mb-3">
+                    <label for="rsvpAttending" class="form-label">Attending?</label>
+                    <select class="form-select" id="rsvpAttending" name="attending">
+                        <option value="yes">Yes, I'll be there!</option>
+                        <option value="no">No, I can't make it</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit RSVP</button>
+            </form>
+        </section>
+
+        <section id="attendees" class="mt-5">
+            <h2>Attendees</h2>
+            <div id="attendeeTicker">
+                <div class="ticker"></div>
+            </div>
+        </section>
+
+
+
+<!-- Registration -->
+
+
         <section id="register" class="row">
             <div class="col-md-7">
                 <h2>Register Now</h2>
                 <form id="registrationForm">
                     <div id="registrantFields">
-                        <div class="registrant">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tshirtSize" class="form-label">T-Shirt Size</label>
-                                <select class="form-select" id="tshirtSize" name="tshirtSize">
-                                    <option value="S">S</option>
-                                    <option value="M">M</option>
-                                    <option value="L">L</option>
-                                    <option value="XL">XL</option>
-                                    <option value="XXL">XXL</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="ageGroup" class="form-label">Age Group</label>
-                                <select class="form-select" id="ageGroup" name="ageGroup">
-                                    <option value="adult">Adult</option>
-                                    <option value="child">Child</option>
-                                </select>
-                            </div>
-                        </div>
+                        <!-- Registrant blocks will be dynamically added here -->
                     </div>
                     <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>
                 </form>
@@ -129,10 +147,9 @@
             <div class="col-md-5">
                 <div class="summary">
                     <h4>Registration Summary</h4>
-                    <ul id="registrantList" class="list-group">
-                        </ul>
+                    <ul id="registrantList" class="list-group"></ul>
                     <div class="mt-3">
-                        <strong>Total: $<span id="totalCost">0.00</span></strong>
+                        <strong>Total: <span id="totalCost">0.00</span></strong>
                     </div>
                     <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>
                 </div>
@@ -186,36 +203,31 @@
             </div>
         </section>
 
- <!-- Gallery -->
-<section id="gallery" class="mt-5">
-    <h2>Gallery</h2>
-    <div class="row" id="galleryGrid"></div>
 
-    <div class="mt-3">
-        <input type="file" id="uploadPhoto" accept="image/*">
-        <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload Photo</button>
-    </div>
-
-    <!-- Pagination Controls -->
-    <nav>
-        <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
-    </nav>
-</section>
-
-<!-- Modal for Enlarged Images -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">View Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Gallery Section -->
+        <section id="gallery" class="mt-5">  <h2>Gallery</h2>
+            <div class="row" id="galleryGrid"></div>  <div id="galleryNotification" class="alert" style="display: none;"></div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary" id="uploadButton">Upload Photo</button>
+                <input type="file" id="uploadPhoto" accept="image/*" style="display: none;">
             </div>
-            <div class="modal-body text-center">
-                <img id="modalImage" class="img-fluid" alt="Uploaded Image">
+
+            <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="imageModalLabel">View Image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img id="modalImage" class="img-fluid" alt="Uploaded Image">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+        </section>
 
 
         <section id="faq" class="mt-5">
@@ -267,14 +279,16 @@
                 </div>
                 </div>
         </section>
+<!-- Volunteer Section -->
 
-        <section id="volunteer" class="mt-5">
-            <h2>Volunteer</h2>
-            <p>We need volunteers to help make this reunion a success! If you're interested, please sign up.</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#volunteerModal">
-                Volunteer Signup
-            </button>
+<!--        <section id="volunteer" class="mt-5">-->
+<!--            <h2>Volunteer</h2>-->
+<!--            <p>We need volunteers to help make this reunion a success! If you're interested, please sign up.</p>-->
+<!--            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#volunteerModal">-->
+<!--                Volunteer Signup-->
+<!--            </button>-->
 
+            <!-- Volunteer Modal -->
             <div class="modal fade" id="volunteerModal" tabindex="-1" aria-labelledby="volunteerModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
@@ -321,16 +335,46 @@
         </section>
     </main>
 
-    <footer class="bg-light py-3 mt-5">
+  <footer class="bg-light py-3 mt-5">
         <div class="container text-center">
             <p>&copy; 2025 Family Reunion</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const canceled = urlParams.get('canceled');
+        const notificationDiv = document.getElementById('notification');
+
+        if (success) {
+            notificationDiv.classList.add('alert-success');
+            notificationDiv.textContent = 'Thank you for your registration!';
+            notificationDiv.style.display = 'block';
+        } else if (canceled) {
+            notificationDiv.classList.add('alert-danger');
+            notificationDiv.textContent = 'Payment canceled.';
+            notificationDiv.style.display = 'block';
+        }
+
+        // Optional: Clear URL parameters
+        // if (success || canceled) {
+        //     window.history.replaceState({}, document.title, window.location.pathname);
+        // }
+    </script>
+
+
+
+    <script>
+    const uploadButton = document.getElementById("uploadButton");
+    const uploadPhoto = document.getElementById("uploadPhoto");
+
+    uploadButton.addEventListener("click", () => {
+        uploadPhoto.click(); // Programmatically trigger the file input dialog
+    });
+    </script>
 </body>
 
 </html>
