@@ -39,7 +39,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip -x "venv/*" # This line was corrected
+        run: |
+          cd ${{ github.workspace }}  # Change to the project root directory
+          zip -r release.zip -x "venv/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -84,7 +86,7 @@ jobs:
         with:
           app-name: 'familyreunionapp'
           slot-name: 'Production'
-          package: .
+          package:.
 
       - name: Set Startup Command in Azure
         run: |
