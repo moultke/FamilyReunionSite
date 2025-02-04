@@ -87,12 +87,10 @@ jobs:
             --startup-file "gunicorn -w 4 -b 0.0.0.0:8000 app:app"
 
       - name: Enable Logging for Debugging
-        run: az webapp log config --name familyreunionapp --resource-group <your-resource-group> --application-logging true
+        run: |
+          az webapp log config --name familyreunionapp --resource-group <your-resource-group> --application-logging true
 
-      - name: **Pause to Allow App Restart**
+      - name: Pause to Allow App Restart
         run: |
           echo "Pausing for 30 seconds to allow the app to restart..."
           sleep 30
-
-      - name: Stream Logs (Optional Debugging)
-        run: az webapp log tail --name familyreunionapp --resource-group <your-resource-group>
