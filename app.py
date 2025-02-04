@@ -13,14 +13,10 @@ from flask import Flask, request, jsonify
 # from flask_mailman import Mail, EmailMessage
 import os
 
-
-
 secret_key = secrets.token_hex(32)
 
 # Load environment variables
 load_dotenv()
-
-
 
 UPLOAD_FOLDER = "uploads"
 app = Flask(__name__)
