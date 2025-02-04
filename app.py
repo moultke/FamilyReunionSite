@@ -27,14 +27,14 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Email configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your email provider
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # Update this
-app.config['MAIL_PASSWORD'] = 'your-email-password'  # Update this
-app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
-
-mail = Mail(app)
+# app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your email provider
+# app.config['MAIL_PORT'] = 587
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # Update this
+# app.config['MAIL_PASSWORD'] = 'your-email-password'  # Update this
+# app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+#
+# mail = Mail(app)
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'

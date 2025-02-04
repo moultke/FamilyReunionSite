@@ -10,10 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # This is required for actions/checkout
+      contents: read # Required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python version
         uses: actions/setup-python@v5
@@ -23,28 +24,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libjpeg-dev zlib1g-dev libtiff5-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl-dev tk-dev
+          sudo apt-get install -y libjpeg-dev zlib1g-dev libtiff5-dev libfreetype6-dev \
+                                  liblcms2-dev libwebp-dev tcl-dev tk-dev imagemagick
 
-      - name: Create and start virtual environment
+      - name: Create and activate virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      - name: Install Python dependencies
+        run: |
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip -r release.zip . -x "venv/*"  # Exclude virtual environment
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,8 +54,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # This is required for requesting the JWT
-      contents: read # This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -65,16 +66,29 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Login to Azure
+      - name: Log in to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9C5C2CD98B9F4B42ADE072BEF0DA633A }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9B59CBC3A05F4F3B8D8C428AABF40825 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_27F2A77CF2264D80B9BFAD98A99C8A86 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'familyreunionapp'
           slot-name: 'Production'
+          package: .
+
+      - name: Set Startup Command in Azure
+        run: |
+          az webapp config set --name familyreunionapp --resource-group <your-resource-group> \
+            --startup-file "gunicorn -w 4 -b 0.0.0.0:8000 app:app"
+
+      - name: Enable Logging for Debugging
+        run: az webapp log config --name familyreunionapp --resource-group <your-resource-group> --application-logging true
+
+      - name: Stream Logs (Optional Debugging)
+        run: az webapp log tail --name familyreunionapp --resource-group <your-resource-group>
+
