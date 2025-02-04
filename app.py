@@ -8,21 +8,92 @@ import uuid
 import sqlite3
 import stripe
 import time
+from PIL import Image  # Import Pillow (PIL Fork)
+from flask import Flask, request, jsonify
+# from flask_mailman import Mail, EmailMessage
+import os
+
+
 
 secret_key = secrets.token_hex(32)
 
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-app = Flask(__name__)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
 # Load environment variables
 load_dotenv()
+
+
+
+UPLOAD_FOLDER = "uploads"
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your email provider
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # Update this
+app.config['MAIL_PASSWORD'] = 'your-email-password'  # Update this
+app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+
+mail = Mail(app)
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'
+
+# if not os.path.exists(UPLOAD_FOLDER):
+#     os.makedirs(UPLOAD_FOLDER)
+
+# Ensure the upload directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    """ Check if the file has an allowed extension. """
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def convert_heic_to_jpg(filepath):
+    """ Convert HEIC to JPG using ImageMagick. """
+    jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"
+    try:
+        result = subprocess.run(["magick", filepath, jpg_filepath], check=True, capture_output=True, text=True)
+        os.remove(filepath)  # Delete the original HEIC file after conversion
+        return jpg_filepath
+    except subprocess.CalledProcessError as e:
+        print(f"Error converting {filepath} to JPG: {e.stderr}")
+        return None
+
+
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if request.method == "POST":
+        if "file" not in request.files:
+            return "No file part"
+
+        file = request.files["file"]
+        if file.filename == "":
+            return "No selected file"
+
+        if file and allowed_file(file.filename):
+            filename = file.filename
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(file_path)
+
+            # Convert if it's a HEIC file
+            if filename.lower().endswith(".heic"):
+                converted_path = convert_heic_to_jpg(file_path)
+                if converted_path:
+                    filename = os.path.basename(converted_path)
+
+            return f"File uploaded successfully: <a href='/uploads/{filename}'>{filename}</a>"
+
+    # Display uploaded images in the gallery
+    files = os.listdir(UPLOAD_FOLDER)
+    return render_template("index.html", files=files)
+
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 app.config['STRIPE_PUBLIC_KEY'] = os.environ.get('STRIPE_PUBLIC_KEY')
@@ -36,44 +107,47 @@ def get_db():
     """Get a database connection."""
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE, check_same_thread=False)  # Corrected: removed extra space
-        db.row_factory = sqlite3.Row
-
-        with db:  # Use a single 'with db:' block for ALL database operations
-            db.execute(
-                '''
-                CREATE TABLE IF NOT EXISTS registrations (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    tshirt_size TEXT,
-                    age_group TEXT,
-                    price REAL,
-                    session_id TEXT,
-                    stripe_session_id TEXT
-                )
-                '''
-            )
-
-            # Add the stripe_session_id column if it doesn't exist (idempotent)
-            try:
-                db.execute("SELECT stripe_session_id FROM registrations LIMIT 1")
-            except sqlite3.OperationalError:
-                db.execute("ALTER TABLE registrations ADD COLUMN stripe_session_id TEXT")
-
-            # Create the RSVPs table (INSIDE the 'with db:' block)
-            db.execute(
-                '''
-                CREATE TABLE IF NOT EXISTS rsvps (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    email TEXT NOT NULL,
-                    phone TEXT NOT NULL,
-                    attending TEXT NOT NULL
-                )
-                '''
-            )
-
+        db = g._database = sqlite3.connect(DATABASE, check_same_thread=False)
+        db.row_factory = sqlite3.Row  # Allows fetching rows as dictionaries
     return db
+
+
+def init_db():
+    """Initialize database tables once at startup."""
+    with sqlite3.connect(DATABASE) as db:
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS registrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                tshirt_size TEXT,
+                age_group TEXT,
+                price REAL,
+                session_id TEXT,
+                stripe_session_id TEXT
+            )
+            '''
+        )
+
+        # Add stripe_session_id column if missing
+        try:
+            db.execute("SELECT stripe_session_id FROM registrations LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE registrations ADD COLUMN stripe_session_id TEXT")
+
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS rsvps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                attending TEXT NOT NULL
+            )
+            '''
+        )
+
+
 
 
 @app.teardown_appcontext
@@ -133,12 +207,14 @@ def register():
 def admin():
     try:
         db = get_db()
-        registrations = db.execute('SELECT id, name, tshirt_size, age_group, price FROM registrations').fetchall()
+        registrations = db.execute(
+            'SELECT id, name, tshirt_size, age_group, price FROM registrations'
+        ).fetchall()
         return render_template('admin.html', registrations=registrations)
-
     except Exception as e:
         print(f"❌ Admin Page Error: {e}")
         return jsonify({'error': 'Failed to load admin page'}), 500
+
 
 
 @app.route('/create-checkout-session', methods=['POST'])
@@ -252,9 +328,9 @@ def get_attendee_names():
     return ["John Doe", "Jane Smith", "Peter Jones"]
 
 # Add this route to serve uploaded files
-@app.route('/static/uploads/<filename>')  # Correct path for serving images
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename) # Use send_from_directory
+# @app.route('/static/uploads/<filename>')  # Correct path for serving images
+# def uploaded_file(filename):
+#     return send_from_directory(app.config['UPLOAD_FOLDER'], filename) # Use send_from_directory
 
 
 @app.route('/images')
@@ -262,7 +338,9 @@ def get_images():
     limit = int(request.args.get('limit', 10))  # Default limit to 10
     offset = int(request.args.get('offset', 0))  # Default offset to 0
 
-    # Example using file system (adapt to your needs):
+    if not os.path.exists(UPLOAD_FOLDER):  # Check if directory exists
+        return jsonify({'images': [], 'total_images': 0})
+
     images = [
         f for f in os.listdir(UPLOAD_FOLDER)
         if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and f.lower().endswith(('png', 'jpg', 'jpeg', 'gif'))
@@ -275,6 +353,73 @@ def get_images():
     return jsonify({'images': image_urls, 'total_images': total_images})
 
 
+# @app.route('/upload-image', methods=['POST'])
+# def upload_image():
+#     if 'image' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
+#
+#     file = request.files['image']
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
+#
+#     if file and file.filename.split('.')[-1].lower() in ALLOWED_EXTENSIONS:
+#         filename = secure_filename(file.filename)
+#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#         file.save(file_path)
+#
+#         return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+#
+#     return jsonify({'error': 'Invalid file format'}), 400
+
+# @app.route('/upload-image', methods=['POST'])
+# def upload_image():
+#     if 'image' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
+#
+#     file = request.files['image']
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
+#
+#     filename = secure_filename(file.filename)
+#     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#
+#     try:
+#         if file and filename.split('.')[-1].lower() in ALLOWED_EXTENSIONS:
+#             if filename.lower().endswith('.heic'):  # HEIC handling
+#                 try:
+#                     heif_file = pyheif.read(file) # Reads the HEIC file
+#                     img = Image.frombytes( # converts to a PIL Image object
+#                         heif_file.mode,
+#                         heif_file.size,
+#                         heif_file.data,
+#                         "raw",
+#                         heif_file.mode,
+#                         heif_file.stride,
+#                     )
+#
+#                     new_filename = os.path.splitext(filename)[0] + ".jpeg"
+#                     new_file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+#                     img.save(new_file_path, "JPEG") # Saves as JPEG
+#                     filename = new_filename
+#                     file_path = new_file_path
+#
+#                 except pyheif.HeifError as e:  # Catch pyheif specific errors
+#                     print(f"HEIC Decoding Error (pyheif): {e}")
+#                     return jsonify({'error': f"Error decoding HEIC: {e}"}), 500
+#                 except Exception as e:  # Catch other potential errors
+#                     print(f"HEIC Conversion Error: {e}")
+#                     return jsonify({'error': 'Error converting HEIC to JPEG'}), 500
+#             else: # Not a HEIC file
+#                 file.save(file_path)  # Save other files as is
+#
+#             return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+#         else:
+#             return jsonify({'error': 'Invalid file format'}), 400
+#
+#     except Exception as e:  # General exception handler
+#         print(f"File Upload Error: {e}")
+#         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -284,14 +429,31 @@ def upload_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    if file and file.filename.split('.')[-1].lower() in ALLOWED_EXTENSIONS:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+    try:
+        # 🔴 Save the file FIRST before conversion
         file.save(file_path)
+
+        # ✅ Ensure the file exists before processing
+        if not os.path.exists(file_path):
+            return jsonify({'error': f"File was not saved correctly: {file_path}"}), 500
+
+        # 🟢 Convert if it's a HEIC file
+        if filename.lower().endswith('.heic'):
+            converted_path = convert_heic_to_jpg(file_path)
+            if converted_path:
+                filename = os.path.basename(converted_path)
+                file_path = converted_path  # Update path to the converted file
+            else:
+                return jsonify({'error': "HEIC conversion failed"}), 500
 
         return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
 
-    return jsonify({'error': 'Invalid file format'}), 400
+    except Exception as e:
+        print(f"File Upload Error: {e}")
+        return jsonify({'error': f"File upload failed: {str(e)}"}), 500
 
 
 @app.route('/success')
@@ -379,7 +541,8 @@ def success():
         return "An error occurred."
 
 
-
+# Initialize the database at startup
+init_db()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
