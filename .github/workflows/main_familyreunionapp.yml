@@ -39,7 +39,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "venv/*"
+        run: zip -r release.zip. -x "venv/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -73,13 +73,18 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9B59CBC3A05F4F3B8D8C428AABF40825 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_27F2A77CF2264D80B9BFAD98A99C8A86 }}
 
+      - name: Install libjpeg62-turbo-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libjpeg62-turbo-dev 
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'familyreunionapp'
           slot-name: 'Production'
-          package: .
+          package:.
 
       - name: Set Startup Command in Azure
         run: |
