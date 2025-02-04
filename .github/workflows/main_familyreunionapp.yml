@@ -86,8 +86,10 @@ jobs:
           az webapp config set --name familyreunionapp --resource-group FamilyReunion \
             --startup-file "gunicorn -w 4 -b 0.0.0.0:8000 app:app"
 
-      - name: Enable Logging for Debugging
-        run: az webapp log config --name familyreunionapp --resource-group FamilyReunion --application-logging true
+      - name: Enable Application Logging
+        run: |
+          az webapp log config --name familyreunionapp --resource-group FamilyReunion \
+            --application-logging filesystem --level error --retention 7
 
       - name: Restart Azure Web App
         run: az webapp restart --name familyreunionapp --resource-group FamilyReunion
