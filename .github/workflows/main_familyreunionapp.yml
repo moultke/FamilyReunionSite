@@ -86,7 +86,7 @@ jobs:
         with:
           app-name: 'familyreunionapp'
           slot-name: 'Production'
-          package:.
+          package: .
 
       - name: Set Startup Command in Azure
         run: |
