@@ -38,9 +38,12 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: List workspace files
+        run: ls -l ${{ github.workspace }}
+
       - name: Zip artifact for deployment
         run: |
-          cd ${{ github.workspace }}  # Change to the project root directory
+          cd ${{ github.workspace }}
           zip -r release.zip -x "venv/*"
 
       - name: Upload artifact for deployment jobs
