@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # Required for actions/checkout
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -39,7 +39,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "venv/*"  # Exclude virtual environment
+        run: zip -r release.zip . -x "venv/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -89,7 +89,7 @@ jobs:
       - name: Enable Application Logging
         run: |
           az webapp log config --name familyreunionapp --resource-group FamilyReunion \
-            --application-logging filesystem --level error --retention 7
+            --application-logging filesystem --level error
 
       - name: Restart Azure Web App
         run: az webapp restart --name familyreunionapp --resource-group FamilyReunion
