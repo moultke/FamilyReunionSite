@@ -108,11 +108,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-
-
-
-
-
     function populateTicker(attendees) {
     attendeeTicker.innerHTML = ""; // Clear previous content
 
@@ -299,40 +294,77 @@ document.addEventListener("DOMContentLoaded", function () {
     //        imageModal.show();
     //    }
 
-    function uploadImage() {
-        const file = uploadPhoto.files[0];
-        if (!file) {
-            showNotification("Please select an image to upload.", "danger", galleryNotification);
-            return;
-        }
-        const formData = new FormData();
-        formData.append("image", file);
+//    function uploadImage() {
+//        const file = uploadPhoto.files[0];
+//        if (!file) {
+//            showNotification("Please select an image to upload.", "danger", galleryNotification);
+//            return;
+//        }
+//        const formData = new FormData();
+//        formData.append("image", file);
+//
+//        fetch("/upload-image", {
+//            method: "POST",
+//            body: formData
+//        })
+//            .then(response => {
+//                if (!response.ok) {
+//                    throw new Error(`HTTP error! status: ${response.status}`);
+//                }
+//                return response.json();
+//            })
+//            .then(data => {
+//                console.log("Upload response:", data);
+//                if (data.success) {
+//                    showNotification("Image uploaded successfully!", "success", galleryNotification);
+//                    uploadPhoto.value = "";
+//                    fetchGalleryImages();
+//                } else {
+//                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification);
+//                }
+//            })
+//            .catch(error => {
+//                console.error("❌ Upload error:", error);
+//                showNotification("An error occurred during upload. Please try again.", "danger", galleryNotification);
+//            });
+//    }
 
-        fetch("/upload-image", {
-            method: "POST",
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Upload response:", data);
-                if (data.success) {
-                    showNotification("Image uploaded successfully!", "success", galleryNotification);
-                    uploadPhoto.value = "";
-                    fetchGalleryImages();
-                } else {
-                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification);
-                }
-            })
-            .catch(error => {
-                console.error("❌ Upload error:", error);
-                showNotification("An error occurred during upload. Please try again.", "danger", galleryNotification);
-            });
+    function uploadImage() {
+    const file = uploadPhoto.files[0];
+    if (!file) {
+        showNotification("Please select an image to upload.", "danger", galleryNotification);
+        return;
     }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    fetch("/upload-image", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(err => {throw new Error(`HTTP error! status: ${response.status}, ${err}`);}); // Include error message from server
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Upload response:", data);
+            if (data.success) {
+                showNotification("Image uploaded successfully!", "success", galleryNotification);
+                uploadPhoto.value = "";
+                fetchGalleryImages();
+            } else {
+                showNotification("Image upload failed: " + data.error, "danger", galleryNotification); // Display server error
+            }
+        })
+        .catch(error => {
+            console.error("❌ Upload error:", error);
+            showNotification("An error occurred during upload. Please try again. " + error.message, "danger", galleryNotification); // Include error message
+        });
+    }
+
 
     fetchGalleryImages();
     uploadPhoto.addEventListener("change", uploadImage); // Use addEventListener
