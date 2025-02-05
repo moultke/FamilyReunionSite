@@ -9,13 +9,16 @@ import uuid
 import sqlite3
 import stripe
 import time
-# from PIL import Image  # Import Pillow (PIL Fork)
 import cv2  # Add this line (OpenCV import)
 import numpy as np  # Add this line (NumPy import)
 from flask import Flask, request, jsonify
 # from flask_mailman import Mail, EmailMessage
 import os
 import logging
+import smtplib
+from email.mime.text import MIMEText
+
+
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
@@ -591,7 +594,37 @@ def get_attendee_names():
 #     return send_from_directory(app.config['UPLOAD_FOLDER'], filename) # Use send_from_directory
 
 
+@app.route('/contact', methods=['POST'])
+def contact():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
 
+        if not all([name, email, message]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        sender_email = "info@milliganaiken.com"
+        receiver_email = "recipient-email@example.com"
+        password = os.getenv('MAIL_PASSWORD')
+
+        msg = MIMEText(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
+        msg['Subject'] = f"New Contact Form Submission from {name}"
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
+
+        return jsonify({'success': True, 'message': 'Email sent successfully!'})
+
+    except Exception as e:
+        print(f"❌ Email Sending Error: {e}")
+        return jsonify({'error': 'Failed to send email'}), 500
 
 
 @app.route('/success')
