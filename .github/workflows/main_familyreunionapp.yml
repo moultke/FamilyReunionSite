@@ -84,7 +84,8 @@ jobs:
       - name: Set Startup Command in Azure
         run: |
           az webapp config set --name familyreunionapp --resource-group FamilyReunion \
-            --startup-file "export LD_LIBRARY_PATH=/opt/homebrew/opt/jpeg/lib && gunicorn -w 4 -b 0.0.0.0:8000 app:app"
+            --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app
+"
 
       - name: Enable detailed logging
         run: |
