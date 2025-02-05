@@ -251,14 +251,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("📸 Images fetched:", data);
                 galleryGrid.innerHTML = "";
 
-                if (data.images && data.images.length === 0) {
-                    galleryGrid.innerHTML = "<p class='text-center'>No images uploaded yet.</p>";
+                if (!data.images || data.images.length === 0) {
+                    console.log("📸 No images found in database.");
                     return;
                 }
 
                 if (data.images) {
-                    data.images.forEach(imgUrl => {
-                        const fullImageUrl = baseUrl + imgUrl;
+                    data.images.forEach(image => {
+                        const fullImageUrl = `${baseUrl}/uploads/${image.filename}`;
 
                         const col = document.createElement("div");
                         col.className = "col-md-3 mb-3";
@@ -367,7 +367,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     fetchGalleryImages();
-    uploadPhoto.addEventListener("change", uploadImage); // Use addEventListener
+//    uploadPhoto.addEventListener("change", uploadImage); // Use addEventListener
+    document.getElementById("uploadPhoto").addEventListener("change", uploadImage);
 
 
     // Registration/Payment functions
