@@ -84,8 +84,7 @@ jobs:
       - name: Set Startup Command in Azure
         run: |
           az webapp config set --name familyreunionapp --resource-group FamilyReunion \
-            --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app
-"
+            --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app"
 
       - name: Enable detailed logging
         run: |
