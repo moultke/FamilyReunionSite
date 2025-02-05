@@ -1,4 +1,4 @@
-name: Build and deploy Python app to Azure Web App - familyreunionapp
+name: Build and deploy Python app to Azure Web App - familyreunion2025app
 
 on:
   push:
@@ -19,11 +19,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libjpeg-dev zlib1g-dev libtiff5-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl-dev tk-dev
 
       - name: Create and start virtual environment
         run: |
@@ -73,7 +68,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'familyreunionapp'
+          app-name: 'familyreunion2025app'
           slot-name: 'Production'
 
       - name: Install libjpeg-dev as an alternative
@@ -83,10 +78,10 @@ jobs:
 
       - name: Set Startup Command in Azure
         run: |
-          az webapp config set --name familyreunionapp --resource-group FamilyReunion \
+          az webapp config set --name familyreunion2025app --resource-group FamilyReunion \
             --startup-file "gunicorn -w 4 app:app"
 
       - name: Enable detailed logging
         run: |
-          az webapp log config --name familyreunionapp --resource-group FamilyReunion \
+          az webapp log config --name familyreunion2025app --resource-group FamilyReunion \
             --detailed-error-messages true --failed-request-tracing true
