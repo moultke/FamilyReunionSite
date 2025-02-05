@@ -64,6 +64,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9B59CBC3A05F4F3B8D8C428AABF40825 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_27F2A77CF2264D80B9BFAD98A99C8A86 }}
 
+      # Check role assignment after login
+      - name: Check Azure Role Assignment
+        run: |
+          az role assignment list --assignee ${{ secrets.AZUREAPPSERVICE_CLIENTID_9C5C2CD98B9F4B42ADE072BEF0DA633A }} --output table
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
