@@ -18,6 +18,8 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 
+os.system("apt-get update && apt-get install -y libgl1")
+
 
 
 # Configure Logging information
