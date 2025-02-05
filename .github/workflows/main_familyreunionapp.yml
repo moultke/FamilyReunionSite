@@ -76,10 +76,10 @@ jobs:
           app-name: 'familyreunionapp'
           slot-name: 'Production'
 
-      - name: Install libjpeg-turbo
+      - name: Install libjpeg-dev as an alternative
         run: |
           sudo apt-get update
-          sudo apt-get install -y libjpeg-turbo
+          sudo apt-get install -y libjpeg-dev
 
       - name: Set Startup Command in Azure
         run: |
