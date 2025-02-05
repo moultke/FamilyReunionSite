@@ -21,7 +21,7 @@ from email.mime.text import MIMEText
 
 
 # Configure Logging information
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 secret_key = secrets.token_hex(32)
 
