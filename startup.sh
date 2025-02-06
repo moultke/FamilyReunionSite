@@ -1,12 +1,18 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
+# Exit on any error
 set -e
 
-# Ensure the script runs from the project root
+# Ensure script runs from project root
 cd "$(dirname "$0")"
 
-# Ensure virtual environment exists and is created using Python 3.10
+# Ensure Python 3.10 is installed
+if ! command -v python3.10 &>/dev/null; then
+  echo "Error: Python 3.10 is not installed."
+  exit 1
+fi
+
+# Ensure virtual environment exists
 if [ ! -d ".venv" ]; then
   python3.10 -m venv .venv
 fi
@@ -14,11 +20,14 @@ fi
 # Activate virtual environment
 source .venv/bin/activate
 
-# Ensure system dependencies are installed
-apt-get update && apt-get install -y libgl1 libglib2.0-dev
+# Check if running on Azure App Service and skip apt-get if so
+if [[ -z "$WEBSITES_PORT" ]]; then
+  apt-get update && apt-get install -y libgl1 libglib2.0-dev
+fi
 
 # Ensure Python dependencies are installed
 pip install --no-cache-dir -r requirements.txt
 
 # Start Gunicorn on the correct Azure Web App port
-exec gunicorn --workers 4 --bind 0.0.0.0:${PORT:-8000} app:app
+exec gunicorn --workers 4 --bind 0.0.0.0:${WEBSITES_PORT:-8000} app:app
+
