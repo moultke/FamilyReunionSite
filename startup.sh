@@ -1,9 +1,16 @@
 #!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Ensure the script runs from the project root
+cd "$(dirname "$0")"
+
 # Activate virtual environment
 source venv/bin/activate
 
-# Install missing dependencies
-apt-get update && apt-get install -y libgl1
+# Ensure system dependencies are installed
+apt-get update && apt-get install -y libgl1 libglib2.0-dev
 
 # Start Gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
+exec gunicorn --workers 4 --bind 0.0.0.0:8000 app:app

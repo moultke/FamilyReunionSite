@@ -1,4 +1,4 @@
-name: Build and deploy Python app to Azure Web App - familyreunion2025app
+name: Build and deploy Python app to Azure Web App - ourfamilyreunion2025
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install system dependencies
         run: |
@@ -78,6 +78,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'familyreunion2025app'
+          app-name: 'ourfamilyreunion2025'
           slot-name: 'Production'
-          startup-command: "gunicorn --bind=0.0.0.0:8000 app:app"
+          startup-command: "./startup.sh"
