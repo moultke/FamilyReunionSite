@@ -714,7 +714,7 @@ def success():
         return "An error occurred."
 
 
-# Initialize the database at startup with its ready for gametime
+# Initialize the database at startup with its ready for me
 init_db()
 
 if __name__ == "__main__":
