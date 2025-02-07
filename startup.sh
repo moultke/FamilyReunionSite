@@ -17,12 +17,19 @@ else
 fi
 
 # Ensure the virtual environment exists
-if [ ! -d "venv" ]; then
+if [ ! -d "venv" ] && [ ! -d ".venv" ]; then
   $PYTHON_CMD -m venv venv
 fi
 
 # Activate the virtual environment
-source venv/bin/activate
+if [ -d "venv" ]; then
+  source venv/bin/activate
+elif [ -d ".venv" ]; then
+  source .venv/bin/activate
+else
+  echo "Error: No virtual environment found."
+  exit 1
+fi
 
 # Ensure `requirements.txt` exists before installing dependencies
 if [ ! -f requirements.txt ]; then
@@ -32,6 +39,9 @@ fi
 
 # Install dependencies
 pip install --no-cache-dir -r requirements.txt
+
+# Ensure `wheel` is installed to prevent legacy install issues
+pip install --no-cache-dir wheel
 
 # Set the Flask app environment variable
 export FLASK_APP=app.py
