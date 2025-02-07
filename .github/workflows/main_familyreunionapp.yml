@@ -24,15 +24,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1 libglib2.0-dev
-
       - name: Create and start virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
-
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
-        
+
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r -x "venv/*"
 
@@ -43,7 +41,6 @@ jobs:
           path: |
             release.zip
             !venv/
-
   deploy:
     runs-on: ubuntu-latest
     needs: build

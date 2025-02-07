@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Exit on any error
+# Exit immediately if a command exits with a non-zero status
 set -e
 
-# Ensure script runs from project root
+# Navigate to the directory containing the script
 cd "$(dirname "$0")"
 
-# Detect and use the correct Python version (3.10 preferred, fallback to 3.9)
+# Detect and use the available Python version (preferring 3.10, then 3.9)
 if command -v python3.10 &>/dev/null; then
   PYTHON_CMD=python3.10
 elif command -v python3.9 &>/dev/null; then
@@ -16,31 +16,34 @@ else
   exit 1
 fi
 
-# Ensure virtual environment exists
+# Ensure the virtual environment exists
 if [ ! -d ".venv" ]; then
   $PYTHON_CMD -m venv .venv
 fi
 
-# Activate virtual environment
+# Activate the virtual environment
 source .venv/bin/activate
 
-# Check if running on Azure App Service and skip apt-get if so
-if [[ -z "$WEBSITES_PORT" ]]; then
-  apt-get update && apt-get install -y libgl1 libglib2.0-dev
-fi
-
-# Ensure Python dependencies are installed
+# Install Python dependencies
 pip install --no-cache-dir -r requirements.txt
 
-# Ensure Flask is installed
-pip install --no-cache-dir flask
+# Set the Flask app environment variable
+export FLASK_APP=app.py
 
-# Set Flask app environment variable
-export FLASK_APP=app
+# Check if running on Azure App Service
+if [[ -n "$WEBSITES_PORT" ]]; then
+  # Running on Azure App Service
 
-# Log message for debugging
-echo "Starting Flask application on port ${PORT:-8000}..."
+  # Start the Flask app using Gunicorn
+  echo "Starting Flask application with Gunicorn on port ${PORT:-8000}..."
+  exec gunicorn --bind=0.0.0.0:${PORT:-8000} --timeout 600 app:app
+else
+  # Running locally
 
-# Start Flask app
-exec flask run --host=0.0.0.0 --port=${PORT:-8000}
+  # Install system dependencies
+  sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-dev
 
+  # Start the Flask app using the built-in server
+  echo "Starting Flask application locally on port ${PORT:-8000}..."
+  exec flask run --host=0.0.0.0 --port=${PORT:-8000}
+fi
