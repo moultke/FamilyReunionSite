@@ -29,5 +29,5 @@ fi
 pip install --no-cache-dir -r requirements.txt
 
 # Start Gunicorn on the correct Azure Web App port
-exec gunicorn --workers 4 --bind 0.0.0.0:$PORT app:app
+exec gunicorn --workers 4 --bind 0.0.0.0:${WEBSITES_PORT:-8000} app:app
 
