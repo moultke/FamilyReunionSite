@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="startup, requirement and yml updates">
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="html updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,14 +82,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00017" summary="massive updates">
-      <option name="closed" value="true" />
-      <created>1738620928937</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1738620928937</updated>
     </task>
     <task id="LOCAL-00018" summary="massive updates redeploy">
       <option name="closed" value="true" />
@@ -474,11 +467,18 @@
       <option name="project" value="LOCAL" />
       <updated>1738900958763</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="html updates">
+      <option name="closed" value="true" />
+      <created>1738934662337</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1738934662338</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update yams and requirements" />
     <MESSAGE value="update yams and requirements with space" />
     <MESSAGE value="yaml updated" />
     <MESSAGE value="yaml updated again" />
@@ -503,6 +503,7 @@
     <MESSAGE value="startup.sh remove gunicorn" />
     <MESSAGE value="startup.sh and yml both updated" />
     <MESSAGE value="startup, requirement and yml updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="startup, requirement and yml updates" />
+    <MESSAGE value="html updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="html updates" />
   </component>
 </project>
