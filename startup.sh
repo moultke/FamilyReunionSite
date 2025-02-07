@@ -6,15 +6,19 @@ set -e
 # Ensure script runs from project root
 cd "$(dirname "$0")"
 
-# Ensure Python 3.10 is installed
-if ! command -v python3.10 &>/dev/null; then
-  echo "Error: Python 3.10 is not installed."
+# Detect and use the correct Python version (3.10 preferred, fallback to 3.9)
+if command -v python3.10 &>/dev/null; then
+  PYTHON_CMD=python3.10
+elif command -v python3.9 &>/dev/null; then
+  PYTHON_CMD=python3.9
+else
+  echo "Error: Neither Python 3.10 nor 3.9 is installed."
   exit 1
 fi
 
 # Ensure virtual environment exists
 if [ ! -d ".venv" ]; then
-  python3.10 -m venv .venv
+  $PYTHON_CMD -m venv .venv
 fi
 
 # Activate virtual environment
@@ -28,6 +32,14 @@ fi
 # Ensure Python dependencies are installed
 pip install --no-cache-dir -r requirements.txt
 
-# Start Gunicorn on the correct Azure Web App port
-exec gunicorn --workers 4 --bind 0.0.0.0:${WEBSITES_PORT:-8000} app:app
+# Ensure Flask is installed
+pip install --no-cache-dir flask
 
+# Set Flask app environment variable
+export FLASK_APP=app
+
+# Log message for debugging
+echo "Starting Flask application on port ${PORT:-8000}..."
+
+# Start Flask app
+exec flask run --host=0.0.0.0 --port=${PORT:-8000}
