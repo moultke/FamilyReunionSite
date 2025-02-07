@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="startup, requirement and yml updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/startup.sh" beforeDir="false" afterPath="$PROJECT_DIR$/startup.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,14 +81,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00016" summary="updated requirements.txt with pyheif">
-      <option name="closed" value="true" />
-      <created>1738385452943</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1738385452943</updated>
     </task>
     <task id="LOCAL-00017" summary="massive updates">
       <option name="closed" value="true" />
@@ -475,7 +466,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738898957802</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="startup, requirement and yml updates">
+      <option name="closed" value="true" />
+      <created>1738900958763</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1738900958763</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
