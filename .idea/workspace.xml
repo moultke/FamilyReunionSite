@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="update startup.sh">
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="startup.sh remove gunicorn">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/main_familyreunionapp.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/main_familyreunionapp.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/startup.sh" beforeDir="false" afterPath="$PROJECT_DIR$/startup.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -15,8 +16,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -46,20 +47,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python.app.executor": "Run",
-    "Python.heic-test-file.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.testheic.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/moultke/PycharmProjects/FamilyReunionSite",
-    "run.code.analysis.last.selected.profile": "aDefault",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.heic-test-file.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testheic.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/moultke/PycharmProjects/FamilyReunionSite&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -81,6 +82,86 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
+    </task>
+    <task id="LOCAL-00013" summary="updated requirements.txt">
+      <option name="closed" value="true" />
+      <created>1738384513623</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1738384513623</updated>
+    </task>
+    <task id="LOCAL-00014" summary="updated requirements.txt with stripe">
+      <option name="closed" value="true" />
+      <created>1738384892122</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1738384892122</updated>
+    </task>
+    <task id="LOCAL-00015" summary="updated requirements.txt with pyheif">
+      <option name="closed" value="true" />
+      <created>1738385092334</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1738385092334</updated>
+    </task>
+    <task id="LOCAL-00016" summary="updated requirements.txt with pyheif">
+      <option name="closed" value="true" />
+      <created>1738385452943</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1738385452943</updated>
+    </task>
+    <task id="LOCAL-00017" summary="massive updates">
+      <option name="closed" value="true" />
+      <created>1738620928937</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1738620928937</updated>
+    </task>
+    <task id="LOCAL-00018" summary="massive updates redeploy">
+      <option name="closed" value="true" />
+      <created>1738621518856</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1738621518856</updated>
+    </task>
+    <task id="LOCAL-00019" summary="pillow update">
+      <option name="closed" value="true" />
+      <created>1738623731878</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1738623731878</updated>
+    </task>
+    <task id="LOCAL-00020" summary="yml update">
+      <option name="closed" value="true" />
+      <created>1738625042483</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1738625042483</updated>
+    </task>
+    <task id="LOCAL-00021" summary="yml update again">
+      <option name="closed" value="true" />
+      <created>1738625256290</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1738625256290</updated>
+    </task>
+    <task id="LOCAL-00022" summary="yml update again">
+      <option name="closed" value="true" />
+      <created>1738625346641</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1738625346641</updated>
     </task>
     <task id="LOCAL-00023" summary="added HEIC capabilities">
       <option name="closed" value="true" />
@@ -370,114 +451,45 @@
       <option name="project" value="LOCAL" />
       <updated>1738744934640</updated>
     </task>
-    <task id="LOCAL-00059" summary="new changes. good morning">
+    <task id="LOCAL-00059" summary="old startup.sh">
       <option name="closed" value="true" />
-      <created>1738759831512</created>
+      <created>1738890992326</created>
       <option name="number" value="00059" />
       <option name="presentableId" value="LOCAL-00059" />
       <option name="project" value="LOCAL" />
-      <updated>1738759831512</updated>
+      <updated>1738890992327</updated>
     </task>
-    <task id="LOCAL-00060" summary="startup.sh">
+    <task id="LOCAL-00060" summary="startup.sh remove gunicorn">
       <option name="closed" value="true" />
-      <created>1738763502749</created>
+      <created>1738891506563</created>
       <option name="number" value="00060" />
       <option name="presentableId" value="LOCAL-00060" />
       <option name="project" value="LOCAL" />
-      <updated>1738763502749</updated>
+      <updated>1738891506563</updated>
     </task>
-    <task id="LOCAL-00061" summary="requirements update">
+    <task id="LOCAL-00061" summary="startup.sh remove gunicorn">
       <option name="closed" value="true" />
-      <created>1738776775764</created>
+      <created>1738891627733</created>
       <option name="number" value="00061" />
       <option name="presentableId" value="LOCAL-00061" />
       <option name="project" value="LOCAL" />
-      <updated>1738776775764</updated>
+      <updated>1738891627733</updated>
     </task>
-    <task id="LOCAL-00062" summary="yaml update">
-      <option name="closed" value="true" />
-      <created>1738847931959</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1738847931959</updated>
-    </task>
-    <task id="LOCAL-00063" summary="downgrade of runtime">
-      <option name="closed" value="true" />
-      <created>1738853375700</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1738853375700</updated>
-    </task>
-    <task id="LOCAL-00064" summary="completed access steps">
-      <option name="closed" value="true" />
-      <created>1738858459928</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1738858459928</updated>
-    </task>
-    <task id="LOCAL-00065" summary="completed access steps addition">
-      <option name="closed" value="true" />
-      <created>1738860669990</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1738860669990</updated>
-    </task>
-    <task id="LOCAL-00066" summary="additional credential update">
-      <option name="closed" value="true" />
-      <created>1738861325329</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1738861325329</updated>
-    </task>
-    <task id="LOCAL-00067" summary="update again">
-      <option name="closed" value="true" />
-      <created>1738864652373</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1738864652373</updated>
-    </task>
-    <task id="LOCAL-00068" summary="start up update">
-      <option name="closed" value="true" />
-      <created>1738867874374</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1738867874374</updated>
-    </task>
-    <task id="LOCAL-00069" summary="picture updates">
-      <option name="closed" value="true" />
-      <created>1738870577832</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1738870577834</updated>
-    </task>
-    <task id="LOCAL-00070" summary="many updates added session">
-      <option name="closed" value="true" />
-      <created>1738887615148</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1738887615148</updated>
-    </task>
-    <task id="LOCAL-00071" summary="update startup.sh">
-      <option name="closed" value="true" />
-      <created>1738889992605</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1738889992606</updated>
-    </task>
-    <option name="localTasksCounter" value="72" />
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="YAML love affair" />
+    <MESSAGE value="update requirements.txt" />
+    <MESSAGE value="update yams and requirements" />
+    <MESSAGE value="update yams and requirements with space" />
+    <MESSAGE value="yaml updated" />
+    <MESSAGE value="yaml updated again" />
+    <MESSAGE value="revert yams" />
+    <MESSAGE value="revert yams dot" />
+    <MESSAGE value="old yams" />
+    <MESSAGE value="new yml with path for jpg" />
+    <MESSAGE value="another yml error" />
     <MESSAGE value="remove turbo" />
     <MESSAGE value="eliminated pillow" />
     <MESSAGE value="fixed startup command" />
@@ -490,19 +502,8 @@
     <MESSAGE value="credentials set" />
     <MESSAGE value="access corrected" />
     <MESSAGE value="many changes. good night" />
-    <MESSAGE value="new changes. good morning" />
-    <MESSAGE value="startup.sh" />
-    <MESSAGE value="requirements update" />
-    <MESSAGE value="yaml update" />
-    <MESSAGE value="downgrade of runtime" />
-    <MESSAGE value="completed access steps" />
-    <MESSAGE value="completed access steps addition" />
-    <MESSAGE value="additional credential update" />
-    <MESSAGE value="update again" />
-    <MESSAGE value="start up update" />
-    <MESSAGE value="picture updates" />
-    <MESSAGE value="many updates added session" />
-    <MESSAGE value="update startup.sh" />
-    <option name="LAST_COMMIT_MESSAGE" value="update startup.sh" />
+    <MESSAGE value="old startup.sh" />
+    <MESSAGE value="startup.sh remove gunicorn" />
+    <option name="LAST_COMMIT_MESSAGE" value="startup.sh remove gunicorn" />
   </component>
 </project>
