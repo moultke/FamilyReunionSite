@@ -75,7 +75,9 @@ jobs:
           allow-no-subscriptions: true
 
       - name: Set environment variables
-        run: echo "FLASK_APP=app.py" >> $GITHUB_ENV
+        run: |
+          echo "FLASK_APP=app.py" >> $GITHUB_ENV
+          echo "PORT=8000" >> $GITHUB_ENV
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
