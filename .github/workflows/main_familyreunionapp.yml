@@ -25,30 +25,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1 libglib2.0-dev
 
-      - name: Remove existing virtual environment (if any)
-        run: rm -rf venv .venv
-
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-
-      - name: Upgrade pip and install dependencies
-        run: |
-          source venv/bin/activate
-          pip install --upgrade pip wheel
-          pip install --no-cache-dir -r requirements.txt
+      # Removed virtual environment and dependency installation steps
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r -x "venv/*"
+        run: zip release.zip ./* -r -x "venv/*" ".github/*" "release.zip"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -77,10 +63,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
-      - name: Set environment variables
-        run: |
-          echo "FLASK_APP=app.py" >> $GITHUB_ENV
-          echo "PORT=8000" >> $GITHUB_ENV
+      # Removed environment variable setting from workflow
+      #- name: Set environment variables
+      #  run: |
+      #    echo "FLASK_APP=app.py" >> $GITHUB_ENV
+      #    echo "PORT=8000" >> $GITHUB_ENV
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
