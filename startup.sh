@@ -17,33 +17,37 @@ else
 fi
 
 # Ensure the virtual environment exists
-if [ ! -d ".venv" ]; then
-  $PYTHON_CMD -m venv .venv
+if [ ! -d "venv" ]; then
+  $PYTHON_CMD -m venv venv
 fi
 
-# Activate the virtual environment
-source .venv/bin/activate
+# Activate the virtual environment (handles both `venv` and `.venv` cases)
+source $(find . -type d -name "venv" -o -name ".venv")/bin/activate
 
-# Install Python dependencies
+# Ensure `requirements.txt` exists before installing dependencies
+if [ ! -f requirements.txt ]; then
+  echo "Error: requirements.txt not found!"
+  exit 1
+fi
+
 pip install --no-cache-dir -r requirements.txt
 
 # Set the Flask app environment variable
 export FLASK_APP=app.py
 
+# Debugging: Print environment variables
+echo "FLASK_APP: $FLASK_APP"
+echo "Running on PORT: ${PORT:-8000}"
+
 # Check if running on Azure App Service
 if [[ -n "$WEBSITES_PORT" ]]; then
   # Running on Azure App Service
-
-  # Start the Flask app using Gunicorn
-  echo "Starting Flask application with Gunicorn on port ${PORT:-8000}..."
-  exec gunicorn --bind=0.0.0.0:${PORT:-8000} --timeout 600 app:app
+  export PORT=${PORT:-8000}
+  echo "Starting Flask application with Gunicorn on port ${PORT}..."
+  exec gunicorn --bind=0.0.0.0:${PORT} --timeout 600 app:app
 else
   # Running locally
-
-  # Install system dependencies
   sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-dev
-
-  # Start the Flask app using the built-in server
-  echo "Starting Flask application locally on port ${PORT:-8000}..."
-  exec flask run --host=0.0.0.0 --port=${PORT:-8000}
+  echo "Starting Flask application locally on port ${PORT}..."
+  exec flask run --host=0.0.0.0 --port=${PORT}
 fi
