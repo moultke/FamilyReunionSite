@@ -16,9 +16,11 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 from flask_session import Session  # Install with:
-
 import os
 import platform
+from PIL import Image
+from pillow_heif import register_heif_opener
+
 
 # Check if running on Linux before executing apt-get
 if platform.system() == "Linux":
@@ -53,23 +55,12 @@ load_dotenv()
 
 
 
-# Email configuration
-# app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your email provider
-# app.config['MAIL_PORT'] = 587
-# app.config['MAIL_USE_TLS'] = True
-# app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # Update this
-# app.config['MAIL_PASSWORD'] = 'your-email-password'  # Update this
-# app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
-#
-# mail = Mail(app)
+
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'
 
-# if not os.path.exists(UPLOAD_FOLDER):
-#     os.makedirs(UPLOAD_FOLDER)
 
-# Ensure the upload directory exists
 if not os.path.exists(UPLOAD_FOLDER):
     try:
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -112,10 +103,63 @@ def convert_heic_to_jpg(filepath):
         logging.error(f"Error converting HEIC to JPG with OpenCV: {e}")
         return None
 
+# @app.route("/upload-image", methods=["POST"])
+# def upload_image():
+#
+#     """Handles file uploads, ensuring correct processing and preventing overwrites."""
+#     if 'image' not in request.files:
+#         logging.warning("No file part in request")
+#         return jsonify({'error': 'No file part'}), 400
+#
+#     file = request.files['image']
+#     if file.filename == '':
+#         logging.warning("No selected file")
+#         return jsonify({'error': 'No selected file'}), 400
+#
+#     # Generate a unique filename to prevent overwriting
+#     file_ext = file.filename.rsplit(".", 1)[-1].lower()
+#     filename = f"{uuid.uuid4().hex}.{file_ext}"
+#     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#
+#
+#
+#     try:
+#         file.save(file_path)  # Save the uploaded file before processing
+#
+#         if file_ext == 'heic':
+#             converted_path = convert_heic_to_jpg(file_path)
+#             if converted_path:
+#                 filename = os.path.basename(converted_path)
+#                 file_path = converted_path
+#             else:
+#                 logging.error("HEIC conversion failed")
+#                 return jsonify({'error': 'HEIC conversion failed'}), 500
+#         else:
+#             # OpenCV Processing: Read Image from File Stream Correctly
+#             file.stream.seek(0)  # Ensure file is read from start
+#             npimg = np.frombuffer(file.stream.read(), np.uint8)  # Convert file to NumPy array
+#             img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # Decode image data
+#
+#             if img is None:
+#                 logging.error(f"Invalid image format: {filename}")
+#                 os.remove(file_path)  # ✅ Ensure bad file is deleted
+#                 return jsonify({'error': 'Invalid image format or corrupted file'}), 400
+#
+#             cv2.imwrite(file_path, img)
+#
+#         logging.info(f"File successfully uploaded: {filename}")
+#         return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+#
+#     except Exception as e:
+#         logging.error(f"File Upload Error: {e}")
+#         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
+
+
+# Register HEIC/HEIF opener
+register_heif_opener()
+
 @app.route("/upload-image", methods=["POST"])
 def upload_image():
-
-    """Handles file uploads, ensuring correct processing and preventing overwrites."""
     if 'image' not in request.files:
         logging.warning("No file part in request")
         return jsonify({'error': 'No file part'}), 400
@@ -130,40 +174,27 @@ def upload_image():
     filename = f"{uuid.uuid4().hex}.{file_ext}"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-
-
     try:
-        file.save(file_path)  # Save the uploaded file before processing
-
         if file_ext == 'heic':
-            converted_path = convert_heic_to_jpg(file_path)
-            if converted_path:
-                filename = os.path.basename(converted_path)
-                file_path = converted_path
-            else:
-                logging.error("HEIC conversion failed")
-                return jsonify({'error': 'HEIC conversion failed'}), 500
+            # Open HEIC image using Pillow
+            image = Image.open(file)
+            # Convert to RGB (necessary for JPEG conversion)
+            image = image.convert('RGB')
+            # Save as JPEG
+            jpg_filename = f"{uuid.uuid4().hex}.jpg"
+            jpg_filepath = os.path.join(app.config['UPLOAD_FOLDER'], jpg_filename)
+            image.save(jpg_filepath, 'JPEG')
+            logging.info(f"HEIC file successfully converted and saved as JPEG: {jpg_filename}")
+            return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=jpg_filename)})
         else:
-            # OpenCV Processing: Read Image from File Stream Correctly
-            file.stream.seek(0)  # Ensure file is read from start
-            npimg = np.frombuffer(file.stream.read(), np.uint8)  # Convert file to NumPy array
-            img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # Decode image data
-
-            if img is None:
-                logging.error(f"Invalid image format: {filename}")
-                os.remove(file_path)  # ✅ Ensure bad file is deleted
-                return jsonify({'error': 'Invalid image format or corrupted file'}), 400
-
-            cv2.imwrite(file_path, img)
-
-        logging.info(f"File successfully uploaded: {filename}")
-        return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+            # For other supported formats, save directly
+            file.save(file_path)
+            logging.info(f"File successfully uploaded: {filename}")
+            return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
 
     except Exception as e:
         logging.error(f"File Upload Error: {e}")
         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
-
-
 
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
@@ -216,168 +247,6 @@ def get_images():
             })
 
     return jsonify({'images': image_data, 'total_images': total_images})
-
-
-
-# def allowed_file(filename):
-#     """ Check if the file has an allowed extension. """
-#     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# def convert_heic_to_jpg(filepath):
-#     """Convert HEIC to JPG using ImageMagick or OpenCV fallback."""
-#     jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"
-#
-#     try:
-#         # First, try using ImageMagick if installed
-#         result = subprocess.run(["magick", filepath, jpg_filepath], check=True, capture_output=True, text=True)
-#         os.remove(filepath)  # Delete the original HEIC file after conversion
-#         return jpg_filepath
-#     except subprocess.CalledProcessError:
-#         logging.warning("ImageMagick conversion failed, attempting OpenCV fallback.")
-#
-#     try:
-#         # OpenCV Fallback
-#         npimg = cv2.imread(filepath, cv2.IMREAD_COLOR)
-#         if npimg is None:
-#             logging.error(f"Error loading HEIC image {filepath}")
-#             return None
-#         cv2.imwrite(jpg_filepath, npimg)  # Convert and save
-#         os.remove(filepath)  # Delete original HEIC file
-#         return jpg_filepath
-#     except Exception as e:
-#         logging.error(f"Error converting HEIC to JPG with OpenCV: {e}")
-#         return None
-
-
-# @app.route("/upload", methods=["POST"])
-# def upload_file():
-#     if request.method == "POST":
-#         if "file" not in request.files:
-#             return "No file part"
-#
-#         file = request.files["file"]
-#         if file.filename == "":
-#             return "No selected file"
-#
-#         if file and allowed_file(file.filename):
-#             filename = file.filename
-#             file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-#
-#             # Convert if it's a HEIC file
-#             if filename.lower().endswith(".heic"):
-#                 converted_path = convert_heic_to_jpg(file_path)
-#                 if converted_path:
-#                     filename = os.path.basename(converted_path)
-#                     file_path = converted_path  # Update file_path
-#             else:
-#                 file.stream.seek(0)  # Ensure file is read from the beginning
-#                 npimg = np.frombuffer(file.stream.read(), np.uint8)  # Convert file to NumPy array
-#                 img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # Decode image data
-#
-#                 if img is None:
-#                     return jsonify({'error': 'Invalid image format or corrupted file'}), 400
-#
-#                 cv2.imwrite(file_path, img)  # Save the image
-#
-#             return f"File uploaded successfully: <a href='/uploads/{filename}'>{filename}</a>"
-#
-#     # Display uploaded images in the gallery
-#     files = os.listdir(UPLOAD_FOLDER)
-#     return render_template("index.html", files=files)
-
-
-
-# def encode_image_to_base64(image_path):
-#     """Convert an image to a base64 string using OpenCV."""
-#     img = cv2.imread(image_path)
-#     if img is None:
-#         return None
-#     _, buffer = cv2.imencode('.jpg', img)
-#     return base64.b64encode(buffer).decode("utf-8")
-
-
-# @app.route('/images')
-# def get_images():
-#     limit = int(request.args.get('limit', 10))  # Default limit to 10
-#     offset = int(request.args.get('offset', 0))  # Default offset to 0
-#
-#     if not os.path.exists(UPLOAD_FOLDER):  # Check if directory exists
-#         return jsonify({'images': [], 'total_images': 0})
-#
-#     images = [
-#         f for f in os.listdir(UPLOAD_FOLDER)
-#         if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and f.lower().endswith(('png', 'jpg', 'jpeg', 'gif'))
-#     ]
-#     total_images = len(images)
-#
-#     images_page = images[offset:offset + limit]  # Get images for the current page
-#
-#     image_data = []
-#     for image in images_page:
-#         image_path = os.path.join(UPLOAD_FOLDER, image)
-#         base64_image = encode_image_to_base64(image_path)
-#
-#         if base64_image:
-#             image_data.append({
-#                 'filename': image,
-#                 'data': f'data:image/jpeg;base64,{base64_image}'
-#             })
-#
-#     return jsonify({'images': image_data, 'total_images': total_images})
-
-
-
-# @app.route("/upload-image", methods=["POST"])
-# def upload_image():
-#     if 'image' not in request.files:
-#         logging.warning("No file part in request")
-#         return jsonify({'error': 'No file part'}), 400
-#
-#     file = request.files['image']
-#     if file.filename == '':
-#         logging.warning("No selected file")
-#         return jsonify({'error': 'No selected file'}), 400
-#
-#     # Sanitize the filename
-#     filename = secure_filename(file.filename.strip())
-#     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#
-#     try:
-#         # Save the uploaded file **before** processing
-#         file.save(file_path)
-#
-#         if filename.lower().endswith('.heic'):
-#             converted_path = convert_heic_to_jpg(file_path)
-#             if converted_path:
-#                 filename = os.path.basename(converted_path)
-#                 file_path = converted_path  # Update file_path
-#             else:
-#                 logging.error("HEIC conversion failed")
-#                 return jsonify({'error': 'HEIC conversion failed'}), 500
-#         else:
-#             # OpenCV Processing
-#             file.stream.seek(0)  # Ensure file is read from the beginning
-#             npimg = np.frombuffer(file.stream.read(), np.uint8)
-#             img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-#
-#             if img is None:
-#                 logging.error(f"Invalid image format: {filename}")
-#                 return jsonify({'error': 'Invalid image format or corrupted file'}), 400
-#
-#             cv2.imwrite(file_path, img)
-#
-#         logging.info(f"File successfully uploaded: {filename}")
-#         return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
-#
-#     except Exception as e:
-#         logging.error(f"File Upload Error: {e}")
-#         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
-
-
-# @app.route("/uploads/<filename>")
-# def uploaded_file(filename):
-#     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")

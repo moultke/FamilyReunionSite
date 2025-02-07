@@ -82,14 +82,6 @@
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
     </task>
-    <task id="LOCAL-00019" summary="pillow update">
-      <option name="closed" value="true" />
-      <created>1738623731878</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1738623731878</updated>
-    </task>
     <task id="LOCAL-00020" summary="yml update">
       <option name="closed" value="true" />
       <created>1738625042483</created>
@@ -474,7 +466,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738936858643</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="html updates">
+      <option name="closed" value="true" />
+      <created>1738949873314</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1738949873314</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
