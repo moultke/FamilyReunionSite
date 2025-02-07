@@ -43,3 +43,4 @@ echo "Starting Flask application on port ${PORT:-8000}..."
 
 # Start Flask app
 exec flask run --host=0.0.0.0 --port=${PORT:-8000}
+
