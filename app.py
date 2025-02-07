@@ -11,14 +11,34 @@ import stripe
 import time
 import cv2  # Add this line (OpenCV import)
 import numpy as np  # Add this line (NumPy import)
-from flask import Flask, request, jsonify
 # from flask_mailman import Mail, EmailMessage
-import os
 import logging
 import smtplib
 from email.mime.text import MIMEText
+from flask_session import Session  # Install with:
 
-os.system("apt-get update && apt-get install -y libgl1")
+import os
+import platform
+
+# Check if running on Linux before executing apt-get
+if platform.system() == "Linux":
+    os.system("apt-get update && apt-get install -y libgl1")
+
+UPLOAD_FOLDER = "uploads"
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+from flask_session import Session
+
+app.config["SESSION_TYPE"] = "filesystem"  # Store session on the server
+app.config["SESSION_FILE_DIR"] = os.path.join(os.getcwd(), ".flask_session")  # Ensure absolute path
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+app.config["SESSION_KEY_PREFIX"] = "flask_"
+app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))  # Use environment variable or generate random
+
+Session(app)  # Initialize Flask-Session
 
 
 
@@ -30,9 +50,8 @@ secret_key = secrets.token_hex(32)
 # Load environment variables
 load_dotenv()
 
-UPLOAD_FOLDER = "uploads"
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 
 # Email configuration
 # app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your email provider
@@ -51,7 +70,11 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'
 #     os.makedirs(UPLOAD_FOLDER)
 
 # Ensure the upload directory exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+if not os.path.exists(UPLOAD_FOLDER):
+    try:
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    except OSError as e:
+        logging.error(f"Could not create upload directory: {e}")
 
 # ------------------ File Handling & Processing ------------------
 
@@ -66,19 +89,20 @@ def convert_heic_to_jpg(filepath):
     """Convert HEIC to JPG using ImageMagick or OpenCV fallback."""
     jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"
 
-    try:
-        # First, try using ImageMagick if installed
-        subprocess.run(["magick", filepath, jpg_filepath], check=True, capture_output=True, text=True)
-        os.remove(filepath)  # Delete the original HEIC file after conversion
-        return jpg_filepath
-    except subprocess.CalledProcessError:
-        logging.warning("ImageMagick conversion failed, attempting OpenCV fallback.")
+    # Check if ImageMagick is installed
+    if subprocess.run(["which", "magick"], capture_output=True).returncode == 0:
+        try:
+            subprocess.run(["magick", filepath, jpg_filepath], check=True)
+            os.remove(filepath)  # Delete the original HEIC file
+            return jpg_filepath
+        except subprocess.CalledProcessError:
+            logging.warning("ImageMagick conversion failed, attempting OpenCV.")
 
+    # OpenCV Fallback
     try:
-        # OpenCV Fallback (HEIC support is limited)
         img = cv2.imread(filepath, cv2.IMREAD_COLOR)
         if img is None:
-            logging.error(f"Error loading HEIC image {filepath} with OpenCV")
+            logging.error(f"Error loading HEIC image {filepath}")
             return None  # Avoid corrupt images
 
         cv2.imwrite(jpg_filepath, img)
@@ -87,7 +111,6 @@ def convert_heic_to_jpg(filepath):
     except Exception as e:
         logging.error(f"Error converting HEIC to JPG with OpenCV: {e}")
         return None
-
 
 @app.route("/upload-image", methods=["POST"])
 def upload_image():
@@ -357,8 +380,10 @@ def get_images():
 #     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+if not stripe.api_key:
+    raise ValueError("Stripe API key is missing! Set STRIPE_SECRET_KEY in environment variables.")
 
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 app.config['STRIPE_PUBLIC_KEY'] = os.environ.get('STRIPE_PUBLIC_KEY')
 app.secret_key = secret_key
 
@@ -368,11 +393,15 @@ DATABASE = 'reunion.db'
 
 def get_db():
     """Get a database connection."""
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE, check_same_thread=False)
-        db.row_factory = sqlite3.Row  # Allows fetching rows as dictionaries
-    return db
+    try:
+        db = getattr(g, "_database", None)
+        if db is None:
+            db = g._database = sqlite3.connect(DATABASE, check_same_thread=False)
+            db.row_factory = sqlite3.Row  # Enables dictionary-style row access
+        return db
+    except sqlite3.Error as e:
+        logging.error(f"Database connection error: {e}")
+        return None
 
 
 def init_db():
@@ -470,14 +499,26 @@ def register():
 def admin():
     try:
         db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
         registrations = db.execute(
             'SELECT id, name, tshirt_size, age_group, price FROM registrations'
         ).fetchall()
         return render_template('admin.html', registrations=registrations)
     except Exception as e:
-        print(f"❌ Admin Page Error: {e}")
+        logging.error(f"❌ Admin Page Error: {e}")
         return jsonify({'error': 'Failed to load admin page'}), 500
 
+
+@app.route("/check-session")
+def check_session():
+    session_id = session.get("current_session_id")
+
+    if session_id:
+        return jsonify({"message": "Session ID retrieved successfully", "session_id": session_id})
+    else:
+        return jsonify({"error": "No active session found"}), 400
 
 
 @app.route('/create-checkout-session', methods=['POST'])
@@ -485,8 +526,9 @@ def create_checkout_session():
     try:
         db = get_db()
         session_id = session.get('current_session_id')
-        if not session_id:
-            return jsonify({'error': 'No active session found'}), 400
+        if not session_id or len(session_id) < 10:  # Ensure valid session_id length
+            logging.error("Invalid session_id received for checkout")
+            return jsonify({'error': 'Invalid session ID'}), 400
 
         registrants = db.execute('SELECT name, tshirt_size, age_group, price FROM registrations WHERE session_id =?', (session_id,)).fetchall()
         if not registrants:
@@ -632,86 +674,40 @@ def contact():
 @app.route('/success')
 def success():
     session_id = request.args.get('session_id')
-
     if not session_id:
         return redirect(url_for('index'))
 
     try:
         db = get_db()
-
-        # Retrieve stripe_session_id from DB
         result = db.execute(
-            'SELECT stripe_session_id FROM registrations WHERE session_id =?', (session_id,)
+            'SELECT stripe_session_id FROM registrations WHERE session_id = ?', (session_id,)
         ).fetchone()
 
         if result is None:
-            print(f"⚠️ No registration found for session_id: {session_id}")
+            logging.warning(f"No registration found for session_id: {session_id}")
             return "No registration found for this session."
 
         stripe_session_id = result['stripe_session_id']
-
-        # Retrieve checkout session from Stripe.
         checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
 
-        # Retrieve the Payment Intent for checkout
-        payment_intent_id = checkout_session.payment_intent
-        if not payment_intent_id:
-            print("⚠️ No Payment Intent found in checkout session")
-            return "No payment intent found for this session."
-
-        print(f"✅ Payment Intent ID: {payment_intent_id}")
-
-        # Fetch Payment Intent
-        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-
-        # Print statement
-        print(f"Payment Intent Status: {payment_intent.status}")
-
-        # Ensure payment was successful
-        if payment_intent.status != "succeeded":
-            print(f"⚠️ Payment Intent Status: {payment_intent.status}")
-            return f"Payment is still processing. Current status: {payment_intent.status}"
-
-        # Retrieve the latest charge ID
-        charge_id = payment_intent.latest_charge
-        if not charge_id:
-            print(f"⚠️ No charge found for Payment Intent ID: {payment_intent_id}")
-            return "No charge associated with this payment."
-
-        # Retrieve the Charge object
-        latest_charge = stripe.Charge.retrieve(charge_id)
-
-        # Debug: Print charge object
-        print(f"Full Charge Object: {latest_charge}")
-
-        # Retrieve registrations from database
-        registrations = db.execute(
-            'SELECT name, tshirt_size, age_group, price FROM registrations WHERE session_id =?',
-            (session_id,)
-        ).fetchall()
-
-        if not registrations:
-            print(f"⚠️ No registrations found for session_id: {session_id}")
-            return "No registration found for this session."
-
-        total_paid = sum(r['price'] for r in registrations)
+        logging.info(f"✅ Payment completed for {checkout_session.customer_email}, Status: {checkout_session.payment_status}")
 
         return render_template(
             'success.html',
-            registrations=registrations,
-            total_paid=total_paid,
             checkout_session=checkout_session,
-            payment_intent=payment_intent,
-            latest_charge=latest_charge  # Pass charge object
+            payment_status=checkout_session.payment_status
         )
 
-    except stripe.error.StripeError as e:
-        print(f"⚠️ Stripe Error: {e}")
-        return f"A Stripe error occurred: {e}"
-
     except Exception as e:
-        print(f"⚠️ Error fetching registration data: {e}")
+        logging.error(f"⚠️ Error in success route: {e}")
         return "An error occurred."
+
+@app.route('/set-session', methods=['GET'])
+def set_session():
+    """Set a session variable to test Flask-Session"""
+    session['current_session_id'] = str(uuid.uuid4())  # Generate a unique session ID
+    return jsonify({"message": "Session ID set", "session_id": session['current_session_id']})
+
 
 
 # Initialize the database at startup with its ready for me
