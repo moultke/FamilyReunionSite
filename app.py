@@ -14,10 +14,19 @@ import numpy as np  # Add this line (NumPy import)
 # from flask_mailman import Mail, EmailMessage
 import logging
 import smtplib
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask_session import Session  # Install with:
 import os
 import platform
+import smtplib
+
+
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'
+
+# Load environment variables
+load_dotenv()
 
 
 
@@ -25,12 +34,12 @@ import platform
 if platform.system() == "Linux":
     os.system("apt-get update && apt-get install -y libgl1")
 
-UPLOAD_FOLDER = "uploads"
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-from flask_session import Session
+
 
 app.config["SESSION_TYPE"] = "filesystem"  # Store session on the server
 app.config["SESSION_FILE_DIR"] = os.path.join(os.getcwd(), ".flask_session")  # Ensure absolute path
@@ -42,14 +51,11 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))  # Use env
 Session(app)  # Initialize Flask-Session
 
 
-
 # Configure Logging information
 logging.basicConfig(level=logging.DEBUG)
 
 secret_key = secrets.token_hex(32)
 
-# Load environment variables
-load_dotenv()
 
 
 
@@ -57,7 +63,7 @@ load_dotenv()
 
 
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}  # Add 'heic'
+
 
 
 if not os.path.exists(UPLOAD_FOLDER):
@@ -506,10 +512,13 @@ def get_attendee_names():
 #     return send_from_directory(app.config['UPLOAD_FOLDER'], filename) # Use send_from_directory
 
 
+
+
+
 @app.route('/contact', methods=['POST'])
 def contact():
     try:
-        data = request.get_json()
+        data = request.form
         name = data.get('name')
         email = data.get('email')
         message = data.get('message')
@@ -517,27 +526,26 @@ def contact():
         if not all([name, email, message]):
             return jsonify({'error': 'Missing required fields'}), 400
 
-        sender_email = "info@milliganaiken.com"
-        receiver_email = "recipient-email@example.com"
+        sender_email = os.getenv('MAIL_USERNAME')
+        receiver_email = "milliganaiken@gmail.com"  # Replace with your recipient email
         password = os.getenv('MAIL_PASSWORD')
 
-        msg = MIMEText(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
-        msg['Subject'] = f"New Contact Form Submission from {name}"
+        msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = receiver_email
+        msg['Subject'] = f"New Contact Form Submission from {name}"
+        msg.attach(MIMEText(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}", 'plain'))
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
 
         return jsonify({'success': True, 'message': 'Email sent successfully!'})
 
     except Exception as e:
         print(f"❌ Email Sending Error: {e}")
         return jsonify({'error': 'Failed to send email'}), 500
-
 
 @app.route('/success')
 def success():
@@ -577,6 +585,8 @@ def set_session():
     return jsonify({"message": "Session ID set", "session_id": session['current_session_id']})
 
 
+print("MAIL_USERNAME:", os.getenv('MAIL_USERNAME'))
+print("MAIL_PASSWORD:", os.getenv('MAIL_PASSWORD'))  # Should print as stars for security
 
 # Initialize the database at startup with its ready for me
 init_db()

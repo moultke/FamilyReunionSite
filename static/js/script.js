@@ -9,17 +9,13 @@ function openImageModal(imageUrl) {
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ JavaScript Loaded...");
 
-//    fetchAttendees();
-
     // Ensure attendeeTicker exists before running anything
     const attendeeTickerContainer = document.getElementById("attendeeTicker");
-
     // Gallery variables
     const galleryGrid = document.getElementById("galleryGrid");
     const uploadPhoto = document.getElementById("uploadPhoto");
     const galleryNotification = document.getElementById("galleryNotification");
     const baseUrl = window.location.origin;
-
     // Registration/Payment variables
     const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D"); // Replace with your publishable key
     const addPersonButton = document.getElementById("addPerson");
@@ -36,6 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Check if attendeeTicker exists before accessing it
     //    const attendeeTickerContainer = document.getElementById("attendeeTicker");
     const attendeeTicker = attendeeTickerContainer ? attendeeTickerContainer.querySelector(".ticker") : null;
+    //contact form:
+    const contactForm = document.getElementById("contactForm");
 
     let registrantCount = 1;
     let totalCost = 0;
@@ -43,6 +41,32 @@ document.addEventListener("DOMContentLoaded", function () {
     let imagesPerPage = 10;
     let totalImages = 0;
     let pagination;
+
+
+
+    contactForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(contactForm);
+
+        fetch("/contact", {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Message sent successfully!");
+                contactForm.reset();
+            } else {
+                alert("Error sending message. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+        });
+    });
 
      if (!attendeeTicker) {
         console.error("⚠️ Error: attendeeTicker not found in the DOM.");
