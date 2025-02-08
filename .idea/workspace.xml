@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="increase spacing and slow speed" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="moved attendees" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,22 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00057" summary="many changes. good night">
-      <option name="closed" value="true" />
-      <created>1738743243900</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1738743243900</updated>
-    </task>
-    <task id="LOCAL-00058" summary="many changes. good night">
-      <option name="closed" value="true" />
-      <created>1738744934639</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1738744934640</updated>
     </task>
     <task id="LOCAL-00059" summary="old startup.sh">
       <option name="closed" value="true" />
@@ -472,11 +456,26 @@
       <option name="project" value="LOCAL" />
       <updated>1739052620067</updated>
     </task>
-    <option name="localTasksCounter" value="106" />
+    <task id="LOCAL-00106" summary="increase spacing and slow speed">
+      <option name="closed" value="true" />
+      <created>1739052699377</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1739052699377</updated>
+    </task>
+    <task id="LOCAL-00107" summary="moved attendees">
+      <option name="closed" value="true" />
+      <created>1739053152463</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1739053152463</updated>
+    </task>
+    <option name="localTasksCounter" value="108" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixed populateticker" />
     <MESSAGE value="fixed javascript" />
     <MESSAGE value="add'l ticker changes" />
     <MESSAGE value="fix speed of ticker" />
@@ -501,6 +500,7 @@
     <MESSAGE value="3 function updates and call" />
     <MESSAGE value="increase spacing" />
     <MESSAGE value="increase spacing and slow speed" />
-    <option name="LAST_COMMIT_MESSAGE" value="increase spacing and slow speed" />
+    <MESSAGE value="moved attendees" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved attendees" />
   </component>
 </project>
