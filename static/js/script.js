@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.innerHTML += duplicateContent; // Clone the names once to ensure smooth transition
 
         // ✅ Adjust scrolling speed (Increase divisor for slower speed)
-        const scrollSpeed = totalWidth / 8; // Change `/6` to `/8` or `/10` to slow it down
+        const scrollSpeed = totalWidth / 10; // Change `/6` to `/8` or `/10` to slow it down
 
         // ✅ Ensure proper width and initial position
         ticker.style.width = `${totalWidth * 2}px`; // Double width for smooth looping
