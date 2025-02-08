@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="added an admin.html">
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="ticker changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -82,14 +83,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00028" summary="YAML love">
-      <option name="closed" value="true" />
-      <created>1738694830675</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1738694830675</updated>
     </task>
     <task id="LOCAL-00029" summary="YAML love affair">
       <option name="closed" value="true" />
@@ -475,11 +468,18 @@
       <option name="project" value="LOCAL" />
       <updated>1739036058299</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="ticker changes">
+      <option name="closed" value="true" />
+      <created>1739037266203</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1739037266204</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="old yams" />
     <MESSAGE value="new yml with path for jpg" />
     <MESSAGE value="another yml error" />
     <MESSAGE value="remove turbo" />
@@ -504,6 +504,7 @@
     <MESSAGE value="removed registration" />
     <MESSAGE value="removed registration from top too" />
     <MESSAGE value="added an admin.html" />
-    <option name="LAST_COMMIT_MESSAGE" value="added an admin.html" />
+    <MESSAGE value="ticker changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="ticker changes" />
   </component>
 </project>
