@@ -314,8 +314,6 @@ def init_db():
         )
 
 
-
-
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -376,13 +374,27 @@ def admin():
         if db is None:
             return jsonify({"error": "Database connection failed"}), 500
 
-        registrations = db.execute(
-            'SELECT id, name, tshirt_size, age_group, price FROM registrations'
-        ).fetchall()
-        return render_template('admin.html', registrations=registrations)
+        # Fetch registrations
+        registrations = db.execute('SELECT * FROM registrations').fetchall()
+        print(f"🟢 Registrations Found: {len(registrations)}")  # Debugging output
+
+        # Fetch RSVPs
+        rsvps = db.execute('SELECT * FROM rsvps').fetchall()
+        print(f"🟢 RSVPs Found: {len(rsvps)}")  # Debugging output
+
+        # Fetch images
+        images = [
+            {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
+            if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
+        ]
+        print(f"🟢 Images Found: {len(images)}")  # Debugging output
+
+        return render_template('admin.html', registrations=registrations, rsvps=rsvps, images=images)
+
     except Exception as e:
         logging.error(f"❌ Admin Page Error: {e}")
         return jsonify({'error': 'Failed to load admin page'}), 500
+
 
 
 @app.route("/check-session")
@@ -583,6 +595,43 @@ def set_session():
     """Set a session variable to test Flask-Session"""
     session['current_session_id'] = str(uuid.uuid4())  # Generate a unique session ID
     return jsonify({"message": "Session ID set", "session_id": session['current_session_id']})
+
+
+
+@app.route('/delete_registration/<int:registration_id>', methods=['DELETE'])
+def delete_registration(registration_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM registrations WHERE id = ?', (registration_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Registration deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/delete_rsvp/<int:rsvp_id>', methods=['DELETE'])
+def delete_rsvp(rsvp_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM rsvps WHERE id = ?', (rsvp_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'RSVP deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/delete_image/<filename>', methods=['DELETE'])
+def delete_image(filename):
+    try:
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+            return jsonify({'success': True, 'message': 'Image deleted successfully'})
+        else:
+            return jsonify({'success': False, 'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 print("MAIL_USERNAME:", os.getenv('MAIL_USERNAME'))

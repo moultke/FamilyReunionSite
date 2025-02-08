@@ -108,6 +108,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
+
+    function deleteItem(type, id) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        fetch(`/delete_${type}/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload(); // Refresh the page to reflect changes
+            } else {
+                alert('Error deleting item: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    }
+
+
+
     function fetchAttendees() {
     fetch('/attendees', { cache: 'no-store' })  // Ensure fresh data
         .then(response => response.json())
