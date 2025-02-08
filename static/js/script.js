@@ -213,27 +213,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function populateTicker(attendees) {
-        const attendeeTicker = document.querySelector(".ticker");
-        attendeeTicker.innerHTML = ""; // Clear previous content
+    const attendeeTicker = document.querySelector(".ticker");
 
-        if (!attendees || attendees.length === 0) {
-            attendeeTicker.innerHTML = "<span>No attendees yet</span>";
-            return;
-        }
+    // ✅ Check if the ticker container exists before doing anything
+    if (!attendeeTicker) {
+        console.error("⚠️ Error: .ticker not found in the DOM.");
+        return;
+    }
 
-        // Ensure enough names to create a scrolling effect
-        let extendedAttendees = [...attendees, ...attendees, ...attendees]; // Extend list to ensure continuous scrolling
+    attendeeTicker.innerHTML = ""; // Clear previous content
 
-        extendedAttendees.forEach(name => {
-            let attendeeElement = document.createElement("span");
-            attendeeElement.textContent = name;
-            attendeeElement.classList.add("ticker__item");
-            attendeeTicker.appendChild(attendeeElement);
-        });
+    if (!attendees || attendees.length === 0) {
+        console.log("⚠️ No attendees found in database.");
+        attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+        return;
+    }
 
-        // Start the animation
+    console.log("✅ Displaying attendees:", attendees);
+
+    // Ensure enough names to create a scrolling effect
+    attendees.forEach(name => {
+        let attendeeElement = document.createElement("span");
+        attendeeElement.textContent = name;
+        attendeeElement.classList.add("ticker__item");
+        attendeeTicker.appendChild(attendeeElement);
+    });
+
+    // **Duplicate attendees to enable continuous scrolling**
+    let duplicateAttendees = [...attendees, ...attendees, ...attendees]; // Extend for smooth loop
+    duplicateAttendees.forEach(name => {
+        let cloneElement = document.createElement("span");
+        cloneElement.textContent = name;
+        cloneElement.classList.add("ticker__item");
+        attendeeTicker.appendChild(cloneElement);
+    });
+
+    // ✅ Start animation only when attendees exist
+    if (attendeeTicker.children.length > 0) {
         startTickerAnimation();
     }
+}
 
 //
 //    function startTickerAnimation() {
