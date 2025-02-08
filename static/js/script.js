@@ -183,9 +183,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Call fetchAttendees when the page loads
-    document.addEventListener("DOMContentLoaded", fetchAttendees);
+//    document.addEventListener("DOMContentLoaded", fetchAttendees);
 
-
+       window.onload = function () {
+           fetchAttendees();
+        };
 
 //    function populateTicker(attendees) {
 //    attendeeTicker.innerHTML = ""; // Clear previous content
@@ -213,51 +215,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function populateTicker(attendees) {
-    const attendeeTicker = document.querySelector(".ticker");
+        const attendeeTickerContainer = document.getElementById("attendeeTicker");
 
-    // ✅ Check if the ticker container exists before doing anything
-    if (!attendeeTicker) {
-        console.error("⚠️ Error: .ticker not found in the DOM.");
-        return;
+        // ✅ Ensure attendeeTickerContainer exists
+        if (!attendeeTickerContainer) {
+            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
+            return;
+        }
+
+        let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
+
+        // ✅ If .ticker is missing, create it dynamically
+        if (!attendeeTicker) {
+            console.warn("⚠️ .ticker element missing! Creating one...");
+            attendeeTicker = document.createElement("div");
+            attendeeTicker.classList.add("ticker");
+            attendeeTickerContainer.appendChild(attendeeTicker);
+        }
+
+        attendeeTicker.innerHTML = ""; // Clear previous content
+
+        if (!attendees || attendees.length === 0) {
+            console.log("⚠️ No attendees found in database.");
+            attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+            return;
+        }
+
+        console.log("✅ Displaying attendees:", attendees);
+
+        // Append original attendee names
+        attendees.forEach(name => {
+            let attendeeElement = document.createElement("span");
+            attendeeElement.textContent = name;
+            attendeeElement.classList.add("ticker__item");
+            attendeeTicker.appendChild(attendeeElement);
+        });
+
+        // Duplicate attendees for continuous scrolling
+        let duplicateAttendees = [...attendees, ...attendees];
+        duplicateAttendees.forEach(name => {
+            let cloneElement = document.createElement("span");
+            cloneElement.textContent = name;
+            cloneElement.classList.add("ticker__item");
+            attendeeTicker.appendChild(cloneElement);
+        });
+
+        // ✅ Start animation if attendees exist
+        if (attendeeTicker.children.length > 0) {
+            startTickerAnimation();
+        }
     }
 
-    attendeeTicker.innerHTML = ""; // Clear previous content
-
-    if (!attendees || attendees.length === 0) {
-        console.log("⚠️ No attendees found in database.");
-        attendeeTicker.innerHTML = "<span>No attendees yet</span>";
-        return;
-    }
-
-    console.log("✅ Displaying attendees:", attendees);
-
-    // Ensure enough names to create a scrolling effect
-    attendees.forEach(name => {
-        let attendeeElement = document.createElement("span");
-        attendeeElement.textContent = name;
-        attendeeElement.classList.add("ticker__item");
-        attendeeTicker.appendChild(attendeeElement);
-    });
-
-    // **Duplicate attendees to enable continuous scrolling**
-    let duplicateAttendees = [...attendees, ...attendees, ...attendees]; // Extend for smooth loop
-    duplicateAttendees.forEach(name => {
-        let cloneElement = document.createElement("span");
-        cloneElement.textContent = name;
-        cloneElement.classList.add("ticker__item");
-        attendeeTicker.appendChild(cloneElement);
-    });
-
-    // ✅ Start animation only when attendees exist
-    if (attendeeTicker.children.length > 0) {
-        startTickerAnimation();
-    }
-}
-
-//
-//    function startTickerAnimation() {
-//        attendeeTicker.style.animation = `tickerScroll 20s linear infinite`; // Smooth animation
-//    }
 
     function startTickerAnimation() {
         const ticker = document.querySelector(".ticker");
@@ -281,9 +289,21 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchAttendees();
 
     function addAttendeeToTicker(name) {
-        if (!attendeeTicker) {
-            console.error("⚠️ attendeeTicker not found in the DOM.");
+        const attendeeTickerContainer = document.getElementById("attendeeTicker");
+
+        if (!attendeeTickerContainer) {
+            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
             return;
+        }
+
+        let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
+
+        // ✅ If .ticker is missing, create it dynamically
+        if (!attendeeTicker) {
+            console.warn("⚠️ .ticker element missing! Creating one...");
+            attendeeTicker = document.createElement("div");
+            attendeeTicker.classList.add("ticker");
+            attendeeTickerContainer.appendChild(attendeeTicker);
         }
 
         let attendeeElement = document.createElement("span");
@@ -297,6 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
             startTickerAnimation();
         }
     }
+
 
 
 
