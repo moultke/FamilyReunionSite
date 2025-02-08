@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.style.width = `${totalWidth}px`;
 
         // ✅ Adjust scrolling speed dynamically based on width
-        const scrollSpeed = totalWidth / 10; // Increase divisor for slower speed (e.g., `/ 8` for even slower)
+        const scrollSpeed = totalWidth / 6; // Increase divisor for slower speed (e.g., `/ 8` for even slower)
 
         // ✅ Apply smooth infinite scrolling with adjusted speed
         setTimeout(() => {
