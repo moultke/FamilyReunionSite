@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="3 function updates and call" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="increase spacing and slow speed" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,22 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00055" summary="credentials set">
-      <option name="closed" value="true" />
-      <created>1738741060479</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1738741060480</updated>
-    </task>
-    <task id="LOCAL-00056" summary="access corrected">
-      <option name="closed" value="true" />
-      <created>1738741774914</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1738741774914</updated>
     </task>
     <task id="LOCAL-00057" summary="many changes. good night">
       <option name="closed" value="true" />
@@ -472,12 +456,26 @@
       <option name="project" value="LOCAL" />
       <updated>1739051911601</updated>
     </task>
-    <option name="localTasksCounter" value="104" />
+    <task id="LOCAL-00104" summary="increase spacing">
+      <option name="closed" value="true" />
+      <created>1739052180186</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1739052180186</updated>
+    </task>
+    <task id="LOCAL-00105" summary="increase spacing and slow speed">
+      <option name="closed" value="true" />
+      <created>1739052620067</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1739052620067</updated>
+    </task>
+    <option name="localTasksCounter" value="106" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added an admin.html" />
-    <MESSAGE value="ticker changes" />
     <MESSAGE value="fixed populateticker" />
     <MESSAGE value="fixed javascript" />
     <MESSAGE value="add'l ticker changes" />
@@ -501,6 +499,8 @@
     <MESSAGE value="updates" />
     <MESSAGE value="3 function updates" />
     <MESSAGE value="3 function updates and call" />
-    <option name="LAST_COMMIT_MESSAGE" value="3 function updates and call" />
+    <MESSAGE value="increase spacing" />
+    <MESSAGE value="increase spacing and slow speed" />
+    <option name="LAST_COMMIT_MESSAGE" value="increase spacing and slow speed" />
   </component>
 </project>
