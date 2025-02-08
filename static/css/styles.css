@@ -168,18 +168,29 @@ footer {
     padding: 10px 0;
     position: relative;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
 }
 
 /* Ticker Scrolling Effect */
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll linear infinite;
-    will-change: transform;
+    animation: tickerScroll 20s linear infinite;
+    min-width: 100%;
 }
 
+/* Ensure smooth scrolling of items */
+.ticker__item {
+    display: inline-block;
+    padding: 0 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc3545;
+    white-space: nowrap;
+}
 
-/* Scrolling Animation */
+/* Continuous Scrolling Animation */
 @keyframes tickerScroll {
     from {
         transform: translateX(100%);
@@ -189,14 +200,8 @@ footer {
     }
 }
 
-/* Ticker Item Styling */
-.ticker__item {
-    display: inline-block;
-    padding: 0 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #dc3545;
-}
+
+
 
 #contact {
     background-color: #dc3545 !important;

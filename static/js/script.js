@@ -129,28 +129,62 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+//    function fetchAttendees() {
+//    fetch('/attendees', { cache: 'no-store' })  // Ensure fresh data
+//        .then(response => response.json())
+//        .then(attendees => {
+//            console.log("✅ Fetching attendees from database:", attendees);
+//
+//            const attendeeTicker = document.querySelector(".ticker");
+//            attendeeTicker.innerHTML = ""; // Clear previous attendees
+//
+//            if (!attendees || attendees.length === 0) {
+//                console.log("⚠️ No attendees found in database.");
+//                attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+//                return;
+//            }
+//
+//            console.log("✅ Displaying attendees:", attendees);
+//            populateTicker(attendees);
+//        })
+//        .catch(error => {
+//            console.error("❌ Error fetching attendees:", error);
+//        });
+//    }
+
+
     function fetchAttendees() {
-    fetch('/attendees', { cache: 'no-store' })  // Ensure fresh data
-        .then(response => response.json())
-        .then(attendees => {
-            console.log("✅ Fetching attendees from database:", attendees);
+        fetch('/attendees', { cache: 'no-store' }) // Ensure fresh data
+            .then(response => response.json())
+            .then(attendees => {
+                console.log("✅ Fetching attendees from database:", attendees);
 
-            const attendeeTicker = document.querySelector(".ticker");
-            attendeeTicker.innerHTML = ""; // Clear previous attendees
+                const attendeeTicker = document.querySelector(".ticker");
 
-            if (!attendees || attendees.length === 0) {
-                console.log("⚠️ No attendees found in database.");
-                attendeeTicker.innerHTML = "<span>No attendees yet</span>";
-                return;
-            }
+                if (!attendeeTicker) {
+                    console.error("⚠️ Error: .ticker not found in the DOM.");
+                    return;
+                }
 
-            console.log("✅ Displaying attendees:", attendees);
-            populateTicker(attendees);
-        })
-        .catch(error => {
-            console.error("❌ Error fetching attendees:", error);
-        });
+                attendeeTicker.innerHTML = ""; // Clear previous attendees
+
+                if (!attendees || attendees.length === 0) {
+                    console.log("⚠️ No attendees found in database.");
+                    attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+                    return;
+                }
+
+                console.log("✅ Displaying attendees:", attendees);
+                populateTicker(attendees);
+            })
+            .catch(error => {
+                console.error("❌ Error fetching attendees:", error);
+            });
     }
+
+    // Call fetchAttendees when the page loads
+    document.addEventListener("DOMContentLoaded", fetchAttendees);
+
 
 
 //    function populateTicker(attendees) {
@@ -188,26 +222,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Ensure enough names to create a scrolling effect
-        attendees.forEach(name => {
+        let extendedAttendees = [...attendees, ...attendees, ...attendees]; // Extend list to ensure continuous scrolling
+
+        extendedAttendees.forEach(name => {
             let attendeeElement = document.createElement("span");
             attendeeElement.textContent = name;
             attendeeElement.classList.add("ticker__item");
             attendeeTicker.appendChild(attendeeElement);
         });
 
-        // **Duplicate attendees to enable continuous scrolling**
-        let duplicateAttendees = [...attendees, ...attendees, ...attendees]; // Extend for smooth loop
-        duplicateAttendees.forEach(name => {
-            let cloneElement = document.createElement("span");
-            cloneElement.textContent = name;
-            cloneElement.classList.add("ticker__item");
-            attendeeTicker.appendChild(cloneElement);
-        });
-
-        // Apply animation only when attendees exist
-        if (attendeeTicker.children.length > 0) {
-            startTickerAnimation();
-        }
+        // Start the animation
+        startTickerAnimation();
     }
 
 //
@@ -233,8 +258,8 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.style.animation = `tickerScroll ${totalWidth / 50}s linear infinite`;
     }
 
-
-    fetchAttendees(); // ✅ Fetch attendees only if attendeeTicker exists
+    // Fetch attendees and start animation
+    fetchAttendees();
 
     function addAttendeeToTicker(name) {
         if (!attendeeTicker) {
