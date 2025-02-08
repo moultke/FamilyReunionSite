@@ -153,34 +153,86 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+//    function populateTicker(attendees) {
+//    attendeeTicker.innerHTML = ""; // Clear previous content
+//
+//    attendees.forEach(name => {
+//        let attendeeElement = document.createElement("span");
+//        attendeeElement.textContent = name;
+//        attendeeElement.classList.add("ticker__item");
+//        attendeeTicker.appendChild(attendeeElement);
+//    });
+//
+//    // Duplicate the list to create an infinite scroll effect
+//    attendees.forEach(name => {
+//        let cloneElement = document.createElement("span");
+//        cloneElement.textContent = name;
+//        cloneElement.classList.add("ticker__item");
+//        attendeeTicker.appendChild(cloneElement);
+//    });
+//
+//    // ✅ Start animation if attendees exist
+//    if (attendeeTicker.children.length > 0) {
+//        startTickerAnimation();
+//    }
+//    }
+
+
     function populateTicker(attendees) {
-    attendeeTicker.innerHTML = ""; // Clear previous content
+        const attendeeTicker = document.querySelector(".ticker");
+        attendeeTicker.innerHTML = ""; // Clear previous content
 
-    attendees.forEach(name => {
-        let attendeeElement = document.createElement("span");
-        attendeeElement.textContent = name;
-        attendeeElement.classList.add("ticker__item");
-        attendeeTicker.appendChild(attendeeElement);
-    });
+        if (!attendees || attendees.length === 0) {
+            attendeeTicker.innerHTML = "<span>No attendees yet</span>";
+            return;
+        }
 
-    // Duplicate the list to create an infinite scroll effect
-    attendees.forEach(name => {
-        let cloneElement = document.createElement("span");
-        cloneElement.textContent = name;
-        cloneElement.classList.add("ticker__item");
-        attendeeTicker.appendChild(cloneElement);
-    });
+        // Ensure enough names to create a scrolling effect
+        attendees.forEach(name => {
+            let attendeeElement = document.createElement("span");
+            attendeeElement.textContent = name;
+            attendeeElement.classList.add("ticker__item");
+            attendeeTicker.appendChild(attendeeElement);
+        });
 
-    // ✅ Start animation if attendees exist
-    if (attendeeTicker.children.length > 0) {
-        startTickerAnimation();
+        // **Duplicate attendees to enable continuous scrolling**
+        let duplicateAttendees = [...attendees, ...attendees, ...attendees]; // Extend for smooth loop
+        duplicateAttendees.forEach(name => {
+            let cloneElement = document.createElement("span");
+            cloneElement.textContent = name;
+            cloneElement.classList.add("ticker__item");
+            attendeeTicker.appendChild(cloneElement);
+        });
+
+        // Apply animation only when attendees exist
+        if (attendeeTicker.children.length > 0) {
+            startTickerAnimation();
+        }
     }
-    }
 
+//
+//    function startTickerAnimation() {
+//        attendeeTicker.style.animation = `tickerScroll 20s linear infinite`; // Smooth animation
+//    }
 
     function startTickerAnimation() {
-        attendeeTicker.style.animation = `tickerScroll 20s linear infinite`; // Smooth animation
+        const ticker = document.querySelector(".ticker");
+
+        if (!ticker || ticker.children.length === 0) {
+            console.error("⚠️ No attendees found for ticker animation.");
+            return;
+        }
+
+        // Calculate total width dynamically based on children elements
+        const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
+
+        // Set the width dynamically to accommodate all names
+        ticker.style.width = `${totalWidth}px`;
+
+        // Apply smooth infinite scrolling
+        ticker.style.animation = `tickerScroll ${totalWidth / 50}s linear infinite`;
     }
+
 
     fetchAttendees(); // ✅ Fetch attendees only if attendeeTicker exists
 
