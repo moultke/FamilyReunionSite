@@ -273,6 +273,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+//    function startTickerAnimation() {
+//        const ticker = document.querySelector(".ticker");
+//
+//        if (!ticker || ticker.children.length === 0) {
+//            console.error("⚠️ No attendees found for ticker animation.");
+//            return;
+//        }
+//
+//        // ✅ Ensure the ticker container has enough content to scroll
+//        const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
+//
+//        // ✅ Duplicate content to create an infinite scrolling effect
+//        const duplicateContent = ticker.innerHTML;
+//        ticker.innerHTML += duplicateContent; // Clone the names once to ensure smooth transition
+//
+//        // ✅ Adjust scrolling speed (Increase divisor for slower speed)
+//        const scrollSpeed = totalWidth / 10; // Change `/6` to `/8` or `/10` to slow it down
+//
+//        // ✅ Ensure proper width and initial position
+//        ticker.style.width = `${totalWidth * 2}px`; // Double width for smooth looping
+//        ticker.style.whiteSpace = "nowrap";
+//        ticker.style.display = "inline-block";
+//        ticker.style.position = "relative";
+//
+//        // ✅ Start infinite scrolling animation
+//        ticker.style.animation = `scrollTicker ${scrollSpeed}s linear infinite`;
+//    }
+//
+//    // ✅ Define smooth scrolling animation in CSS (Include in your CSS file or <style> tag)
+//    const style = document.createElement("style");
+//    style.innerHTML = `
+//        @keyframes scrollTicker {
+//            0% { transform: translateX(0); }
+//            100% { transform: translateX(-50%); } /* Moves only half to maintain smooth loop */
+//        }
+//    `;
+
     function startTickerAnimation() {
         const ticker = document.querySelector(".ticker");
 
@@ -281,35 +318,25 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Ensure the ticker container has enough content to scroll
+        // ✅ Ensure all attendees fit in a single scroll width
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
+        ticker.style.width = `${totalWidth}px`;
 
-        // ✅ Duplicate content to create an infinite scrolling effect
-        const duplicateContent = ticker.innerHTML;
-        ticker.innerHTML += duplicateContent; // Clone the names once to ensure smooth transition
-
-        // ✅ Adjust scrolling speed (Increase divisor for slower speed)
-        const scrollSpeed = totalWidth / 10; // Change `/6` to `/8` or `/10` to slow it down
-
-        // ✅ Ensure proper width and initial position
-        ticker.style.width = `${totalWidth * 2}px`; // Double width for smooth looping
-        ticker.style.whiteSpace = "nowrap";
-        ticker.style.display = "inline-block";
-        ticker.style.position = "relative";
-
-        // ✅ Start infinite scrolling animation
-        ticker.style.animation = `scrollTicker ${scrollSpeed}s linear infinite`;
+        // ✅ Set a fixed fast animation speed (Lower number = faster)
+        const scrollSpeed = 5; // Adjust this for speed (e.g., 5s for fast, 10s for medium)
+        ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
     }
 
-    // ✅ Define smooth scrolling animation in CSS (Include in your CSS file or <style> tag)
     const style = document.createElement("style");
     style.innerHTML = `
-        @keyframes scrollTicker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); } /* Moves only half to maintain smooth loop */
+        @keyframes tickerScroll {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
         }
     `;
     document.head.appendChild(style);
+
+
 
 
 
