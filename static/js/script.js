@@ -233,6 +233,12 @@ document.addEventListener("DOMContentLoaded", function () {
             attendeeTickerContainer.appendChild(attendeeTicker);
         }
 
+        // ✅ Ensure attendeeTicker exists before using appendChild()
+        if (!attendeeTicker) {
+            console.error("⚠️ Error: attendeeTicker still missing after creation.");
+            return;
+        }
+
         attendeeTicker.innerHTML = ""; // Clear previous content
 
         if (!attendees || attendees.length === 0) {
@@ -275,15 +281,23 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Calculate total width dynamically based on children elements
+        // ✅ Set initial position for smoother start
+        ticker.style.transform = "translateX(0px)";
+        ticker.style.transition = "none"; // Prevent delay at the beginning
+
+        // ✅ Calculate total width dynamically based on children elements
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
 
-        // Set the width dynamically to accommodate all names
+        // ✅ Set the width dynamically to accommodate all names
         ticker.style.width = `${totalWidth}px`;
 
-        // Apply smooth infinite scrolling
-        ticker.style.animation = `tickerScroll ${totalWidth / 50}s linear infinite`;
+        // ✅ Apply smooth infinite scrolling without initial delay
+        setTimeout(() => {
+            ticker.style.transition = "transform 10s linear infinite"; // Adjust speed
+            ticker.style.transform = `translateX(-${totalWidth}px)`;
+        }, 100); // Start animation quickly
     }
+
 
     // Fetch attendees and start animation
     fetchAttendees();
@@ -306,6 +320,12 @@ document.addEventListener("DOMContentLoaded", function () {
             attendeeTickerContainer.appendChild(attendeeTicker);
         }
 
+        // ✅ Ensure attendeeTicker exists before using appendChild()
+        if (!attendeeTicker) {
+            console.error("⚠️ Error: attendeeTicker still missing after creation.");
+            return;
+        }
+
         let attendeeElement = document.createElement("span");
         attendeeElement.textContent = name;
         attendeeElement.classList.add("ticker__item");
@@ -317,6 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
             startTickerAnimation();
         }
     }
+
 
 
 
