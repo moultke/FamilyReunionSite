@@ -140,16 +140,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                // ✅ Ensure .ticker exists, create it if needed
                 let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
                 if (!attendeeTicker) {
+                    console.warn("⚠️ .ticker element missing! Creating one...");
                     attendeeTicker = document.createElement("div");
                     attendeeTicker.classList.add("ticker");
                     attendeeTickerContainer.appendChild(attendeeTicker);
                 }
 
-                // ✅ Clear previous attendees before adding new ones
-                attendeeTicker.innerHTML = "";
+                attendeeTicker.innerHTML = ""; // Clear previous attendees
 
                 if (!attendees || attendees.length === 0) {
                     console.log("⚠️ No attendees found in database.");
@@ -168,7 +167,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    function populateTicker(attendees) {
+
+     function populateTicker(attendees) {
         const attendeeTickerContainer = document.getElementById("attendeeTicker");
 
         if (!attendeeTickerContainer) {
@@ -217,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
     // ✅ Move the style definition OUTSIDE the function to ensure it's added only once
     const style = document.createElement("style");
     style.innerHTML = `
@@ -238,12 +239,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ✅ Ensure all attendees fit in a single scroll width
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
-        ticker.style.width = `${totalWidth * 2}px`;  // Ensures space for smooth loop
+        ticker.style.width = `${totalWidth * 2}px`;  // Makes sure there's enough space for continuous scrolling
 
-        // ✅ Set speed dynamically based on content width (prevents long delays)
-        const scrollSpeed = Math.max(totalWidth / 50, 10); // Balanced speed formula
+        // ✅ Set a fixed speed dynamically based on width
+        const scrollSpeed = totalWidth / 100 + 10; // Adjust speed
         ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
     }
+
 
 
 
@@ -607,5 +609,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    fetchAttendees();
+
     updateTotalCost();
 });
+
