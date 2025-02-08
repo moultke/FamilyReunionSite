@@ -140,16 +140,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
+                // ✅ Ensure .ticker exists, create it if needed
                 let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
-
-                // ✅ If .ticker does not exist, create and append it ONCE
                 if (!attendeeTicker) {
                     attendeeTicker = document.createElement("div");
                     attendeeTicker.classList.add("ticker");
                     attendeeTickerContainer.appendChild(attendeeTicker);
-                } else {
-                    attendeeTicker.innerHTML = ""; // Clear previous attendees
                 }
+
+                // ✅ Clear previous attendees before adding new ones
+                attendeeTicker.innerHTML = "";
 
                 if (!attendees || attendees.length === 0) {
                     console.log("⚠️ No attendees found in database.");
@@ -238,14 +238,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ✅ Ensure all attendees fit in a single scroll width
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
-        ticker.style.width = `${totalWidth * 1.5}px`;  // Ensures space for smooth loop
+        ticker.style.width = `${totalWidth * 2}px`;  // Ensures space for smooth loop
 
         // ✅ Set speed dynamically based on content width (prevents long delays)
-        const scrollSpeed = totalWidth / 100 + 10;  // Balanced speed formula
+        const scrollSpeed = Math.max(totalWidth / 50, 10); // Balanced speed formula
         ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
-
-        // ✅ Start scrolling immediately
-        ticker.style.transform = "translateX(0%)";
     }
 
 
