@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="scroll speed increased from 2 to 10">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
-    </list>
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="additional adjustments to speed 12" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,22 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00041" summary="new yml with path for jpg">
-      <option name="closed" value="true" />
-      <created>1738722890675</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1738722890675</updated>
-    </task>
-    <task id="LOCAL-00042" summary="new yml with path for jpg">
-      <option name="closed" value="true" />
-      <created>1738723288683</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1738723288683</updated>
     </task>
     <task id="LOCAL-00043" summary="another yml error">
       <option name="closed" value="true" />
@@ -475,12 +456,26 @@
       <option name="project" value="LOCAL" />
       <updated>1739043483294</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="additional adjustments to speed">
+      <option name="closed" value="true" />
+      <created>1739044514241</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1739044514241</updated>
+    </task>
+    <task id="LOCAL-00091" summary="additional adjustments to speed 12">
+      <option name="closed" value="true" />
+      <created>1739044753983</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1739044753983</updated>
+    </task>
+    <option name="localTasksCounter" value="92" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="yaml update login" />
-    <MESSAGE value="credentials set" />
     <MESSAGE value="access corrected" />
     <MESSAGE value="many changes. good night" />
     <MESSAGE value="old startup.sh" />
@@ -504,6 +499,8 @@
     <MESSAGE value="scroll speed increased from 4 to 2" />
     <MESSAGE value="scroll speed increased from 2 to 8" />
     <MESSAGE value="scroll speed increased from 2 to 10" />
-    <option name="LAST_COMMIT_MESSAGE" value="scroll speed increased from 2 to 10" />
+    <MESSAGE value="additional adjustments to speed" />
+    <MESSAGE value="additional adjustments to speed 12" />
+    <option name="LAST_COMMIT_MESSAGE" value="additional adjustments to speed 12" />
   </component>
 </project>
