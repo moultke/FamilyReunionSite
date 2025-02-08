@@ -170,16 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-     function populateTicker(attendees) {
+    function populateTicker(attendees) {
         const attendeeTickerContainer = document.getElementById("attendeeTicker");
-
         if (!attendeeTickerContainer) {
             console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
             return;
         }
 
         let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
-
         if (!attendeeTicker) {
             attendeeTicker = document.createElement("div");
             attendeeTicker.classList.add("ticker");
@@ -193,21 +191,43 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Append original attendees
-        attendees.forEach(name => {
+        // ✅ Append attendees with proper spacing
+        attendees.forEach((name, index) => {
             let attendeeElement = document.createElement("span");
             attendeeElement.textContent = name;
             attendeeElement.classList.add("ticker__item");
+
+            // Append attendee name
             attendeeTicker.appendChild(attendeeElement);
+
+            // 🆕 Add a visible separator (bullet or space)
+            if (index !== attendees.length - 1) {
+                let spaceElement = document.createElement("span");
+                spaceElement.textContent = " • "; // Bullet separator
+                spaceElement.style.margin = "0 50px"; // Extra spacing
+                spaceElement.style.fontWeight = "bold";
+                spaceElement.style.color = "#dc3545";
+
+                attendeeTicker.appendChild(spaceElement);
+            }
         });
 
-        // ✅ Duplicate attendees multiple times to ensure smooth scrolling
-        for (let i = 0; i < 3; i++) {  // 3X duplication ensures enough content
-            attendees.forEach(name => {
+        // ✅ Duplicate attendees multiple times for smooth scrolling
+        for (let i = 0; i < 2; i++) {
+            attendees.forEach((name, index) => {
                 let cloneElement = document.createElement("span");
                 cloneElement.textContent = name;
                 cloneElement.classList.add("ticker__item");
                 attendeeTicker.appendChild(cloneElement);
+
+                if (index !== attendees.length - 1) {
+                    let spaceElement = document.createElement("span");
+                    spaceElement.textContent = " • ";
+                    spaceElement.style.margin = "0 50px";
+                    spaceElement.style.fontWeight = "bold";
+                    spaceElement.style.color = "#dc3545";
+                    attendeeTicker.appendChild(spaceElement);
+                }
             });
         }
 
