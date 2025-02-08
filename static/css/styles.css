@@ -174,8 +174,10 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 20s linear infinite;
+    animation: tickerScroll linear infinite;
+    will-change: transform;
 }
+
 
 /* Scrolling Animation */
 @keyframes tickerScroll {
