@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="additional adjustments to speed 12" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="additional adjustments to speed 50" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,22 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00043" summary="another yml error">
-      <option name="closed" value="true" />
-      <created>1738723440249</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1738723440249</updated>
-    </task>
-    <task id="LOCAL-00044" summary="remove turbo">
-      <option name="closed" value="true" />
-      <created>1738723965810</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1738723965810</updated>
     </task>
     <task id="LOCAL-00045" summary="eliminated pillow">
       <option name="closed" value="true" />
@@ -472,12 +456,26 @@
       <option name="project" value="LOCAL" />
       <updated>1739044753983</updated>
     </task>
-    <option name="localTasksCounter" value="92" />
+    <task id="LOCAL-00092" summary="additional adjustments to speed 25">
+      <option name="closed" value="true" />
+      <created>1739044885889</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1739044885889</updated>
+    </task>
+    <task id="LOCAL-00093" summary="additional adjustments to speed 50">
+      <option name="closed" value="true" />
+      <created>1739045138862</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1739045138862</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="access corrected" />
-    <MESSAGE value="many changes. good night" />
     <MESSAGE value="old startup.sh" />
     <MESSAGE value="startup.sh remove gunicorn" />
     <MESSAGE value="startup.sh and yml both updated" />
@@ -501,6 +499,8 @@
     <MESSAGE value="scroll speed increased from 2 to 10" />
     <MESSAGE value="additional adjustments to speed" />
     <MESSAGE value="additional adjustments to speed 12" />
-    <option name="LAST_COMMIT_MESSAGE" value="additional adjustments to speed 12" />
+    <MESSAGE value="additional adjustments to speed 25" />
+    <MESSAGE value="additional adjustments to speed 50" />
+    <option name="LAST_COMMIT_MESSAGE" value="additional adjustments to speed 50" />
   </component>
 </project>
