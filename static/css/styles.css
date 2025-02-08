@@ -175,14 +175,14 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 20s linear infinite;
+    animation: tickerScroll 30s linear infinite;
     min-width: 100%;
 }
 
 /* Ensure smooth scrolling of items */
 .ticker__item {
     display: inline-block;
-    padding: 0 50px;
+    padding: 0 60px;
     font-size: 1.2rem;
     font-weight: bold;
     color: #dc3545;
