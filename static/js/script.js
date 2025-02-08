@@ -281,9 +281,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Set initial position for smoother start
+        // ✅ Reset position for smoother looping
         ticker.style.transform = "translateX(0px)";
-        ticker.style.transition = "none"; // Prevent delay at the beginning
+        ticker.style.transition = "none"; // Prevent jumping at the beginning
 
         // ✅ Calculate total width dynamically based on children elements
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
@@ -291,9 +291,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // ✅ Set the width dynamically to accommodate all names
         ticker.style.width = `${totalWidth}px`;
 
-        // ✅ Apply smooth infinite scrolling without initial delay
+        // ✅ Adjust scrolling speed dynamically based on width
+        const scrollSpeed = totalWidth / 10; // Increase divisor for slower speed (e.g., `/ 8` for even slower)
+
+        // ✅ Apply smooth infinite scrolling with adjusted speed
         setTimeout(() => {
-            ticker.style.transition = "transform 10s linear infinite"; // Adjust speed
+            ticker.style.transition = `transform ${scrollSpeed}s linear infinite`;
             ticker.style.transform = `translateX(-${totalWidth}px)`;
         }, 100); // Start animation quickly
     }
