@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="contact us" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="removed registration">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,14 +82,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00025" summary="YAMS update">
-      <option name="closed" value="true" />
-      <created>1738691575613</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1738691575613</updated>
     </task>
     <task id="LOCAL-00026" summary="YAMS update big size">
       <option name="closed" value="true" />
@@ -472,11 +467,18 @@
       <option name="project" value="LOCAL" />
       <updated>1738974764411</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="removed registration">
+      <option name="closed" value="true" />
+      <created>1738987763496</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1738987763496</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="yaml updated again" />
     <MESSAGE value="revert yams" />
     <MESSAGE value="revert yams dot" />
     <MESSAGE value="old yams" />
@@ -501,6 +503,7 @@
     <MESSAGE value="html updates" />
     <MESSAGE value="uninstall pillow" />
     <MESSAGE value="contact us" />
-    <option name="LAST_COMMIT_MESSAGE" value="contact us" />
+    <MESSAGE value="removed registration" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed registration" />
   </component>
 </project>
