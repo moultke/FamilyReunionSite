@@ -281,25 +281,36 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Reset position for smoother looping
-        ticker.style.transform = "translateX(0px)";
-        ticker.style.transition = "none"; // Prevent jumping at the beginning
-
-        // ✅ Calculate total width dynamically based on children elements
+        // ✅ Ensure the ticker container has enough content to scroll
         const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
 
-        // ✅ Set the width dynamically to accommodate all names
-        ticker.style.width = `${totalWidth}px`;
+        // ✅ Duplicate content to create an infinite scrolling effect
+        const duplicateContent = ticker.innerHTML;
+        ticker.innerHTML += duplicateContent; // Clone the names once to ensure smooth transition
 
-        // ✅ Adjust scrolling speed dynamically based on width
-        const scrollSpeed = totalWidth / 8; // Increase divisor for slower speed (e.g., `/ 8` for even slower)
+        // ✅ Adjust scrolling speed (Increase divisor for slower speed)
+        const scrollSpeed = totalWidth / 6; // Change `/6` to `/8` or `/10` to slow it down
 
-        // ✅ Apply smooth infinite scrolling with adjusted speed
-        setTimeout(() => {
-            ticker.style.transition = `transform ${scrollSpeed}s linear infinite`;
-            ticker.style.transform = `translateX(-${totalWidth}px)`;
-        }, 100); // Start animation quickly
+        // ✅ Ensure proper width and initial position
+        ticker.style.width = `${totalWidth * 2}px`; // Double width for smooth looping
+        ticker.style.whiteSpace = "nowrap";
+        ticker.style.display = "inline-block";
+        ticker.style.position = "relative";
+
+        // ✅ Start infinite scrolling animation
+        ticker.style.animation = `scrollTicker ${scrollSpeed}s linear infinite`;
     }
+
+    // ✅ Define smooth scrolling animation in CSS (Include in your CSS file or <style> tag)
+    const style = document.createElement("style");
+    style.innerHTML = `
+        @keyframes scrollTicker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } /* Moves only half to maintain smooth loop */
+        }
+    `;
+    document.head.appendChild(style);
+
 
 
     // Fetch attendees and start animation
