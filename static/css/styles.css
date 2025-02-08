@@ -182,7 +182,7 @@ footer {
 /* Ensure smooth scrolling of items */
 .ticker__item {
     display: inline-block;
-    padding: 0 30px;
+    padding: 0 50px;
     font-size: 1.2rem;
     font-weight: bold;
     color: #dc3545;

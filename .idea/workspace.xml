@@ -80,14 +80,6 @@
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
     </task>
-    <task id="LOCAL-00054" summary="yaml update login">
-      <option name="closed" value="true" />
-      <created>1738740093695</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
-      <option name="project" value="LOCAL" />
-      <updated>1738740093695</updated>
-    </task>
     <task id="LOCAL-00055" summary="credentials set">
       <option name="closed" value="true" />
       <created>1738741060479</created>
@@ -472,7 +464,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739051487501</updated>
     </task>
-    <option name="localTasksCounter" value="103" />
+    <task id="LOCAL-00103" summary="3 function updates and call">
+      <option name="closed" value="true" />
+      <created>1739051911601</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1739051911601</updated>
+    </task>
+    <option name="localTasksCounter" value="104" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
