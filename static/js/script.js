@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.style.width = `${totalWidth}px`;
 
         // ✅ Set a fixed fast animation speed (Lower number = faster)
-        const scrollSpeed = 5; // Adjust this for speed (e.g., 5s for fast, 10s for medium)
+        const scrollSpeed = 12; // Adjust this for speed (e.g., 5s for fast, 10s for medium)
         ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
     }
 
