@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="scroll speed increased from 6 to 4" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="scroll speed increased from 2 to 8" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,22 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00038" summary="revert yams">
-      <option name="closed" value="true" />
-      <created>1738704917022</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1738704917022</updated>
-    </task>
-    <task id="LOCAL-00039" summary="revert yams dot">
-      <option name="closed" value="true" />
-      <created>1738704947214</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1738704947214</updated>
     </task>
     <task id="LOCAL-00040" summary="old yams">
       <option name="closed" value="true" />
@@ -472,12 +456,26 @@
       <option name="project" value="LOCAL" />
       <updated>1739042517928</updated>
     </task>
-    <option name="localTasksCounter" value="87" />
+    <task id="LOCAL-00087" summary="scroll speed increased from 4 to 2">
+      <option name="closed" value="true" />
+      <created>1739042763768</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1739042763769</updated>
+    </task>
+    <task id="LOCAL-00088" summary="scroll speed increased from 2 to 8">
+      <option name="closed" value="true" />
+      <created>1739043002216</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1739043002216</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="clean up activity" />
-    <MESSAGE value="fixed app:app" />
     <MESSAGE value="fresh app endpoint" />
     <MESSAGE value="yaml update login" />
     <MESSAGE value="credentials set" />
@@ -501,6 +499,8 @@
     <MESSAGE value="fix speed of ticker faster" />
     <MESSAGE value="startTickerAnimation update" />
     <MESSAGE value="scroll speed increased from 6 to 4" />
-    <option name="LAST_COMMIT_MESSAGE" value="scroll speed increased from 6 to 4" />
+    <MESSAGE value="scroll speed increased from 4 to 2" />
+    <MESSAGE value="scroll speed increased from 2 to 8" />
+    <option name="LAST_COMMIT_MESSAGE" value="scroll speed increased from 2 to 8" />
   </component>
 </project>
