@@ -192,12 +192,8 @@ footer {
 
 /* Continuous Scrolling Animation */
 @keyframes tickerScroll {
-    from {
-        transform: translateX(100%);
-    }
-    to {
-        transform: translateX(-100%);
-    }
+    0% { transform: translateX(0%); }  /* Start from visible */
+    100% { transform: translateX(-100%); }  /* Move left */
 }
 
 

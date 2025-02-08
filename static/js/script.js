@@ -316,16 +316,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!ticker || ticker.children.length === 0) {
             console.error("⚠️ No attendees found for ticker animation.");
             return;
-        }
-
-        // ✅ Ensure all attendees fit in a single scroll width
-        const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
-        ticker.style.width = `${totalWidth}px`;
-
-        // ✅ Set a fixed fast animation speed (Lower number = faster)
-        const scrollSpeed = 75; // Adjust this for speed (e.g., 5s for fast, 10s for medium)
-        ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
     }
+
+    // Ensure all attendees fit in a single scroll width
+    const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
+    ticker.style.width = `${totalWidth * 2}px`; // Double width for continuous loop
+
+    // Set a fixed animation speed (Lower number = faster)
+    const scrollSpeed = 80; // Adjust speed as needed (higher = slower, lower = faster)
+    ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
+
+    // Start the animation immediately
+    ticker.style.transform = "translateX(0%)";
 
     const style = document.createElement("style");
     style.innerHTML = `
