@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="html updates" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="uninstall pillow">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/script0.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script0.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,14 +86,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00022" summary="yml update again">
-      <option name="closed" value="true" />
-      <created>1738625346641</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1738625346641</updated>
     </task>
     <task id="LOCAL-00023" summary="added HEIC capabilities">
       <option name="closed" value="true" />
@@ -472,11 +471,18 @@
       <option name="project" value="LOCAL" />
       <updated>1738953583060</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="uninstall pillow">
+      <option name="closed" value="true" />
+      <created>1738954539379</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1738954539379</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update yams and requirements with space" />
     <MESSAGE value="yaml updated" />
     <MESSAGE value="yaml updated again" />
     <MESSAGE value="revert yams" />
@@ -501,6 +507,7 @@
     <MESSAGE value="startup.sh and yml both updated" />
     <MESSAGE value="startup, requirement and yml updates" />
     <MESSAGE value="html updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="html updates" />
+    <MESSAGE value="uninstall pillow" />
+    <option name="LAST_COMMIT_MESSAGE" value="uninstall pillow" />
   </component>
 </project>
