@@ -9,6 +9,8 @@ function openImageModal(imageUrl) {
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ JavaScript Loaded...");
 
+    fetchAttendees();
+
     // Ensure attendeeTicker exists before running anything
     const attendeeTickerContainer = document.getElementById("attendeeTicker");
     // Gallery variables
@@ -609,7 +611,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    fetchAttendees();
+
 
     updateTotalCost();
 });

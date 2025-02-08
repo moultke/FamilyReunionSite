@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="3 function updates">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-    </list>
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="3 function updates and call" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,14 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00053" summary="yaml update login">
-      <option name="closed" value="true" />
-      <created>1738738796141</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1738738796141</updated>
     </task>
     <task id="LOCAL-00054" summary="yaml update login">
       <option name="closed" value="true" />
@@ -476,11 +464,18 @@
       <option name="project" value="LOCAL" />
       <updated>1739050168415</updated>
     </task>
-    <option name="localTasksCounter" value="102" />
+    <task id="LOCAL-00102" summary="3 function updates and call">
+      <option name="closed" value="true" />
+      <created>1739051487501</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1739051487501</updated>
+    </task>
+    <option name="localTasksCounter" value="103" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="removed registration from top too" />
     <MESSAGE value="added an admin.html" />
     <MESSAGE value="ticker changes" />
     <MESSAGE value="fixed populateticker" />
@@ -505,6 +500,7 @@
     <MESSAGE value="scroll code updates" />
     <MESSAGE value="updates" />
     <MESSAGE value="3 function updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="3 function updates" />
+    <MESSAGE value="3 function updates and call" />
+    <option name="LAST_COMMIT_MESSAGE" value="3 function updates and call" />
   </component>
 </project>
