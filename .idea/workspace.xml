@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="additional adjustments to speed 50" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="additional adjustments to speed 100" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,14 +79,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00045" summary="eliminated pillow">
-      <option name="closed" value="true" />
-      <created>1738730402175</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1738730402175</updated>
     </task>
     <task id="LOCAL-00046" summary="eliminated pillow">
       <option name="closed" value="true" />
@@ -472,11 +464,18 @@
       <option name="project" value="LOCAL" />
       <updated>1739045138862</updated>
     </task>
-    <option name="localTasksCounter" value="94" />
+    <task id="LOCAL-00094" summary="additional adjustments to speed 100">
+      <option name="closed" value="true" />
+      <created>1739045335724</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1739045335724</updated>
+    </task>
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="old startup.sh" />
     <MESSAGE value="startup.sh remove gunicorn" />
     <MESSAGE value="startup.sh and yml both updated" />
     <MESSAGE value="startup, requirement and yml updates" />
@@ -501,6 +500,7 @@
     <MESSAGE value="additional adjustments to speed 12" />
     <MESSAGE value="additional adjustments to speed 25" />
     <MESSAGE value="additional adjustments to speed 50" />
-    <option name="LAST_COMMIT_MESSAGE" value="additional adjustments to speed 50" />
+    <MESSAGE value="additional adjustments to speed 100" />
+    <option name="LAST_COMMIT_MESSAGE" value="additional adjustments to speed 100" />
   </component>
 </project>
