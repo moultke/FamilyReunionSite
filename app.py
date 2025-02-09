@@ -395,6 +395,34 @@ def admin():
         logging.error(f"❌ Admin Page Error: {e}")
         return jsonify({'error': 'Failed to load admin page'}), 500
 
+@app.route('/view-admin')
+def view_admin():
+    try:
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        # Fetch registrations
+        registrations = db.execute('SELECT * FROM registrations').fetchall()
+        logging.info(f"🟢 Registrations Found: {len(registrations)}")
+
+        # Fetch RSVPs
+        rsvps = db.execute('SELECT * FROM rsvps').fetchall()
+        logging.info(f"🟢 RSVPs Found: {len(rsvps)}")
+
+        # Fetch images
+        images = [
+            {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
+            if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
+        ]
+        logging.info(f"🟢 Images Found: {len(images)}")
+
+        return render_template('view_admin.html', registrations=registrations, rsvps=rsvps, images=images)
+
+    except Exception as e:
+        logging.error(f"❌ View Admin Page Error: {e}")
+        return jsonify({'error': 'Failed to load view-only admin page'}), 500
+
 
 
 @app.route("/check-session")
