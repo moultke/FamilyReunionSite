@@ -44,6 +44,40 @@ document.addEventListener("DOMContentLoaded", function () {
     let totalImages = 0;
     let pagination;
 
+    function addAttendeeToTicker(name) {
+    const attendeeTickerContainer = document.getElementById("attendeeTicker");
+    if (!attendeeTickerContainer) {
+        console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
+        return;
+    }
+
+    let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
+    if (!attendeeTicker) {
+        console.warn("⚠️ .ticker element missing! Creating one...");
+        attendeeTicker = document.createElement("div");
+        attendeeTicker.classList.add("ticker");
+        attendeeTickerContainer.appendChild(attendeeTicker);
+    }
+
+    let attendeeElement = document.createElement("span");
+    attendeeElement.textContent = name;
+    attendeeElement.classList.add("ticker__item");
+
+    // Add the attendee's name to the ticker
+    attendeeTicker.appendChild(attendeeElement);
+
+    // ✅ Add separator **after** each name except the last one
+    let separator = document.createElement("span");
+    separator.textContent = " • ";
+    separator.style.margin = "0 50px";
+    separator.style.fontWeight = "bold";
+    separator.style.color = "#dc3545";
+    attendeeTicker.appendChild(separator);
+
+    startTickerAnimation(); // Restart animation with the new attendee
+}
+
+
 
 
     contactForm.addEventListener("submit", function (event) {
@@ -92,23 +126,29 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({ name, email, phone, attending }) // Include phone number
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update attendee ticker
-                    addAttendeeToTicker(name);
-                    rsvpForm.reset(); // Clear the form
-                    alert("Thank you for your RSVP!"); // Or use a nicer notification
-                } else {
-                    alert(data.error || "Error submitting RSVP. Please try again.");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred. Please try again later.");
-            });
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ RSVP submitted successfully.");
 
+                // ✅ Only call addAttendeeToTicker if it exists
+                if (typeof addAttendeeToTicker === "function") {
+                    addAttendeeToTicker(name);
+                } else {
+                    console.error("⚠️ Error: addAttendeeToTicker function is not defined.");
+                }
+
+                rsvpForm.reset(); // Clear the form
+                alert("Thank you for your RSVP!");
+            } else {
+                alert(data.error || "Error submitting RSVP. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error:", error);
+            alert("An error occurred. Please try again later.");
+        });
+    });
 
 
     function deleteItem(type, id) {
@@ -239,10 +279,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function populateTicker(attendees) {
         const attendeeTickerContainer = document.getElementById("attendeeTicker");
-        if (!attendeeTickerContainer) {
-            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
-            return;
-        }
+//        if (!attendeeTickerContainer) {
+//            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
+//            return;
+//        }
 
         let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
         if (!attendeeTicker) {
