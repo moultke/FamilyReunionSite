@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="moved attendees">
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="update script">
+      <change afterPath="$PROJECT_DIR$/templates/view_admin.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,14 +83,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00059" summary="old startup.sh">
-      <option name="closed" value="true" />
-      <created>1738890992326</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1738890992327</updated>
     </task>
     <task id="LOCAL-00060" summary="startup.sh remove gunicorn">
       <option name="closed" value="true" />
@@ -475,11 +468,18 @@
       <option name="project" value="LOCAL" />
       <updated>1739053152463</updated>
     </task>
-    <option name="localTasksCounter" value="108" />
+    <task id="LOCAL-00108" summary="update script">
+      <option name="closed" value="true" />
+      <created>1739133878680</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1739133878680</updated>
+    </task>
+    <option name="localTasksCounter" value="109" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixed javascript" />
     <MESSAGE value="add'l ticker changes" />
     <MESSAGE value="fix speed of ticker" />
     <MESSAGE value="fix speed of ticker faster" />
@@ -504,6 +504,7 @@
     <MESSAGE value="increase spacing" />
     <MESSAGE value="increase spacing and slow speed" />
     <MESSAGE value="moved attendees" />
-    <option name="LAST_COMMIT_MESSAGE" value="moved attendees" />
+    <MESSAGE value="update script" />
+    <option name="LAST_COMMIT_MESSAGE" value="update script" />
   </component>
 </project>

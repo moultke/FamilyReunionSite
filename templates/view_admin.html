@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View-Only Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>View-Only Admin Dashboard</h1>
+
+    <h2>Registrations</h2>
+    {% if registrations %}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>T-Shirt Size</th>
+            <th>Age Group</th>
+            <th>Price</th>
+        </tr>
+        {% for reg in registrations %}
+        <tr>
+            <td>{{ reg[0] }}</td>
+            <td>{{ reg[1] }}</td>
+            <td>{{ reg[2] }}</td>
+            <td>{{ reg[3] }}</td>
+            <td>${{ "%.2f"|format(reg[4]) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No registrations found.</p>
+    {% endif %}
+
+    <h2>RSVPs</h2>
+    {% if rsvps %}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Attending</th>
+        </tr>
+        {% for rsvp in rsvps %}
+        <tr>
+            <td>{{ rsvp[0] }}</td>
+            <td>{{ rsvp[1] }}</td>
+            <td>{{ rsvp[2] }}</td>
+            <td>{{ rsvp[3] }}</td>
+            <td>{{ rsvp[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No RSVPs found.</p>
+    {% endif %}
+
+    <h2>Uploaded Images</h2>
+    <div class="gallery">
+        {% for image in images %}
+        <div class="image-container">
+            <img src="{{ url_for('uploaded_file', filename=image['filename']) }}" width="150" alt="Uploaded Image">
+        </div>
+        {% endfor %}
+    </div>
+
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
