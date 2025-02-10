@@ -365,19 +365,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Ensure all names are added **before** duplication
+        // ✅ Save original attendee names
         const originalContent = Array.from(ticker.children).map(el => el.outerHTML).join("");
 
-        // ✅ Duplicate **enough** times for smooth looping
-        ticker.innerHTML = originalContent + originalContent + originalContent;
+        // ✅ Clear existing ticker content & duplicate for a smooth loop
+        ticker.innerHTML = originalContent + originalContent; // Duplicate once
 
         // ✅ Ensure the ticker is wide enough to prevent early resets
         const totalWidth = ticker.scrollWidth;
         ticker.style.width = `${totalWidth}px`;
 
-        // ✅ Apply the correct animation with **no resets**
-        ticker.style.animation = "tickerScroll 10s linear infinite";
+        // ✅ Apply the fixed animation
+        ticker.style.animation = `tickerScroll ${totalWidth / 100}px linear infinite`;
     }
+
 
 
 
