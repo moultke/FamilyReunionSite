@@ -200,7 +200,7 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 2s linear infinite;
+    animation: tickerScroll 5s linear infinite;
     min-width: 100%;
 }
 
@@ -216,8 +216,8 @@ footer {
 
 /* Continuous Scrolling Animation */
 @keyframes tickerScroll {
-    0% { transform: translateX(100%); }  /* Start immediately */
-    100% { transform: translateX(-100%); }  /* Scroll smoothly */
+    0% { transform: translateX(50%); }  /* Start further right */
+    100% { transform: translateX(-150%); }  /* Move beyond the left edge */
 }
 
 
