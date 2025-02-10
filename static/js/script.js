@@ -359,24 +359,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function startTickerAnimation() {
         const ticker = document.querySelector(".ticker");
-
         if (!ticker || ticker.children.length === 0) {
             console.error("⚠️ No attendees found for ticker animation.");
             return;
         }
 
-        // ✅ **Ensure enough duplicates for smooth scrolling**
-        const originalContent = ticker.innerHTML;
-        ticker.innerHTML = originalContent + originalContent + originalContent; // **Triple duplication**
+        // Calculate the width of the original set of attendees (before duplication)
+        let originalWidth = 0;
+        for (let i = 0; i < ticker.children.length / 2; i++) { // Divide by 2 since it's duplicated
+            originalWidth += ticker.children[i].offsetWidth;
+        }
 
-        // ✅ **Ensure width is large enough to prevent early looping**
-        const totalWidth = ticker.scrollWidth;
-        ticker.style.width = `${totalWidth}px`;
+        // Set the ticker width to accommodate the original content and some spacing
+        ticker.style.width = `${originalWidth * 2}px`; // Double the width for smooth looping
 
-        // ✅ **Keep the correct animation speed**
-        ticker.style.animation = "tickerScroll 5s linear infinite";
+        // Apply the animation with translateX(-50%)
+        ticker.style.animation = "tickerScroll 20s linear infinite"; // Adjust duration as needed
     }
-
 
 
 
