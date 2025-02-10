@@ -200,7 +200,7 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 5s linear infinite;
+    animation: tickerScroll 2s linear infinite;
     min-width: 100%;
 }
 
