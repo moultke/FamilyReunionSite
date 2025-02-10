@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.style.width = `${totalWidth}px`;
 
         // ✅ Apply the correct animation with **no resets**
-        ticker.style.animation = "tickerScroll 5s linear infinite";
+        ticker.style.animation = "tickerScroll 20s linear infinite";
     }
 
 
