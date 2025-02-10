@@ -216,8 +216,8 @@ footer {
 
 /* Continuous Scrolling Animation */
 @keyframes tickerScroll {
-    0% { transform: translateX(50%); }  /* Start further right */
-    100% { transform: translateX(-150%); }  /* Move beyond the left edge */
+    0% { transform: translateX(0%); }  /* Start from original */
+    100% { transform: translateX(-50%); }  /* Move the correct width */
 }
 
 
