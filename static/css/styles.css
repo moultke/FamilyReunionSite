@@ -208,7 +208,7 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 15s linear infinite; /* ✅ Increased duration */
+    animation: tickerScroll 13s linear infinite; /* ✅ Increased duration */
     will-change: transform;  /* Optimizes animation for performance */
 }
 
