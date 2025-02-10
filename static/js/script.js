@@ -365,16 +365,18 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Duplicate names for seamless looping
-        ticker.innerHTML += ticker.innerHTML + ticker.innerHTML;  // **Triple duplication**
+        // ✅ **Ensure enough duplicates for smooth scrolling**
+        const originalContent = ticker.innerHTML;
+        ticker.innerHTML = originalContent + originalContent + originalContent; // **Triple duplication**
 
-        // ✅ Ensure width is large enough to prevent looping too early
+        // ✅ **Ensure width is large enough to prevent early looping**
         const totalWidth = ticker.scrollWidth;
         ticker.style.width = `${totalWidth}px`;
 
-        // ✅ Apply the **EXISTING** animation in CSS
-        ticker.style.animation = "tickerScroll 5s linear infinite";  // ⚠️ **Fixed Speed**
+        // ✅ **Keep the correct animation speed**
+        ticker.style.animation = "tickerScroll 5s linear infinite";
     }
+
 
 
 

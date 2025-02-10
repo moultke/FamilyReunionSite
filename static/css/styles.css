@@ -197,10 +197,15 @@ footer {
 }
 
 /* Ticker Scrolling Effect */
+@keyframes tickerScroll {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }  /* Scroll smoothly before looping */
+}
+
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 5s linear infinite;
+    animation: tickerScroll 5s linear infinite;  /* ✅ Keeps the correct speed */
     min-width: 100%;
 }
 
@@ -213,14 +218,6 @@ footer {
     color: #dc3545;
     white-space: nowrap;
 }
-
-/* Continuous Scrolling Animation */
-@keyframes tickerScroll {
-    0% { transform: translateX(0%); }  /* Start from original */
-    100% { transform: translateX(-50%); }  /* Move the correct width */
-}
-
-
 
 
 
