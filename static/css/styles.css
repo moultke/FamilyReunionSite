@@ -155,9 +155,34 @@ footer {
 }
 
 /* Pagination */
-.pagination .page-item.active .page-link {
-    background-color: #dc3545;
-    border-color: #dc3545;
+.pagination-container {
+    width: 100%;
+    max-width: 300px;  /* Adjust this width based on your layout */
+    overflow-x: auto;  /* Enable horizontal scrolling */
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;  /* Center-align pagination */
+    margin: 10px auto;
+    padding: 5px 0;
+    border-radius: 5px;
+}
+
+/* Ensure pagination buttons remain neatly spaced */
+.pagination {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 5px;  /* Spacing between numbers */
+}
+
+.pagination .page-item {
+    display: inline-block;
+    min-width: 30px;  /* Set a minimum width */
+}
+
+.pagination .page-link {
+    padding: 8px 10px;
+    font-size: 14px;
+}
 
 /* Ticker Container */
 .ticker-wrap {

@@ -391,10 +391,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-
-
-
-
     // General notification function
     function showNotification(message, type = "success", targetElement) {  // No default value
         if (targetElement) { // Check if targetElement exists
@@ -410,25 +406,42 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+
+     // pagination of the gallery function
     function updatePagination() {
-        // Get pagination element inside the function, after DOM is ready
-        pagination = document.getElementById('pagination');
+        const pagination = document.getElementById('pagination');
 
         if (!pagination) {
             console.error("Pagination element not found!");
-            return; // Exit if the element is not found
+            return;
         }
 
         const totalPages = Math.ceil(totalImages / imagesPerPage);
-        pagination.innerHTML = ''; // Clear existing pagination links
+        pagination.innerHTML = '';
 
-        for (let i = 1; i <= totalPages; i++) {
+        if (totalPages <= 1) return; // Hide pagination if only one page
+
+        const maxVisiblePages = 5;  // Adjust this number as needed
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Add "Previous" button
+        if (currentPage > 1) {
+            const prevLi = document.createElement('li');
+            prevLi.className = 'page-item';
+            prevLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage - 1}">&laquo; Prev</a>`;
+            pagination.appendChild(prevLi);
+        }
+
+        // Generate the page number links
+        for (let i = startPage; i <= endPage; i++) {
             const li = document.createElement('li');
-            li.className = 'page-item';
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
             const a = document.createElement('a');
             a.className = 'page-link';
             a.href = '#';
             a.textContent = i;
+            a.setAttribute('data-page', i);
 
             a.addEventListener('click', function (event) {
                 event.preventDefault();
@@ -439,36 +452,26 @@ document.addEventListener("DOMContentLoaded", function () {
             li.appendChild(a);
             pagination.appendChild(li);
         }
-    }
 
-    function updatePagination() {
-            pagination = document.getElementById('pagination');
+        // Add "Next" button
+        if (currentPage < totalPages) {
+            const nextLi = document.createElement('li');
+            nextLi.className = 'page-item';
+            nextLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage + 1}">Next &raquo;</a>`;
+            pagination.appendChild(nextLi);
+        }
 
-            if (!pagination) {
-                console.error("Pagination element not found!");
-                return;
-            }
+        // Ensure the pagination container is scrollable
+        pagination.parentElement.classList.add('pagination-container');
 
-            const totalPages = Math.ceil(totalImages / imagesPerPage);
-            pagination.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                const li = document.createElement('li');
-                li.className = 'page-item';
-                const a = document.createElement('a');
-                a.className = 'page-link';
-                a.href = '#';
-                a.textContent = i;
-
-                a.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    currentPage = i;
-                    fetchGalleryImages(currentPage);
-                });
-
-                li.appendChild(a);
-                pagination.appendChild(li);
-            }
+        // Add event listeners for "Next" and "Previous" buttons
+        pagination.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                currentPage = parseInt(this.getAttribute('data-page'));
+                fetchGalleryImages(currentPage);
+            });
+        });
     }
 
     function fetchGalleryImages(page = 1) {
