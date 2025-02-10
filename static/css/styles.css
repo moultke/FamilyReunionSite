@@ -179,10 +179,13 @@ footer {
     min-width: 30px;  /* Set a minimum width */
 }
 
+/* pagination duplicate
+
 .pagination .page-link {
     padding: 8px 10px;
     font-size: 14px;
 }
+*/
 
 /* Ticker Container */
 .ticker-wrap {
@@ -205,7 +208,7 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 30s linear infinite; /* ✅ Increased duration */
+    animation: tickerScroll 20s linear infinite; /* ✅ Increased duration */
     will-change: transform;  /* Optimizes animation for performance */
 }
 
@@ -251,3 +254,43 @@ footer {
     background-color: #f8d7da;
     color: #dc3545;
 }
+
+/* 🔴 Upload Photo Button
+#uploadButton {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+*/
+
+#uploadButton, #contact .btn-primary {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+
+#uploadButton:hover {
+    background-color: #b02a37 !important; /* Darker red on hover */
+    border-color: #b02a37 !important;
+}
+
+/* 🔴 Pagination Numbers */
+.pagination .page-link {
+    color: #dc3545 !important; /* Red text */
+    border: 1px solid #dc3545 !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* 🔴 Selected Page */
+.pagination .page-item.active .page-link {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
