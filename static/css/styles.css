@@ -306,3 +306,14 @@ footer {
     font-weight: bold;
 }
 
+/* 🔴 Change "Submit RSVP" Button to Red */
+.submit-rsvp-btn {
+    background-color: #dc3545 !important; /* Red background */
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.submit-rsvp-btn:hover {
+    background-color: #b02a37 !important; /* Darker red on hover */
+    border-color: #b02a37 !important;
+}
