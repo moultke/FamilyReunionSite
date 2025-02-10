@@ -476,8 +476,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function fetchGalleryImages(page = 1) {
         const offset = (page - 1) * imagesPerPage;
-
-        console.log("Fetching images...");
+        console.log(`📸 Fetching images from server... Page: ${page}, Offset: ${offset}`);
 
         fetch(`/images?limit=${imagesPerPage}&offset=${offset}`)
             .then(response => {
@@ -488,85 +487,41 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("📸 Images fetched:", data);
-                galleryGrid.innerHTML = "";
+                const galleryGrid = document.getElementById("galleryGrid");
+                galleryGrid.innerHTML = ""; // Clear old images before adding new ones
 
                 if (!data.images || data.images.length === 0) {
-                    console.log("📸 No images found in database.");
+                    console.log("⚠️ No images found.");
+                    galleryGrid.innerHTML = "<p>No images uploaded yet.</p>";
                     return;
                 }
 
-                if (data.images) {
-                    data.images.forEach(image => {
-                        const fullImageUrl = `${baseUrl}/uploads/${image.filename}`;
-
-                        const col = document.createElement("div");
-                        col.className = "col-md-3 mb-3";
-                        col.innerHTML = `
-                            <div class="card">
-                                <img src="${fullImageUrl}" class="card-img-top img-thumbnail" onclick="openImageModal('${fullImageUrl}')" alt="Uploaded Image">
-                            </div>
-                        `;
-                        galleryGrid.appendChild(col);
-                    });
-                }
+                data.images.forEach(image => {
+                    const fullImageUrl = `${window.location.origin}/uploads/${image.filename}`;
+                    const col = document.createElement("div");
+                    col.className = "col-md-3 mb-3";
+                    col.innerHTML = `
+                        <div class="card gallery-card">
+                            <img src="${fullImageUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullImageUrl}')" alt="Uploaded Image">
+                        </div>
+                    `;
+                    galleryGrid.appendChild(col);
+                });
 
                 totalImages = data.total_images || 0;
-
-                // Call updatePagination AFTER data is received AND DOM is ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', updatePagination);
-                } else {
-                    updatePagination();
-                }
-
+                updatePagination();
             })
             .catch(error => {
                 console.error("❌ Error fetching images:", error);
-                showNotification("Error fetching images. Please try again later.", "danger", galleryNotification);
+                document.getElementById("galleryNotification").innerHTML = "<p style='color: red;'>Error loading images. Please try again later.</p>";
             });
     }
 
+    // ✅ Call the function on page load
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchGalleryImages();
+    });
 
-    //    function openImageModal(imageUrl) {
-    //        document.getElementById("modalImage").src = imageUrl;
-    //        const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
-    //        imageModal.show();
-    //    }
-
-//    function uploadImage() {
-//        const file = uploadPhoto.files[0];
-//        if (!file) {
-//            showNotification("Please select an image to upload.", "danger", galleryNotification);
-//            return;
-//        }
-//        const formData = new FormData();
-//        formData.append("image", file);
-//
-//        fetch("/upload-image", {
-//            method: "POST",
-//            body: formData
-//        })
-//            .then(response => {
-//                if (!response.ok) {
-//                    throw new Error(`HTTP error! status: ${response.status}`);
-//                }
-//                return response.json();
-//            })
-//            .then(data => {
-//                console.log("Upload response:", data);
-//                if (data.success) {
-//                    showNotification("Image uploaded successfully!", "success", galleryNotification);
-//                    uploadPhoto.value = "";
-//                    fetchGalleryImages();
-//                } else {
-//                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification);
-//                }
-//            })
-//            .catch(error => {
-//                console.error("❌ Upload error:", error);
-//                showNotification("An error occurred during upload. Please try again.", "danger", galleryNotification);
-//            });
-//    }
 
     function uploadImage() {
     const file = uploadPhoto.files[0];
