@@ -359,23 +359,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function startTickerAnimation() {
         const ticker = document.querySelector(".ticker");
+
         if (!ticker || ticker.children.length === 0) {
             console.error("⚠️ No attendees found for ticker animation.");
             return;
         }
 
-        // Calculate the width of the original set of attendees (before duplication)
-        let originalWidth = 0;
-        for (let i = 0; i < ticker.children.length / 2; i++) { // Divide by 2 since it's duplicated
-            originalWidth += ticker.children[i].offsetWidth;
-        }
+        // ✅ Ensure all names are added **before** duplication
+        const originalContent = Array.from(ticker.children).map(el => el.outerHTML).join("");
 
-        // Set the ticker width to accommodate the original content and some spacing
-        ticker.style.width = `${originalWidth * 2}px`; // Double the width for smooth looping
+        // ✅ Duplicate **enough** times for smooth looping
+        ticker.innerHTML = originalContent + originalContent + originalContent;
 
-        // Apply the animation with translateX(-50%)
-        ticker.style.animation = "tickerScroll 20s linear infinite"; // Adjust duration as needed
+        // ✅ Ensure the ticker is wide enough to prevent early resets
+        const totalWidth = ticker.scrollWidth;
+        ticker.style.width = `${totalWidth}px`;
+
+        // ✅ Apply the correct animation with **no resets**
+        ticker.style.animation = "tickerScroll 5s linear infinite";
     }
+
 
 
 

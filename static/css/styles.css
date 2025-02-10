@@ -198,16 +198,17 @@ footer {
 
 /* Ticker Scrolling Effect */
 @keyframes tickerScroll {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }  /* Scroll smoothly before looping */
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }  /* Scroll entire width before looping */
 }
 
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 5s linear infinite;  /* ✅ Keeps the correct speed */
-    min-width: 100%;
+    animation: tickerScroll 5s linear infinite; /* ✅ Increased duration */
+    will-change: transform;  /* Optimizes animation for performance */
 }
+
 
 /* Ensure smooth scrolling of items */
 .ticker__item {
