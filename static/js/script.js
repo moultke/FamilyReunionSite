@@ -387,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ✅ Set a fixed speed dynamically based on width
         const scrollSpeed = totalWidth / 100 + 10; // Adjust speed
-        ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
+        ticker.style.animation = `tickerScroll 5s linear infinite`;
     }
 
 
