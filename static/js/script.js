@@ -365,14 +365,17 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Ensure all names are displayed by setting the width dynamically
-        const totalWidth = Array.from(ticker.children).reduce((width, item) => width + item.offsetWidth + 20, 0);
-        ticker.style.width = `${totalWidth}px`;  // ✅ Correct total width
+        // ✅ Duplicate names for seamless looping
+        ticker.innerHTML += ticker.innerHTML + ticker.innerHTML;  // **Triple duplication**
 
-        // ✅ Set a scrolling duration proportional to the width
-        const scrollSpeed = totalWidth / 100 + 10; // Adjust for smooth scrolling
-        ticker.style.animation = `tickerScroll 5s linear infinite;`;
+        // ✅ Ensure width is large enough to prevent looping too early
+        const totalWidth = ticker.scrollWidth;
+        ticker.style.width = `${totalWidth}px`;
+
+        // ✅ Apply the **EXISTING** animation in CSS
+        ticker.style.animation = "tickerScroll 5s linear infinite";  // ⚠️ **Fixed Speed**
     }
+
 
 
     // General notification function
