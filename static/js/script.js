@@ -357,6 +357,29 @@ document.addEventListener("DOMContentLoaded", function () {
     document.head.appendChild(style);
 
 
+//    function startTickerAnimation() {
+//        const ticker = document.querySelector(".ticker");
+//
+//        if (!ticker || ticker.children.length === 0) {
+//            console.error("⚠️ No attendees found for ticker animation.");
+//            return;
+//        }
+//
+//        // ✅ Save original attendee names
+//        const originalContent = Array.from(ticker.children).map(el => el.outerHTML).join("");
+//
+//        // ✅ Clear existing ticker content & duplicate for a smooth loop
+//        ticker.innerHTML = originalContent + originalContent; // Duplicate once
+//
+//        // ✅ Ensure the ticker is wide enough to prevent early resets
+//        const totalWidth = ticker.scrollWidth;
+//        ticker.style.width = `${totalWidth}px`;
+//
+//        // ✅ Apply the fixed animation
+//        ticker.style.animation = `tickerScroll ${totalWidth / 100}px linear infinite`;
+//    }
+
+
     function startTickerAnimation() {
         const ticker = document.querySelector(".ticker");
 
@@ -365,21 +388,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // ✅ Save original attendee names
+        // ✅ Save original content before duplication
         const originalContent = Array.from(ticker.children).map(el => el.outerHTML).join("");
 
-        // ✅ Clear existing ticker content & duplicate for a smooth loop
-        ticker.innerHTML = originalContent + originalContent; // Duplicate once
+        // ✅ Clear & duplicate content for smooth scrolling
+        ticker.innerHTML = originalContent + originalContent;  // Duplicate once
 
-        // ✅ Ensure the ticker is wide enough to prevent early resets
+        // ✅ Ensure proper width
         const totalWidth = ticker.scrollWidth;
         ticker.style.width = `${totalWidth}px`;
 
-        // ✅ Apply the fixed animation
-        ticker.style.animation = `tickerScroll ${totalWidth / 100}px linear infinite`;
+        // ✅ Adjust speed dynamically (slower speed)
+        const animationSpeed = Math.max(totalWidth / 50, 20);  // Adjusted to slow down
+        ticker.style.animation = `tickerScroll ${animationSpeed}s linear infinite`;
     }
-
-
 
 
 
