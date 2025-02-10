@@ -371,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ✅ Set a scrolling duration proportional to the width
         const scrollSpeed = totalWidth / 100 + 10; // Adjust for smooth scrolling
-        ticker.style.animation = `tickerScroll ${scrollSpeed}s linear infinite`;
+        ticker.style.animation = `tickerScroll 5s linear infinite;`;
     }
 
 
