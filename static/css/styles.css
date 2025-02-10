@@ -208,7 +208,7 @@ footer {
 .ticker {
     display: flex;
     white-space: nowrap;
-    animation: tickerScroll 20s linear infinite; /* ✅ Increased duration */
+    animation: tickerScroll 15s linear infinite; /* ✅ Increased duration */
     will-change: transform;  /* Optimizes animation for performance */
 }
 
@@ -221,6 +221,18 @@ footer {
     font-weight: bold;
     color: #dc3545;
     white-space: nowrap;
+}
+
+/* 🔴 Change "Book Now" Button to Red */
+.book-now-btn {
+    background-color: #dc3545 !important; /* Red background */
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.book-now-btn:hover {
+    background-color: #b02a37 !important; /* Darker red on hover */
+    border-color: #b02a37 !important;
 }
 
 
