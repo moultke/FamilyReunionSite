@@ -7,6 +7,8 @@ set -e
 cd "$(dirname "$0")"
 
 # Activate the virtual environment (assuming 'venv' is used)
+ls - la
+
 if [ -d "venv" ]; then
   source venv/bin/activate
 else
