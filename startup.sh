@@ -6,8 +6,10 @@ set -e
 # Navigate to the directory containing the script
 cd "$(dirname "$0")"
 
-# Activate the virtual environment (assuming 'venv' is used)
 ls - la
+
+# Activate the virtual environment (assuming 'venv' is used)
+
 
 if [ -d "venv" ]; then
   source venv/bin/activate
