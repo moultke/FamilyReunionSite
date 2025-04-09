@@ -94,40 +94,39 @@
             <h4 class="text-center">Saturday Park Gathering - Bring Your Own Beverages!</h4>
         </div>
 
-        <section id="attendees" class="mt-5">
-            <h2>Attendees</h2>
-            <div id="attendeeTicker" class="ticker-wrap">
-                <div class="ticker"></div>
-            </div>
-        </section>
+<!--        <section id="attendees" class="mt-5">-->
+<!--            <h2>Attendees</h2>-->
+<!--            <div id="attendeeTicker" class="ticker-wrap">-->
+<!--                <div class="ticker"></div>-->
+<!--            </div>-->
+<!--        </section>-->
 
-        <div id="notification" class="alert" style="display: none;"></div>
 
-        <section id="rsvp" class="mt-5">
-            <h2>RSVP / Confirm Attendance</h2>
-            <form id="rsvpForm">
-                <div class="mb-3">
-                    <label for="rsvpName" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="rsvpName" name="name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="rsvpEmail" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="rsvpEmail" name="email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="rsvpPhone" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="rsvpPhone" name="phone" required>
-                </div>
-                <div class="mb-3">
-                    <label for="rsvpAttending" class="form-label">Attending?</label>
-                    <select class="form-select" id="rsvpAttending" name="attending">
-                        <option value="yes">Yes, I'll be there!</option>
-                        <option value="no">No, I can't make it</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn submit-rsvp-btn">Submit RSVP</button>
-            </form>
-        </section>
+<!--        <section id="rsvp" class="mt-5">-->
+<!--            <h2>RSVP / Confirm Attendance</h2>-->
+<!--            <form id="rsvpForm">-->
+<!--                <div class="mb-3">-->
+<!--                    <label for="rsvpName" class="form-label">Name</label>-->
+<!--                    <input type="text" class="form-control" id="rsvpName" name="name" required>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <label for="rsvpEmail" class="form-label">Email</label>-->
+<!--                    <input type="email" class="form-control" id="rsvpEmail" name="email" required>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <label for="rsvpPhone" class="form-label">Phone Number</label>-->
+<!--                    <input type="tel" class="form-control" id="rsvpPhone" name="phone" required>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <label for="rsvpAttending" class="form-label">Attending?</label>-->
+<!--                    <select class="form-select" id="rsvpAttending" name="attending">-->
+<!--                        <option value="yes">Yes, I'll be there!</option>-->
+<!--                        <option value="no">No, I can't make it</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--                <button type="submit" class="btn btn-primary">Submit RSVP</button>-->
+<!--            </form>-->
+<!--        </section>-->
 
 
 
@@ -136,29 +135,28 @@
 
 
 <!-- Registration -->
-
-
-<!--        <section id="register" class="row">-->
-<!--            <div class="col-md-7">-->
-<!--                <h2>Register Now</h2>-->
-<!--                <form id="registrationForm">-->
-<!--                    <div id="registrantFields">-->
-<!--                        &lt;!&ndash; Registrant blocks will be dynamically added here &ndash;&gt;-->
-<!--                    </div>-->
-<!--                    <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>-->
-<!--                </form>-->
-<!--            </div>-->
-<!--            <div class="col-md-5">-->
-<!--                <div class="summary">-->
-<!--                    <h4>Registration Summary</h4>-->
-<!--                    <ul id="registrantList" class="list-group"></ul>-->
-<!--                    <div class="mt-3">-->
-<!--                        <strong>Total: <span id="totalCost">0.00</span></strong>-->
-<!--                    </div>-->
-<!--                    <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
+<section id="register" class="row">
+    <div class="col-md-7">
+        <h2>Register Now</h2>
+        <form id="registrationForm">
+            <div id="registrantFields">
+                <!-- Registrant blocks will be dynamically added here -->
+            </div>
+            <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>
+        </form>
+    </div>
+    <div class="col-md-5">
+        <div class="summary">
+            <h4>Registration Summary</h4>
+            <ul id="registrantList" class="list-group"></ul>
+            <div class="mt-3">
+                <strong>Total: $<span id="totalCost">0.00</span></strong>
+            </div>
+            <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>
+            <div id="notification" class="alert mt-3" style="display: none;"></div>
+        </div>
+    </div>
+</section>
 
         <section id="schedule" class="mt-5">
             <h2>Event Schedule</h2>

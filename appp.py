@@ -9,14 +9,13 @@ import uuid
 import sqlite3
 import stripe
 import time
-import cv2
-import numpy as np
+import cv2  # OpenCV import
+import numpy as np  # NumPy import
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask_session import Session
-import os
 import platform
 
 UPLOAD_FOLDER = "uploads"
@@ -32,16 +31,14 @@ if platform.system() == "Linux":
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Enhanced session configuration
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_FILE_DIR"] = os.path.join(os.getcwd(), ".flask_session")
-app.config["SESSION_PERMANENT"] = True  # Changed to True for better persistence
+app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_KEY_PREFIX"] = "flask_"
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
 
-# Initialize Flask-Session
-Session(app)
+Session(app)  # Initialize Flask-Session
 
 # Configure Logging information
 logging.basicConfig(level=logging.DEBUG)
@@ -126,7 +123,7 @@ def upload_image():
 
             if img is None:
                 logging.error(f"Invalid image format: {filename}")
-                os.remove(file_path)  # ✅ Ensure bad file is deleted
+                os.remove(file_path)  # Ensure bad file is deleted
                 return jsonify({'error': 'Invalid image format or corrupted file'}), 400
 
             cv2.imwrite(file_path, img)
@@ -224,32 +221,41 @@ def init_db():
             CREATE TABLE IF NOT EXISTS registrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT,
                 tshirt_size TEXT,
                 age_group TEXT,
                 price REAL,
                 session_id TEXT,
-                stripe_session_id TEXT
+                stripe_session_id TEXT,
+                registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             '''
         )
+
+        # Add email column if missing
+        try:
+            db.execute("SELECT email FROM registrations LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE registrations ADD COLUMN email TEXT")
+
+        # Add phone column if missing
+        try:
+            db.execute("SELECT phone FROM registrations LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE registrations ADD COLUMN phone TEXT")
+
+        # Add registration_date column if missing
+        try:
+            db.execute("SELECT registration_date FROM registrations LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE registrations ADD COLUMN registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 
         # Add stripe_session_id column if missing
         try:
             db.execute("SELECT stripe_session_id FROM registrations LIMIT 1")
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE registrations ADD COLUMN stripe_session_id TEXT")
-
-        db.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS rsvps (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                attending TEXT NOT NULL
-            )
-            '''
-        )
 
 
 @app.teardown_appcontext
@@ -277,51 +283,33 @@ def register():
             return jsonify({'error': 'Invalid data format'}), 400
 
         db = get_db()
-        if db is None:
-            return jsonify({'error': 'Database connection failed'}), 500
-
-        # Generate a unique session ID
         session_id = str(uuid.uuid4())
         total_cost = 0
 
-        # Start a transaction
-        try:
-            for registrant in data['registrants']:
-                name = registrant.get('name')
-                tshirt_size = registrant.get('tshirtSize')
-                age_group = registrant.get('ageGroup')
+        for registrant in data['registrants']:
+            name = registrant.get('name')
+            email = registrant.get('email', '')  # Add email field
+            phone = registrant.get('phone', '')  # Add phone field
+            tshirt_size = registrant.get('tshirtSize')
+            age_group = registrant.get('ageGroup')
 
-                if not all([name, tshirt_size, age_group]):
-                    return jsonify({'error': 'Missing required fields'}), 400
+            if not all([name, tshirt_size, age_group]):
+                return jsonify({'error': 'Missing required fields'}), 400
 
-                price = calculate_price(age_group)
-                total_cost += price
+            price = calculate_price(age_group)
+            total_cost += price
 
-                db.execute(
-                    'INSERT INTO registrations (name, tshirt_size, age_group, price, session_id) VALUES (?,?,?,?,?)',
-                    (name, tshirt_size, age_group, price, session_id)
-                )
+            db.execute(
+                'INSERT INTO registrations (name, email, phone, tshirt_size, age_group, price, session_id) VALUES (?,?,?,?,?,?,?)',
+                (name, email, phone, tshirt_size, age_group, price, session_id)
+            )
 
-            # Commit the transaction
-            db.commit()
-
-            # Store session_id in the Flask session
-            session['current_session_id'] = session_id
-            logging.info(f"Session ID set in Flask session: {session_id}")
-
-            return jsonify({
-                'message': 'Registration successful',
-                'total_cost': total_cost,
-                'session_id': session_id
-            })
-
-        except Exception as e:
-            # Roll back the transaction if there's an error
-            db.rollback()
-            raise e
+        db.commit()
+        session['current_session_id'] = session_id
+        return jsonify({'message': 'Registration successful', 'total_cost': total_cost, 'session_id': session_id})
 
     except Exception as e:
-        logging.error(f"❌ Registration Error: {e}")
+        print(f"❌ Registration Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -336,10 +324,6 @@ def admin():
         registrations = db.execute('SELECT * FROM registrations').fetchall()
         print(f"🟢 Registrations Found: {len(registrations)}")  # Debugging output
 
-        # Fetch RSVPs
-        rsvps = db.execute('SELECT * FROM rsvps').fetchall()
-        print(f"🟢 RSVPs Found: {len(rsvps)}")  # Debugging output
-
         # Fetch images
         images = [
             {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
@@ -347,7 +331,7 @@ def admin():
         ]
         print(f"🟢 Images Found: {len(images)}")  # Debugging output
 
-        return render_template('admin.html', registrations=registrations, rsvps=rsvps, images=images)
+        return render_template('admin.html', registrations=registrations, images=images)
 
     except Exception as e:
         logging.error(f"❌ Admin Page Error: {e}")
@@ -365,10 +349,6 @@ def view_admin():
         registrations = db.execute('SELECT * FROM registrations').fetchall()
         logging.info(f"🟢 Registrations Found: {len(registrations)}")
 
-        # Fetch RSVPs
-        rsvps = db.execute('SELECT * FROM rsvps').fetchall()
-        logging.info(f"🟢 RSVPs Found: {len(rsvps)}")
-
         # Fetch images
         images = [
             {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
@@ -376,7 +356,7 @@ def view_admin():
         ]
         logging.info(f"🟢 Images Found: {len(images)}")
 
-        return render_template('view_admin.html', registrations=registrations, rsvps=rsvps, images=images)
+        return render_template('view_admin.html', registrations=registrations, images=images)
 
     except Exception as e:
         logging.error(f"❌ View Admin Page Error: {e}")
@@ -386,7 +366,6 @@ def view_admin():
 @app.route("/check-session")
 def check_session():
     session_id = session.get("current_session_id")
-    logging.info(f"Checking session, current_session_id: {session_id}")
 
     if session_id:
         return jsonify({"message": "Session ID retrieved successfully", "session_id": session_id})
@@ -397,125 +376,74 @@ def check_session():
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     try:
-        # Get the session ID from Flask session
-        session_id = session.get('current_session_id')
-        logging.info(f"Creating checkout with session ID: {session_id}")
-
-        if not session_id:
-            logging.error("No session ID found in Flask session")
-            return jsonify({'error': 'No active session found. Please register again.'}), 400
-
         db = get_db()
-        if db is None:
-            return jsonify({'error': 'Database connection failed'}), 500
+        session_id = session.get('current_session_id')
+        if not session_id or len(session_id) < 10:  # Ensure valid session_id length
+            logging.error("Invalid session_id received for checkout")
+            return jsonify({'error': 'Invalid session ID'}), 400
 
-        # Fetch registrations for this session
-        registrants = db.execute(
-            'SELECT id, name, tshirt_size, age_group, price FROM registrations WHERE session_id = ?',
-            (session_id,)
-        ).fetchall()
-
+        registrants = db.execute('SELECT name, tshirt_size, age_group, price FROM registrations WHERE session_id =?',
+                                 (session_id,)).fetchall()
         if not registrants:
-            logging.error(f"No registrations found for session ID: {session_id}")
-            return jsonify({'error': 'No valid registrations found for this session'}), 400
+            return jsonify({'error': 'No valid registrations for this session'}), 400
 
-        line_items = []
+        line_items = []  # Initialize line_items to an empty list
         total_amount = 0
 
         for registrant in registrants:
-            amount = int(registrant['price'] * 100)  # Convert to cents
+            amount = int(registrant['price'] * 100)
             total_amount += amount
             line_items.append({
                 'price_data': {
                     'currency': 'usd',
                     'unit_amount': amount,
-                    'product_data': {'name': f"Family Reunion Registration - {registrant['name']}"},
+                    'product_data': {'name': f'Reunion Registration - {registrant["name"]}'},
                 },
                 'quantity': 1,
             })
 
-        try:
-            # Create Stripe checkout session
-            checkout_session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=line_items,
-                mode='payment',
-                success_url=url_for('success', _external=True) + f'?session_id={session_id}',
-                cancel_url=url_for('index', _external=True) + '?canceled=true',
-            )
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=url_for('success', _external=True) + f'?session_id={session_id}',
+            cancel_url=url_for('index', _external=True) + '?canceled=true',
+        )
 
-            logging.info(f"Stripe checkout session created: {checkout_session.id}")
+        print(f"Checkout Session ID (Create): {checkout_session.id}")  # Debug print
 
-            # Update database with Stripe session ID
-            with db:
-                db.execute(
-                    'UPDATE registrations SET stripe_session_id = ? WHERE session_id = ?',
-                    (checkout_session.id, session_id)
-                )
-                db.commit()
-
-            return jsonify({'sessionId': checkout_session.id})
-
-        except stripe.error.StripeError as e:
-            logging.error(f"Stripe API Error: {e}")
-            db.rollback()
-            return jsonify({'error': f"Payment processing error: {str(e)}"}), 500
-
-    except Exception as e:
-        logging.error(f"❌ Checkout Session Error: {e}")
-        if 'db' in locals() and db:
-            db.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/rsvp', methods=['POST'])
-def rsvp():
-    try:
-        data = request.get_json()
-        name = data.get('name')
-        email = data.get('email')
-        phone = data.get('phone')  # Ensure phone number is collected
-        attending = data.get('attending')
-
-        if not all([name, email, phone, attending]):
-            return jsonify({'error': 'Missing required fields'}), 400
-
-        # Save RSVP data to the database
-        db = get_db()
-        with db:
-            db.execute(
-                'INSERT INTO rsvps (name, email, phone, attending) VALUES (?, ?, ?, ?)',
-                (name, email, phone, attending)
-            )
+        with db:  # Use context manager for the database transaction
+            # Stores Stripe Checkout Session ID in stripe_session_id
+            db.execute('UPDATE registrations SET stripe_session_id =? WHERE session_id =?',
+                       (checkout_session.id, session_id))
             db.commit()
 
-        print(f"✅ RSVP Saved: {name} | {email} | {phone} | Attending: {attending}")
-        return jsonify({'success': True, 'message': 'RSVP successfully recorded'})
+        return jsonify({'sessionId': checkout_session.id})
 
     except Exception as e:
-        print(f"❌ RSVP Error: {e}")
+        print(f"❌ Checkout Session Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/attendees')
-def get_attendees():
+@app.route('/get-registrants')
+def get_registrants():
     try:
         db = get_db()
 
-        # Fetch only attendees who RSVP'd with "Yes"
-        attendees = db.execute(
-            'SELECT name FROM rsvps WHERE LOWER(attending) = "yes"'
+        # Fetch all paid registrants
+        registrants = db.execute(
+            'SELECT name, tshirt_size FROM registrations WHERE stripe_session_id IS NOT NULL'
         ).fetchall()
 
-        attendee_list = [attendee['name'] for attendee in attendees]
+        registrant_list = [{'name': reg['name'], 'tshirt_size': reg['tshirt_size']} for reg in registrants]
 
-        if not attendee_list:
-            return jsonify([])  # Return empty list if no attendees are found
+        if not registrant_list:
+            return jsonify([])  # Return empty list if no registrants are found
 
-        return jsonify(attendee_list)
+        return jsonify(registrant_list)
 
     except Exception as e:
-        print(f"Error fetching attendees: {e}")
+        print(f"Error fetching registrants: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -560,69 +488,36 @@ def success():
 
     try:
         db = get_db()
-
-        # First, get all registrations for this session
-        registrations = db.execute(
-            'SELECT id, name, tshirt_size, age_group, price FROM registrations WHERE session_id = ?',
-            (session_id,)
-        ).fetchall()
-
-        if not registrations:
-            logging.warning(f"No registrations found for session_id: {session_id}")
-            return "No registration found for this session."
-
-        # Get the Stripe session ID from the first registration (they should all have the same one)
         result = db.execute(
-            'SELECT stripe_session_id FROM registrations WHERE session_id = ? LIMIT 1',
-            (session_id,)
+            'SELECT stripe_session_id FROM registrations WHERE session_id = ?', (session_id,)
         ).fetchone()
 
-        if not result or not result['stripe_session_id']:
-            logging.warning(f"No Stripe session ID found for session_id: {session_id}")
-            return "Payment information not found."
+        if result is None:
+            logging.warning(f"No registration found for session_id: {session_id}")
+            return "No registration found for this session."
 
         stripe_session_id = result['stripe_session_id']
+        checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
 
-        try:
-            # Retrieve the Stripe checkout session
-            checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
+        logging.info(
+            f"✅ Payment completed for {checkout_session.customer_email}, Status: {checkout_session.payment_status}")
 
-            # Get the charge information if payment is paid
-            latest_charge = None
-            if checkout_session.payment_status == 'paid' and checkout_session.payment_intent:
-                payment_intent = stripe.PaymentIntent.retrieve(checkout_session.payment_intent)
-                # Check if latest_charge attribute exists before accessing it
-                if hasattr(payment_intent, 'latest_charge') and payment_intent.latest_charge:
-                    latest_charge = stripe.Charge.retrieve(payment_intent.latest_charge)
-
-            # Calculate total paid
-            total_paid = sum(reg['price'] for reg in registrations)
-
-            logging.info(f"✅ Payment completed for session ID: {session_id}, Status: {checkout_session.payment_status}")
-
-            return render_template(
-                'success.html',
-                checkout_session=checkout_session,
-                total_paid=total_paid,
-                registrations=registrations,
-                latest_charge=latest_charge
-            )
-
-        except stripe.error.StripeError as e:
-            logging.error(f"⚠️ Stripe error in success route: {e}")
-            return f"An error occurred while retrieving payment information: {str(e)}"
+        return render_template(
+            'success.html',
+            checkout_session=checkout_session,
+            payment_status=checkout_session.payment_status
+        )
 
     except Exception as e:
-        logging.error(f"⚠️ Error in success route: {str(e)}")
-        return "An error occurred while retrieving registration information."
+        logging.error(f"⚠️ Error in success route: {e}")
+        return "An error occurred."
 
 
 @app.route('/set-session', methods=['GET'])
 def set_session():
     """Set a session variable to test Flask-Session"""
-    session_id = str(uuid.uuid4())
-    session['current_session_id'] = session_id
-    return jsonify({"message": "Session ID set", "session_id": session_id})
+    session['current_session_id'] = str(uuid.uuid4())  # Generate a unique session ID
+    return jsonify({"message": "Session ID set", "session_id": session['current_session_id']})
 
 
 @app.route('/delete_registration/<int:registration_id>', methods=['DELETE'])
@@ -632,17 +527,6 @@ def delete_registration(registration_id):
         db.execute('DELETE FROM registrations WHERE id = ?', (registration_id,))
         db.commit()
         return jsonify({'success': True, 'message': 'Registration deleted successfully'})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/delete_rsvp/<int:rsvp_id>', methods=['DELETE'])
-def delete_rsvp(rsvp_id):
-    try:
-        db = get_db()
-        db.execute('DELETE FROM rsvps WHERE id = ?', (rsvp_id,))
-        db.commit()
-        return jsonify({'success': True, 'message': 'RSVP deleted successfully'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
