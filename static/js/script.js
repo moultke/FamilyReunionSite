@@ -5,35 +5,40 @@ function openImageModal(imageUrl) {
     imageModal.show();
 }
 
-
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ JavaScript Loaded...");
 
-    fetchAttendees();
-
-    // Ensure attendeeTicker exists before running anything
+    // Check if attendeeTicker exists before trying to use it
     const attendeeTickerContainer = document.getElementById("attendeeTicker");
+    const hasAttendeeTickerFeature = !!attendeeTickerContainer;
+
+    // Only call fetchAttendees if the feature exists on the page
+    if (hasAttendeeTickerFeature) {
+        fetchAttendees();
+    }
+
     // Gallery variables
     const galleryGrid = document.getElementById("galleryGrid");
     const uploadPhoto = document.getElementById("uploadPhoto");
     const galleryNotification = document.getElementById("galleryNotification");
     const baseUrl = window.location.origin;
+
     // Registration/Payment variables
     const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D"); // Replace with your publishable key
     const addPersonButton = document.getElementById("addPerson");
     const registrantFields = document.getElementById("registrantFields");
     const totalCostSpan = document.getElementById("totalCost");
     const paymentButton = document.getElementById("paymentButton");
-    const registrationNotification = document.getElementById("registrationNotification");
+    const notification = document.getElementById("notification");
+
     // Countdown Timer Code:
     const countdownTimer = document.getElementById('countdown-timer');
     const reunionDate = new Date('2025-07-17T00:00:00'); // Set your reunion date and time
+
     // RSVP Form Handling
     const rsvpForm = document.getElementById('rsvpForm');
-    //    const attendeeTicker = document.getElementById('attendeeTicker').querySelector('.ticker');
-    // Check if attendeeTicker exists before accessing it
-    //    const attendeeTickerContainer = document.getElementById("attendeeTicker");
-    const attendeeTicker = attendeeTickerContainer ? attendeeTickerContainer.querySelector(".ticker") : null;
+    const attendeeTicker = hasAttendeeTickerFeature ? attendeeTickerContainer.querySelector(".ticker") : null;
+
     //contact form:
     const contactForm = document.getElementById("contactForm");
 
@@ -45,132 +50,130 @@ document.addEventListener("DOMContentLoaded", function () {
     let pagination;
 
     function addAttendeeToTicker(name) {
-    const attendeeTickerContainer = document.getElementById("attendeeTicker");
-    if (!attendeeTickerContainer) {
-        console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
-        return;
+        // Skip if ticker feature isn't enabled on this page
+        if (!hasAttendeeTickerFeature) return;
+
+        const attendeeTickerContainer = document.getElementById("attendeeTicker");
+        if (!attendeeTickerContainer) {
+            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
+            return;
+        }
+
+        let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
+        if (!attendeeTicker) {
+            console.warn("⚠️ .ticker element missing! Creating one...");
+            attendeeTicker = document.createElement("div");
+            attendeeTicker.classList.add("ticker");
+            attendeeTickerContainer.appendChild(attendeeTicker);
+        }
+
+        let attendeeElement = document.createElement("span");
+        attendeeElement.textContent = name;
+        attendeeElement.classList.add("ticker__item");
+
+        // Add the attendee's name to the ticker
+        attendeeTicker.appendChild(attendeeElement);
+
+        // ✅ Add separator **after** each name except the last one
+        let separator = document.createElement("span");
+        separator.textContent = " • ";
+        separator.style.margin = "0 50px";
+        separator.style.fontWeight = "bold";
+        separator.style.color = "#dc3545";
+        attendeeTicker.appendChild(separator);
+
+        startTickerAnimation(); // Restart animation with the new attendee
     }
 
-    let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
-    if (!attendeeTicker) {
-        console.warn("⚠️ .ticker element missing! Creating one...");
-        attendeeTicker = document.createElement("div");
-        attendeeTicker.classList.add("ticker");
-        attendeeTickerContainer.appendChild(attendeeTicker);
-    }
+    if (contactForm) {
+        contactForm.addEventListener("submit", function (event) {
+            event.preventDefault();
 
-    let attendeeElement = document.createElement("span");
-    attendeeElement.textContent = name;
-    attendeeElement.classList.add("ticker__item");
+            const formData = new FormData(contactForm);
 
-    // Add the attendee's name to the ticker
-    attendeeTicker.appendChild(attendeeElement);
-
-    // ✅ Add separator **after** each name except the last one
-    let separator = document.createElement("span");
-    separator.textContent = " • ";
-    separator.style.margin = "0 50px";
-    separator.style.fontWeight = "bold";
-    separator.style.color = "#dc3545";
-    attendeeTicker.appendChild(separator);
-
-    startTickerAnimation(); // Restart animation with the new attendee
-}
-
-
-
-
-    contactForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const formData = new FormData(contactForm);
-
-        fetch("/contact", {
-            method: "POST",
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Message sent successfully!");
-                contactForm.reset();
-            } else {
-                alert("Error sending message. Please try again.");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
-        });
-    });
-
-     if (!attendeeTicker) {
-        console.error("⚠️ Error: attendeeTicker not found in the DOM.");
-        return; // Stop execution to prevent further errors
-    }
-
-
-    rsvpForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const name = document.getElementById('rsvpName').value;
-        const email = document.getElementById('rsvpEmail').value;
-        const phone = document.getElementById('rsvpPhone').value; // Get phone number
-        const attending = document.getElementById('rsvpAttending').value;
-
-
-        // Send RSVP data to server
-        fetch('/rsvp', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name, email, phone, attending }) // Include phone number
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("✅ RSVP submitted successfully.");
-
-                // ✅ Only call addAttendeeToTicker if it exists
-                if (typeof addAttendeeToTicker === "function") {
-                    addAttendeeToTicker(name);
+            fetch("/contact", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Message sent successfully!");
+                    contactForm.reset();
                 } else {
-                    console.error("⚠️ Error: addAttendeeToTicker function is not defined.");
+                    alert("Error sending message. Please try again.");
                 }
-
-                rsvpForm.reset(); // Clear the form
-                alert("Thank you for your RSVP!");
-            } else {
-                alert(data.error || "Error submitting RSVP. Please try again.");
-            }
-        })
-        .catch(error => {
-            console.error("❌ Error:", error);
-            alert("An error occurred. Please try again later.");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
         });
-    });
+    }
 
+    if (rsvpForm) {
+        rsvpForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = document.getElementById('rsvpName').value;
+            const email = document.getElementById('rsvpEmail').value;
+            const phone = document.getElementById('rsvpPhone').value; // Get phone number
+            const attending = document.getElementById('rsvpAttending').value;
+
+            // Send RSVP data to server
+            fetch('/rsvp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, phone, attending }) // Include phone number
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("✅ RSVP submitted successfully.");
+
+                    // ✅ Only call addAttendeeToTicker if it exists
+                    if (typeof addAttendeeToTicker === "function") {
+                        addAttendeeToTicker(name);
+                    } else {
+                        console.error("⚠️ Error: addAttendeeToTicker function is not defined.");
+                    }
+
+                    rsvpForm.reset(); // Clear the form
+                    alert("Thank you for your RSVP!");
+                } else {
+                    alert(data.error || "Error submitting RSVP. Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error("❌ Error:", error);
+                alert("An error occurred. Please try again later.");
+            });
+        });
+    }
 
     function deleteItem(type, id) {
-    if (confirm('Are you sure you want to delete this item?')) {
-        fetch(`/delete_${type}/${id}`, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload(); // Refresh the page to reflect changes
-            } else {
-                alert('Error deleting item: ' + data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        if (confirm('Are you sure you want to delete this item?')) {
+            fetch(`/delete_${type}/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Refresh the page to reflect changes
+                } else {
+                    alert('Error deleting item: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
     }
-    }
-
 
     function fetchAttendees() {
+        // Skip if ticker feature isn't enabled on this page
+        if (!hasAttendeeTickerFeature) return;
+
         fetch('/attendees', { cache: 'no-store' })  // Ensure fresh data
             .then(response => response.json())
             .then(attendees => {
@@ -206,90 +209,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-
-//    function populateTicker(attendees) {
-//        const attendeeTickerContainer = document.getElementById("attendeeTicker");
-////        if (!attendeeTickerContainer) {
-////            console.error("⚠️ Error: #attendeeTicker not found in the DOM.");
-////            return;
-////        }
-//
-//        let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
-//        if (!attendeeTicker) {
-//            attendeeTicker = document.createElement("div");
-//            attendeeTicker.classList.add("ticker");
-//            attendeeTickerContainer.appendChild(attendeeTicker);
-//        }
-//
-//        attendeeTicker.innerHTML = ""; // Clear previous content
-//
-//        if (!attendees || attendees.length === 0) {
-//            attendeeTicker.innerHTML = "<span>No attendees yet</span>";
-//            return;
-//        }
-//
-//        // ✅ Append attendees with proper spacing
-//        attendees.forEach((name, index) => {
-//            let attendeeElement = document.createElement("span");
-//            attendeeElement.textContent = name;
-//            attendeeElement.classList.add("ticker__item");
-//
-//            attendeeTicker.appendChild(attendeeElement);
-//
-//            // ✅ Add separator **after** each name except the last one
-//            if (index !== attendees.length - 1) {
-//                let separator = document.createElement("span");
-//                separator.textContent = " • ";
-//                separator.style.margin = "0 50px";
-//                separator.style.fontWeight = "bold";
-//                separator.style.color = "#dc3545";
-//                attendeeTicker.appendChild(separator);
-//            }
-//        });
-//
-//        // ✅ Add **one** separator between the last and first name for smooth looping
-//        let finalSeparator = document.createElement("span");
-//        finalSeparator.textContent = " • ";
-//        finalSeparator.style.margin = "0 50px";
-//        finalSeparator.style.fontWeight = "bold";
-//        finalSeparator.style.color = "#dc3545";
-//        attendeeTicker.appendChild(finalSeparator);
-//
-//        // ✅ Duplicate attendees multiple times for smooth scrolling
-//        for (let i = 0; i < 2; i++) {
-//            attendees.forEach((name, index) => {
-//                let cloneElement = document.createElement("span");
-//                cloneElement.textContent = name;
-//                cloneElement.classList.add("ticker__item");
-//                attendeeTicker.appendChild(cloneElement);
-//
-//                // ✅ Add separator **after** every name EXCEPT the last duplicate
-//                if (index !== attendees.length - 1) {
-//                    let separator = document.createElement("span");
-//                    separator.textContent = " • ";
-//                    separator.style.margin = "0 50px";
-//                    separator.style.fontWeight = "bold";
-//                    separator.style.color = "#dc3545";
-//                    attendeeTicker.appendChild(separator);
-//                }
-//            });
-//
-//            // ✅ Add **one** separator between last and first duplicate
-//            let loopSeparator = document.createElement("span");
-//            loopSeparator.textContent = " • ";
-//            loopSeparator.style.margin = "0 50px";
-//            loopSeparator.style.fontWeight = "bold";
-//            loopSeparator.style.color = "#dc3545";
-//            attendeeTicker.appendChild(loopSeparator);
-//        }
-//
-//        // ✅ Start animation if attendees exist
-//        if (attendeeTicker.children.length > 0) {
-//            startTickerAnimation();
-//        }
-//    }
-
     function populateTicker(attendees) {
+        // Skip if ticker feature isn't enabled on this page
+        if (!hasAttendeeTickerFeature) return;
+
         const attendeeTickerContainer = document.getElementById("attendeeTicker");
         let attendeeTicker = attendeeTickerContainer.querySelector(".ticker");
 
@@ -345,7 +268,6 @@ document.addEventListener("DOMContentLoaded", function () {
         startTickerAnimation(); // Ensure animation runs smoothly
     }
 
-
     // ✅ Move the style definition OUTSIDE the function to ensure it's added only once
     const style = document.createElement("style");
     style.innerHTML = `
@@ -356,31 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     document.head.appendChild(style);
 
-
-//    function startTickerAnimation() {
-//        const ticker = document.querySelector(".ticker");
-//
-//        if (!ticker || ticker.children.length === 0) {
-//            console.error("⚠️ No attendees found for ticker animation.");
-//            return;
-//        }
-//
-//        // ✅ Save original attendee names
-//        const originalContent = Array.from(ticker.children).map(el => el.outerHTML).join("");
-//
-//        // ✅ Clear existing ticker content & duplicate for a smooth loop
-//        ticker.innerHTML = originalContent + originalContent; // Duplicate once
-//
-//        // ✅ Ensure the ticker is wide enough to prevent early resets
-//        const totalWidth = ticker.scrollWidth;
-//        ticker.style.width = `${totalWidth}px`;
-//
-//        // ✅ Apply the fixed animation
-//        ticker.style.animation = `tickerScroll ${totalWidth / 100}px linear infinite`;
-//    }
-
-
     function startTickerAnimation() {
+        // Skip if ticker feature isn't enabled on this page
+        if (!hasAttendeeTickerFeature) return;
+
         const ticker = document.querySelector(".ticker");
 
         if (!ticker || ticker.children.length === 0) {
@@ -403,8 +304,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ticker.style.animation = `tickerScroll ${animationSpeed}s linear infinite`;
     }
 
-
-
     // General notification function
     function showNotification(message, type = "success", targetElement) {  // No default value
         if (targetElement) { // Check if targetElement exists
@@ -417,11 +316,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 5000);
         } else {
             console.error("Notification target element not found!");
+            // Fallback: If targetElement doesn't exist, use alert
+            alert(message);
         }
     }
 
-
-     // pagination of the gallery function
+    // pagination of the gallery function
     function updatePagination() {
         const pagination = document.getElementById('pagination');
 
@@ -489,6 +389,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function fetchGalleryImages(page = 1) {
+        // Skip if gallery feature isn't available
+        if (!galleryGrid) return;
+
         const offset = (page - 1) * imagesPerPage;
         console.log(`📸 Fetching images from server... Page: ${page}, Offset: ${offset}`);
 
@@ -501,7 +404,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("📸 Images fetched:", data);
-                const galleryGrid = document.getElementById("galleryGrid");
                 galleryGrid.innerHTML = ""; // Clear old images before adding new ones
 
                 if (!data.images || data.images.length === 0) {
@@ -527,95 +429,60 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => {
                 console.error("❌ Error fetching images:", error);
-                document.getElementById("galleryNotification").innerHTML = "<p style='color: red;'>Error loading images. Please try again later.</p>";
+                if (galleryNotification) {
+                    galleryNotification.innerHTML = "<p style='color: red;'>Error loading images. Please try again later.</p>";
+                    galleryNotification.style.display = "block";
+                }
             });
     }
 
-    // ✅ Call the function on page load
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchGalleryImages();
-    });
-
-
     function uploadImage() {
-    const file = uploadPhoto.files[0];
-    if (!file) {
-        showNotification("Please select an image to upload.", "danger", galleryNotification);
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    fetch("/upload-image", {
-        method: "POST",
-        body: formData
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(err => {throw new Error(`HTTP error! status: ${response.status}, ${err}`);}); // Include error message from server
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Upload response:", data);
-            if (data.success) {
-                showNotification("Image uploaded successfully!", "success", galleryNotification);
-                uploadPhoto.value = "";
-                fetchGalleryImages();
-            } else {
-                showNotification("Image upload failed: " + data.error, "danger", galleryNotification); // Display server error
-            }
-        })
-        .catch(error => {
-            console.error("❌ Upload error:", error);
-            showNotification("An error occurred during upload. Please try again. " + error.message, "danger", galleryNotification); // Include error message
-        });
-    }
-
-
-    fetchGalleryImages();
-//    uploadPhoto.addEventListener("change", uploadImage); // Use addEventListener
-    document.getElementById("uploadPhoto").addEventListener("change", uploadImage);
-
-
-    // Registration/Payment functions
-    function updateTotalCost() {
-        totalCost = 0;
-        document.querySelectorAll(".registrant").forEach(registrantDiv => {
-            const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
-            const price = ageGroup === "adult" ? 125 : 50;
-            totalCost += price;
-        });
-        totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
-    }
-
-
-    function updateCountdown() {
-        const now = new Date();
-        const distance = reunionDate.getTime() - now.getTime();
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        countdownTimer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            countdownTimer.innerHTML = "Reunion Time!";
+        const file = uploadPhoto.files[0];
+        if (!file) {
+            showNotification("Please select an image to upload.", "danger", galleryNotification);
+            return;
         }
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        fetch("/upload-image", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(err => {throw new Error(`HTTP error! status: ${response.status}, ${err}`);}); // Include error message from server
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Upload response:", data);
+                if (data.success) {
+                    showNotification("Image uploaded successfully!", "success", galleryNotification);
+                    uploadPhoto.value = "";
+                    fetchGalleryImages();
+                } else {
+                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification); // Display server error
+                }
+            })
+            .catch(error => {
+                console.error("❌ Upload error:", error);
+                showNotification("An error occurred during upload. Please try again. " + error.message, "danger", galleryNotification); // Include error message
+            });
     }
 
-    updateCountdown(); // Initial call to display countdown immediately
-    const countdownInterval = setInterval(updateCountdown, 1000); // Update every second
-
-
+    // Functions for registration
     function createRegistrantBlock(count) {
         const newRegistrantDiv = document.createElement("div");
         newRegistrantDiv.classList.add("registrant", "border", "p-3", "mb-3");
+        newRegistrantDiv.dataset.id = count; // Store the ID for easy reference
+
         newRegistrantDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5>Registrant #${count}</h5>
+                ${count > 1 ? '<button type="button" class="btn btn-sm btn-danger remove-registrant">Remove</button>' : ''}
+            </div>
             <div class="mb-3">
                 <label for="name${count}" class="form-label">Name</label>
                 <input type="text" class="form-control" id="name${count}" name="name" required>
@@ -633,100 +500,197 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="mb-3">
                 <label for="ageGroup${count}" class="form-label">Age Group</label>
                 <select class="form-select age-group-select" id="ageGroup${count}" name="ageGroup">
-                    <option value="adult">Adult ($125)</option>
-                    <option value="child">Child ($50)</option>
+                    <option value="adult">Adult ($75)</option>
+                    <option value="child">Child ($25)</option>
                 </select>
             </div>
         `;
+
+        // Add event listener for the age group to update total cost
         newRegistrantDiv.querySelector(".age-group-select").addEventListener("change", updateTotalCost);
+
+        // Add event listener for the remove button (if it exists)
+        const removeButton = newRegistrantDiv.querySelector('.remove-registrant');
+        if (removeButton) {
+            removeButton.addEventListener('click', function() {
+                newRegistrantDiv.remove();
+                updateTotalCost();
+                updateRegistrantNumbers();
+            });
+        }
+
         return newRegistrantDiv;
     }
 
-    registrantFields.appendChild(createRegistrantBlock(registrantCount));
-    updateTotalCost();
+    // Function to update the registrant numbers after removal
+    function updateRegistrantNumbers() {
+        const registrants = document.querySelectorAll('.registrant');
+        registrants.forEach((registrant, index) => {
+            const headingEl = registrant.querySelector('h5');
+            if (headingEl) {
+                headingEl.textContent = `Registrant #${index + 1}`;
+            }
+        });
+    }
 
-    addPersonButton.addEventListener("click", function () {
-        registrantCount++;
+    // Update the total cost function
+    function updateTotalCost() {
+        totalCost = 0;
+        document.querySelectorAll(".registrant").forEach(registrantDiv => {
+            const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
+            const price = ageGroup === "adult" ? 75 : 25;  // Updated prices
+            totalCost += price;
+        });
+        if (totalCostSpan) {
+            totalCostSpan.textContent = totalCost.toFixed(2);
+        }
+    }
+
+    // Initialize with one registrant if the registration form exists
+    if (registrantFields) {
         registrantFields.appendChild(createRegistrantBlock(registrantCount));
         updateTotalCost();
-    });
 
-    paymentButton.addEventListener("click", async (event) => {
-        event.preventDefault();
+        // Set up add person button
+        if (addPersonButton) {
+            addPersonButton.addEventListener("click", function () {
+                registrantCount++;
+                registrantFields.appendChild(createRegistrantBlock(registrantCount));
+                updateTotalCost();
+            });
+        }
+    }
 
-        try {
-            let registrants = [];
-            let allRegistrantsValid = true;
+    // Set up payment button functionality
+    if (paymentButton) {
+        paymentButton.addEventListener("click", async (event) => {
+            event.preventDefault();
 
-            document.querySelectorAll(".registrant").forEach(registrantDiv => {
-                const name = registrantDiv.querySelector('[name="name"]').value;
-                const tshirtSize = registrantDiv.querySelector('[name="tshirtSize"]').value;
-                const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
+            // Disable the button to prevent double-clicks
+            paymentButton.disabled = true;
+            paymentButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
 
-                if (!name) {
-                    allRegistrantsValid = false;
-                    registrantDiv.querySelector('[name="name"]').classList.add("is-invalid");
-                } else {
-                    registrantDiv.querySelector('[name="name"]').classList.remove("is-invalid");
+            try {
+                let registrants = [];
+                let allRegistrantsValid = true;
+
+                document.querySelectorAll(".registrant").forEach(registrantDiv => {
+                    const name = registrantDiv.querySelector('[name="name"]').value;
+                    const tshirtSize = registrantDiv.querySelector('[name="tshirtSize"]').value;
+                    const ageGroup = registrantDiv.querySelector('[name="ageGroup"]').value;
+
+                    if (!name) {
+                        allRegistrantsValid = false;
+                        registrantDiv.querySelector('[name="name"]').classList.add("is-invalid");
+                    } else {
+                        registrantDiv.querySelector('[name="name"]').classList.remove("is-invalid");
+                    }
+
+                    registrants.push({ name, tshirtSize, ageGroup });
+                });
+
+                if (!allRegistrantsValid) {
+                    showNotification("Please enter all registrant names.", "danger", notification);
+                    paymentButton.disabled = false;
+                    paymentButton.innerHTML = 'Proceed to Payment';
+                    return;
                 }
 
-                const price = ageGroup === "adult" ? 125 : 50;
-                registrants.push({ name, tshirtSize, ageGroup, price });
-            });
+                if (registrants.length === 0) {
+                    showNotification("Please add at least one registrant.", "danger", notification);
+                    paymentButton.disabled = false;
+                    paymentButton.innerHTML = 'Proceed to Payment';
+                    return;
+                }
 
-            if (!allRegistrantsValid) {
-                showNotification("Please enter all registrant names.", "danger", registrationNotification);
-                return;
+                console.log("📌 Sending registration data:", registrants);
+
+                // Step 1: Register participants
+                const registerResponse = await fetch("/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ registrants })
+                });
+
+                if (!registerResponse.ok) {
+                    const registerData = await registerResponse.json();
+                    throw new Error(registerData.error || "Registration failed");
+                }
+
+                const registerData = await registerResponse.json();
+                console.log("✅ Registration successful:", registerData);
+
+                // Show a success message for registration
+                showNotification("Registration successful! Processing payment...", "success", notification);
+
+                // Step 2: Create checkout session (no need to send registrants again, the server will use the session)
+                const checkoutResponse = await fetch("/create-checkout-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (!checkoutResponse.ok) {
+                    const checkoutData = await checkoutResponse.json();
+                    throw new Error(checkoutData.error || "Checkout session creation failed");
+                }
+
+                const checkoutData = await checkoutResponse.json();
+                console.log("✅ Checkout session created:", checkoutData);
+
+                if (!checkoutData.sessionId) {
+                    throw new Error("Invalid checkout session: No session ID returned");
+                }
+
+                // Redirect to Stripe checkout
+                const result = await stripe.redirectToCheckout({ sessionId: checkoutData.sessionId });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+            } catch (error) {
+                console.error("❌ Error during registration/checkout:", error);
+                showNotification("Error: " + error.message, "danger", notification);
+
+                // Re-enable the button on error
+                paymentButton.disabled = false;
+                paymentButton.innerHTML = 'Proceed to Payment';
             }
+        });
+    }
 
-            if (registrants.length === 0) {
-                showNotification("Please add at least one registrant.", "danger", registrationNotification);
-                return;
-            }
+    function updateCountdown() {
+        if (!countdownTimer) return;
 
-            console.log("📌 Sending registration data:", registrants);
+        const now = new Date();
+        const distance = reunionDate.getTime() - now.getTime();
 
-            const registerResponse = await fetch("/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ registrants })
-            });
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            const registerData = await registerResponse.json();
+        countdownTimer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-            if (!registerResponse.ok) {
-                throw new Error(registerData.error || "Registration failed.");
-            }
-
-            console.log("✅ Registration successful. Proceeding to checkout...");
-
-            const checkoutResponse = await fetch("/create-checkout-session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ registrants })
-            });
-
-            const checkoutData = await checkoutResponse.json();
-
-            console.log("✅ Checkout session created:", checkoutData);
-
-            if (!checkoutResponse.ok || !checkoutData.sessionId ) { // Check for sessionId
-                const errorMessage = checkoutData.error || "Invalid checkout session";
-                console.error("❌ Error during checkout:", errorMessage);
-                showNotification(errorMessage, "danger");
-                throw new Error(errorMessage);
-            }
-
-            await stripe.redirectToCheckout({ sessionId: checkoutData.sessionId }); // Use stripe.redirectToCheckout
-
-        } catch (error) {
-            console.error("❌ Error during checkout:", error);
-            showNotification("An error occurred during checkout. Please try again.", "danger");
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownTimer.innerHTML = "Reunion Time!";
         }
-    });
+    }
 
+    // Initialize countdown timer if it exists
+    if (countdownTimer) {
+        updateCountdown(); // Initial call to display countdown immediately
+        const countdownInterval = setInterval(updateCountdown, 1000); // Update every second
+    }
 
+    // Initialize the page features based on what's available
+    if (galleryGrid) {
+        fetchGalleryImages();
+    }
 
-    updateTotalCost();
+    // Set up the upload photo event listener
+    if (uploadPhoto) {
+        uploadPhoto.addEventListener("change", uploadImage);
+    }
 });
-
