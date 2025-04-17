@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="startup.sh update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="remove .env from Git and update .gitignore" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,38 +80,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00065" summary="startup, requirement and yml updates">
-      <option name="closed" value="true" />
-      <created>1738900958763</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1738900958763</updated>
-    </task>
-    <task id="LOCAL-00066" summary="html updates">
-      <option name="closed" value="true" />
-      <created>1738934662337</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1738934662338</updated>
-    </task>
-    <task id="LOCAL-00067" summary="html updates">
-      <option name="closed" value="true" />
-      <created>1738936858643</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1738936858643</updated>
-    </task>
-    <task id="LOCAL-00068" summary="html updates">
-      <option name="closed" value="true" />
-      <created>1738949873314</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1738949873314</updated>
     </task>
     <task id="LOCAL-00069" summary="html updates">
       <option name="closed" value="true" />
@@ -475,14 +441,42 @@
       <option name="project" value="LOCAL" />
       <updated>1744201882527</updated>
     </task>
-    <option name="localTasksCounter" value="114" />
+    <task id="LOCAL-00114" summary=".env">
+      <option name="closed" value="true" />
+      <created>1744918886137</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1744918886138</updated>
+    </task>
+    <task id="LOCAL-00115" summary="script">
+      <option name="closed" value="true" />
+      <created>1744919392865</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1744919392865</updated>
+    </task>
+    <task id="LOCAL-00116" summary="production deployment">
+      <option name="closed" value="true" />
+      <created>1744920138432</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1744920138432</updated>
+    </task>
+    <task id="LOCAL-00117" summary="remove .env from Git and update .gitignore">
+      <option name="closed" value="true" />
+      <created>1744921205507</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1744921205507</updated>
+    </task>
+    <option name="localTasksCounter" value="118" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="scroll speed increased from 4 to 2" />
-    <MESSAGE value="scroll speed increased from 2 to 8" />
-    <MESSAGE value="scroll speed increased from 2 to 10" />
-    <MESSAGE value="additional adjustments to speed" />
     <MESSAGE value="additional adjustments to speed 12" />
     <MESSAGE value="additional adjustments to speed 25" />
     <MESSAGE value="additional adjustments to speed 50" />
@@ -504,6 +498,10 @@
     <MESSAGE value="updated startup.sh" />
     <MESSAGE value="removed ls" />
     <MESSAGE value="startup.sh update" />
-    <option name="LAST_COMMIT_MESSAGE" value="startup.sh update" />
+    <MESSAGE value=".env" />
+    <MESSAGE value="script" />
+    <MESSAGE value="production deployment" />
+    <MESSAGE value="remove .env from Git and update .gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove .env from Git and update .gitignore" />
   </component>
 </project>

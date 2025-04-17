@@ -692,5 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Set up the upload photo event listener
     if (uploadPhoto) {
         uploadPhoto.addEventListener("change", uploadImage);
+
+
     }
 });
