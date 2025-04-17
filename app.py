@@ -62,6 +62,11 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route('/')
+def index():
+    return render_template('index.html', config=app.config)
+
+
 def convert_heic_to_jpg(filepath):
     """Convert HEIC to JPG using ImageMagick or OpenCV fallback."""
     jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"
@@ -262,11 +267,6 @@ def close_connection(exception):
 # Helper function to calculate price
 def calculate_price(age_group):
     return 75.00 if age_group == 'adult' else 25.00
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 
 @app.route('/register', methods=['POST'])

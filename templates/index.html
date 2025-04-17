@@ -367,7 +367,9 @@
         // }
     </script>
 
-
+    <script>
+  const stripe = Stripe("{{ config['STRIPE_PUBLIC_KEY'] }}");
+    </script>
 
     <script>
     const uploadButton = document.getElementById("uploadButton");
