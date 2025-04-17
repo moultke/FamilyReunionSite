@@ -660,7 +660,7 @@ def delete_image(filename):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# Initialize the database at startup **force**
+# Initialize the database at startup **force***
 init_db()
 
 if __name__ == "__main__":
