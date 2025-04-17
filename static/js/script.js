@@ -641,7 +641,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error("Invalid checkout session: No session ID returned");
                 }
 
-                // Redirect to Stripe checkout
+                // Redirect to Stripe checkout place
                 const result = await stripe.redirectToCheckout({ sessionId: checkoutData.sessionId });
 
                 if (result.error) {
