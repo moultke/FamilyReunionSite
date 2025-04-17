@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const baseUrl = window.location.origin;
 
     // Registration/Payment variables
-    const stripe = Stripe("pk_test_51Qm6jDDeOdL1UspnNyZtJSMCMGYVnuDmOvFLPcTheGrBoyAYVxVS0GP64qZx2pakARKJ43cEHuirTNSNuPQ2BKai00dEaH9G6D"); // Replace with your publishable key
+    const stripe = Stripe("pk_live_51Qm6jDDeOdL1Uspnz81ANrY78bcjW5JeWMGd6uH92mgfsb3o6rHuPa4cZVql5y23KxIOUKcMr41ixK8a6kQ8n8uC00eq0uaMM3"); // Replace with your publishable key
     const addPersonButton = document.getElementById("addPerson");
     const registrantFields = document.getElementById("registrantFields");
     const totalCostSpan = document.getElementById("totalCost");
