@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="view_admin.html added">
-      <change afterPath="$PROJECT_DIR$/appp.py" afterDir="false" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="startup.sh update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,21 +46,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python.app.executor": "Run",
-    "Python.appp.executor": "Run",
-    "Python.heic-test-file.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.testheic.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/moultke/PycharmProjects/FamilyReunionSite",
-    "run.code.analysis.last.selected.profile": "aDefault",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.appp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.heic-test-file.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testheic.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/moultke/PycharmProjects/FamilyReunionSite&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -84,38 +82,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00061" summary="startup.sh remove gunicorn">
-      <option name="closed" value="true" />
-      <created>1738891627733</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
-      <option name="project" value="LOCAL" />
-      <updated>1738891627733</updated>
-    </task>
-    <task id="LOCAL-00062" summary="startup.sh and yml both updated">
-      <option name="closed" value="true" />
-      <created>1738894962559</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1738894962560</updated>
-    </task>
-    <task id="LOCAL-00063" summary="startup.sh and yml both updated">
-      <option name="closed" value="true" />
-      <created>1738897631458</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1738897631458</updated>
-    </task>
-    <task id="LOCAL-00064" summary="startup, requirement and yml updates">
-      <option name="closed" value="true" />
-      <created>1738898957802</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1738898957802</updated>
     </task>
     <task id="LOCAL-00065" summary="startup, requirement and yml updates">
       <option name="closed" value="true" />
@@ -477,14 +443,42 @@
       <option name="project" value="LOCAL" />
       <updated>1739135126688</updated>
     </task>
-    <option name="localTasksCounter" value="110" />
+    <task id="LOCAL-00110" summary="remove rsvp and added registration">
+      <option name="closed" value="true" />
+      <created>1744174916348</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1744174916349</updated>
+    </task>
+    <task id="LOCAL-00111" summary="updated startup.sh">
+      <option name="closed" value="true" />
+      <created>1744200004718</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1744200004718</updated>
+    </task>
+    <task id="LOCAL-00112" summary="removed ls">
+      <option name="closed" value="true" />
+      <created>1744201177281</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1744201177281</updated>
+    </task>
+    <task id="LOCAL-00113" summary="startup.sh update">
+      <option name="closed" value="true" />
+      <created>1744201882527</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1744201882527</updated>
+    </task>
+    <option name="localTasksCounter" value="114" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix speed of ticker" />
-    <MESSAGE value="fix speed of ticker faster" />
-    <MESSAGE value="startTickerAnimation update" />
-    <MESSAGE value="scroll speed increased from 6 to 4" />
     <MESSAGE value="scroll speed increased from 4 to 2" />
     <MESSAGE value="scroll speed increased from 2 to 8" />
     <MESSAGE value="scroll speed increased from 2 to 10" />
@@ -506,6 +500,10 @@
     <MESSAGE value="moved attendees" />
     <MESSAGE value="update script" />
     <MESSAGE value="view_admin.html added" />
-    <option name="LAST_COMMIT_MESSAGE" value="view_admin.html added" />
+    <MESSAGE value="remove rsvp and added registration" />
+    <MESSAGE value="updated startup.sh" />
+    <MESSAGE value="removed ls" />
+    <MESSAGE value="startup.sh update" />
+    <option name="LAST_COMMIT_MESSAGE" value="startup.sh update" />
   </component>
 </project>
