@@ -134,78 +134,101 @@
 
 
 
-<!-- Registration -->
-<section id="register" class="row">
-    <div class="col-md-7">
-        <h2>Register Now</h2>
-        <form id="registrationForm">
-            <div id="registrantFields">
-                <!-- Registrant blocks will be dynamically added here -->
+        <!-- Registration -->
+        <section id="register" class="row">
+            <div class="col-md-7">
+                <h2>Register Now</h2>
+                <form id="registrationForm">
+                    <div id="registrantFields">
+                        <!-- Registrant blocks will be dynamically added here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>
+                </form>
             </div>
-            <button type="button" class="btn btn-secondary" id="addPerson">+ Add Person</button>
-        </form>
-    </div>
-    <div class="col-md-5">
-        <div class="summary">
-            <h4>Registration Summary</h4>
-            <ul id="registrantList" class="list-group"></ul>
-            <div class="mt-3">
-                <strong>Total: $<span id="totalCost">0.00</span></strong>
+            <div class="col-md-5">
+                <div class="summary">
+                    <h4>Registration Summary</h4>
+                    <ul id="registrantList" class="list-group"></ul>
+                    <div class="mt-3">
+                        <strong>Total: $<span id="totalCost">0.00</span></strong>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>
+                    <div id="notification" class="alert mt-3" style="display: none;"></div>
+                </div>
             </div>
-            <button type="button" class="btn btn-primary mt-3" id="paymentButton">Proceed to Payment</button>
-            <div id="notification" class="alert mt-3" style="display: none;"></div>
-        </div>
-    </div>
-</section>
+        </section>
 
-<!--        <section id="schedule" class="mt-5">-->
-<!--            <h2>Event Schedule</h2>-->
-<!--            <p><strong>Dates:</strong> July 17-20, 2025</p>-->
-<!--            <ul class="list-group">-->
-<!--                <li class="list-group-item">-->
-<!--                    <strong>July 17:</strong> Arrivals; Group Activities TBD-->
-<!--                </li>-->
-<!--                <li class="list-group-item">-->
-<!--                    <strong>July 18:</strong> 5 to 7pm: Registration at Hampton Inn; Group Activities TBD-->
-<!--                </li>-->
-<!--                <li class="list-group-item">-->
-<!--                    <strong>July 19:</strong> 11am to 5pm James Island County Park Picnic-->
-<!--                </li>-->
-<!--                <li class="list-group-item">-->
-<!--                    <strong>July 20:</strong> Church Service-->
-<!--                </li>-->
-<!--            </ul>-->
-<!--        </section>-->
-
+         <!-- Schedule -->
         <section id="schedule" class="mt-5">
           <h2>Event Schedule</h2>
           <p><strong>Dates:</strong> July 17–20, 2025</p>
           <ul class="list-group">
             <li class="list-group-item">
-              <strong>July 17 (Thursday):</strong> Arrivals & Hotel Check-In – No official events scheduled.
+              <strong>July 17 (Thursday):</strong><br>
+              Arrivals & Hotel Check-In – No official events scheduled.
             </li>
+
             <li class="list-group-item">
-              <strong>July 18 (Friday):</strong>
-              <br>4:00 PM – 6:30 PM: Registration at the Aloft Charleston Airport & Convention Center
-              <br>7:30 PM – 9:30 PM: Welcome Dinner at Page’s Okra Grill (Nexton)
-              <br><em>Appetizers provided. Bar tab available for registered guests.</em>
+              <strong>July 18 (Friday):</strong><br>
+              <strong>4:00 PM – 6:30 PM:</strong> Registration at
+              <a href="https://www.marriott.com/en-us/hotels/chsal-aloft-charleston-airport-and-convention-center/overview/" target="_blank">
+                Aloft Charleston Airport & Convention Center
+              </a><br>
+              4875 Tanger Outlet Blvd, North Charleston, SC 29418
+              <a href="https://www.google.com/maps/search/?api=1&query=4875+Tanger+Outlet+Blvd,+North+Charleston,+SC+29418" target="_blank">
+                📍
+              </a><br><br>
+
+              <strong>7:30 PM – 9:30 PM:</strong> Welcome Dinner at
+              <a href="https://pagesokragrill.com/nexton/" target="_blank">
+                Page’s Okra Grill (Nexton)
+              </a><br>
+              142 Brighton Park Blvd, Summerville, SC 29483
+              <a href="https://www.google.com/maps/search/?api=1&query=142+Brighton+Park+Blvd,+Summerville,+SC+29483" target="_blank">
+                📍
+              </a><br>
+              <em>Appetizers provided. Bar tab available for registered guests.</em>
             </li>
+
             <li class="list-group-item">
-              <strong>July 19 (Saturday):</strong>
-              <br>10:00 AM – 5:00 PM: Family Picnic at James Island County Park
-              <br>11:30 AM: Catered Lunch & Crabs
-              <br>Games, Music, Karaoke, Awards, and Family Photo
-              <br><strong>Note:</strong> Please bring your own <strong>chairs</strong> and <strong>fans</strong> due to limited seating and warm weather.
-              <br>7:30 PM – 9:30 PM: Topgolf Family Night at Topgolf North Charleston
+              <strong>July 19 (Saturday):</strong><br>
+              <strong>10:00 AM – 5:00 PM:</strong> Family Picnic at
+              <a href="https://www.ccprc.com/68/James-Island-County-Park" target="_blank">
+                James Island County Park
+              </a><br>
+              871 Riverland Dr, Charleston, SC 29412
+              <a href="https://www.google.com/maps/search/?api=1&query=871+Riverland+Dr,+Charleston,+SC+29412" target="_blank">
+                📍
+              </a><br><br>
+
+              <strong>11:30 AM:</strong> Catered Lunch & Crabs<br>
+              Games, Music, Karaoke, Awards, and Family Photo<br>
+              <strong>Note:</strong> Please bring your own <strong>chairs</strong> and <strong>fans</strong> due to limited seating and warm weather.<br><br>
+
+              <strong>7:30 PM – 9:30 PM:</strong> Topgolf Family Night at
+              <a href="https://topgolf.com/us/north-charleston/" target="_blank">
+                Topgolf North Charleston
+              </a><br>
+              5000 Topgolf Way, North Charleston, SC 29418
+              <a href="https://www.google.com/maps/search/?api=1&query=5000+Topgolf+Way,+North+Charleston,+SC+29418" target="_blank">
+                📍
+              </a>
             </li>
+
             <li class="list-group-item">
-              <strong>July 20 (Sunday):</strong>
-              10:30 AM: Worship Service at Greater Middleton AME Church
-              <br><em>5 Johnson Street, Charleston, SC 29403 (Downtown)</em>
+              <strong>July 20 (Sunday):</strong><br>
+              <strong>10:30 AM:</strong> Worship Service at
+              <strong>Greater Middleton AME Church</strong><br>
+              5 Johnson Street, Charleston, SC 29403 (Downtown)
+              <a href="https://www.google.com/maps/search/?api=1&query=5+Johnson+Street,+Charleston,+SC+29403" target="_blank">
+                📍
+              </a>
             </li>
           </ul>
         </section>
 
+
+          <!-- Hotel -->
         <section id="hotel" class="mt-5">
             <h2>Hotel Information</h2>
             <div class="row">
