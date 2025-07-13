@@ -646,6 +646,14 @@ def delete_rsvp(rsvp_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/familytree')
+def family_tree():
+    """Display the Aiken family tree page."""
+    try:
+        return render_template('family.html')
+    except Exception as e:
+        logging.error(f"❌ Family Tree Page Error: {e}")
+        return jsonify({'error': 'Failed to load family tree page'}), 500
 
 @app.route('/delete_image/<filename>', methods=['DELETE'])
 def delete_image(filename):
