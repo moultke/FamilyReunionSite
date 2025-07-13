@@ -3,75 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Aiken Family Tree - Five Generations</title>
+    <title>The Aiken Family Tree - Family Reunion 2025</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
             color: #333;
             line-height: 1.6;
         }
 
-        .header {
+        .family-tree-header {
             background: linear-gradient(135deg, #8B1538, #A0252D);
             color: white;
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
+            margin-bottom: 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .header h1 {
+        .family-tree-header h1 {
             font-size: 3.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .header p {
+        .family-tree-header p {
             font-size: 1.4em;
             opacity: 0.9;
             font-style: italic;
         }
 
-        .navigation {
+        .tree-navigation {
             background: rgba(139, 21, 56, 0.9);
             color: white;
             padding: 15px 0;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 56px;
+            z-index: 1020;
         }
 
         .nav-links {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 30px;
+            gap: 20px;
         }
 
         .nav-link {
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 20px;
             transition: all 0.3s ease;
             background: rgba(255,255,255,0.1);
+            font-size: 0.9em;
         }
 
         .nav-link:hover {
             background: rgba(255,255,255,0.2);
             transform: translateY(-2px);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            color: white;
         }
 
         .generation {
@@ -196,7 +192,7 @@
             background: rgba(139, 21, 56, 0.1);
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-align: center;
         }
 
@@ -225,7 +221,7 @@
             margin-top: 5px;
         }
 
-        .footer {
+        .tree-footer {
             background: linear-gradient(135deg, #8B1538, #A0252D);
             color: white;
             text-align: center;
@@ -233,12 +229,12 @@
             margin-top: 40px;
         }
 
-        .footer h2 {
+        .tree-footer h2 {
             font-size: 2.2em;
             margin-bottom: 15px;
         }
 
-        .footer p {
+        .tree-footer p {
             font-size: 1.2em;
             opacity: 0.9;
         }
@@ -252,31 +248,13 @@
             font-size: 1.1em;
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5em;
-            }
-
-            .generation-title {
-                font-size: 1.8em;
-            }
-
-            .family-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-links {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .container {
-                padding: 20px 10px;
-            }
-
-            .matriarch-name {
-                font-size: 2em;
-            }
+        .generation-number {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
         }
 
         .scroll-to-top {
@@ -294,6 +272,7 @@
             transition: all 0.3s ease;
             opacity: 0;
             transform: translateY(100px);
+            z-index: 1000;
         }
 
         .scroll-to-top.visible {
@@ -306,23 +285,72 @@
             transform: translateY(-3px);
         }
 
-        .generation-number {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            margin-bottom: 10px;
+        @media (max-width: 768px) {
+            .family-tree-header h1 {
+                font-size: 2.5em;
+            }
+
+            .generation-title {
+                font-size: 1.8em;
+            }
+
+            .family-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .matriarch-name {
+                font-size: 2em;
+            }
+
+            .tree-navigation {
+                position: relative;
+                top: 0;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="header">
+    <!-- Main Navigation (consistent with index.html) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Family Reunion 2025</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('family_tree') }}">Family Tree</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#gallery">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Family Tree Header -->
+    <div class="family-tree-header">
         <h1>The Aiken Family Tree</h1>
         <p>Five Generations of Legacy, Love, and Unity</p>
     </div>
 
-    <div class="navigation">
+    <!-- Tree Navigation -->
+    <div class="tree-navigation">
         <div class="nav-links">
             <a href="#first-gen" class="nav-link">1st Generation</a>
             <a href="#second-gen" class="nav-link">2nd Generation</a>
@@ -598,7 +626,7 @@
                     </div>
 
                     <div class="family-group">
-                        <div class="parent-name">Brittle Child</div>
+                        <div class="parent-name">Brittle's Children</div>
                         <div class="children-list">
                             <div class="child-name">Chloe Little</div>
                             <div class="child-name">Caleb Little</div>
@@ -606,25 +634,13 @@
                     </div>
 
                     <div class="family-group">
-                        <div class="parent-name">Issac IV Child</div>
+                        <div class="parent-name">Issac IV & Eddie's Children</div>
                         <div class="children-list">
                             <div class="child-name">Alana Aiken</div>
                             <div class="child-name">Breanna Aiken</div>
-                        </div>
-                    </div>
-
-                    <div class="family-group">
-                        <div class="parent-name">Eddie's Children</div>
-                        <div class="children-list">
                             <div class="child-name">Eddie Aiken Jr.</div>
                             <div class="child-name">Rennedy Aiken</div>
                             <div class="child-name">Re'za Aiken</div>
-                        </div>
-                    </div>
-
-                    <div class="family-group">
-                        <div class="parent-name">Individual Member</div>
-                        <div class="children-list">
                             <div class="child-name">Imani Aiken Scott</div>
                         </div>
                     </div>
@@ -642,7 +658,7 @@
             <div class="generation-content">
                 <div class="family-grid">
                     <div class="family-group">
-                        <div class="parent-name">Ghiana Gardner</div>
+                        <div class="parent-name">Ghiana's Child</div>
                         <div class="children-list">
                             <div class="child-name">Ryan Magnus</div>
                         </div>
@@ -665,24 +681,18 @@
                     </div>
 
                     <div class="family-group">
-                        <div class="parent-name">Mark's Children</div>
+                        <div class="parent-name">Mark Jr.'s Child</div>
                         <div class="children-list">
                             <div class="child-name">Delano Richards Jr.</div>
                         </div>
                     </div>
 
                     <div class="family-group">
-                        <div class="parent-name">Dashawn's Children</div>
+                        <div class="parent-name">Dashawn & Marquez's Children</div>
                         <div class="children-list">
                             <div class="child-name">Dashawn Richards Jr</div>
                             <div class="child-name">King Richards</div>
                             <div class="child-name">Azuram Richards</div>
-                        </div>
-                    </div>
-
-                    <div class="family-group">
-                        <div class="parent-name">Marquez's Children</div>
-                        <div class="children-list">
                             <div class="child-name">Cayden Whitney</div>
                             <div class="child-name">Nadia Rice</div>
                             <div class="child-name">Akira Rice</div>
@@ -693,7 +703,7 @@
         </div>
     </div>
 
-    <div class="footer">
+    <div class="tree-footer">
         <h2>The Aiken Family Legacy Continues</h2>
         <p>From Rebecca Milligan Aiken's foundation in 1901 to our newest generation today</p>
         <div class="legacy-quote">
@@ -701,11 +711,19 @@
         </div>
     </div>
 
+    <!-- Footer (consistent with index.html) -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Milligan Aiken Family Reunion</p>
+        </div>
+    </footer>
+
     <button class="scroll-to-top" id="scrollToTop">↑</button>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Smooth scrolling for navigation links
-        document.querySelectorAll('.nav-link').forEach(link => {
+        document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
