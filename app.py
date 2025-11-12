@@ -943,14 +943,6 @@ def handle_file_too_large(e):
     logging.error("File too large error")
     return jsonify({'error': 'File too large. Maximum size is 100MB.'}), 413
 
-# Initialize the database at startup **force**
-init_db()
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
-
-
-
 # Temporary diagnostic endpoint - remove after migration
 @app.route('/debug/list-local-files')
 def list_local_files():
@@ -972,3 +964,10 @@ def list_local_files():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Initialize the database at startup **force**
+init_db()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
