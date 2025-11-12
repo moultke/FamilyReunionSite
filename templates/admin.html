@@ -169,15 +169,24 @@
         {% endif %}
 
         <!-- Uploaded Files Section -->
-        <h2 class="mt-5">Uploaded Files</h2>
+        <h2 class="mt-5">Uploaded Files (Photos & Videos)</h2>
         <div class="row">
-            {% for image in images %}
+            {% for file in images %}
+            {% set file_ext = file['filename'].split('.')[-1].lower() %}
+            {% set is_video = file_ext in ['mp4', 'mov', 'avi', 'webm'] %}
             <div class="col-md-2 mb-3">
                 <div class="card">
-                    <img src="{{ url_for('uploaded_file', filename=image['filename']) }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Uploaded Image">
+                    {% if is_video %}
+                    <video class="card-img-top" style="height: 150px; object-fit: cover; background: #000;">
+                        <source src="{{ url_for('uploaded_file', filename=file['filename']) }}" type="video/{{ file_ext }}">
+                    </video>
+                    <div class="badge bg-info position-absolute top-0 start-0 m-1">VIDEO</div>
+                    {% else %}
+                    <img src="{{ url_for('uploaded_file', filename=file['filename']) }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Uploaded Image">
+                    {% endif %}
                     <div class="card-body p-2 text-center">
-                        <small class="d-block text-truncate" style="font-size: 0.7rem;">{{ image['filename'][:15] }}...</small>
-                        <button class="btn btn-sm btn-danger mt-1" onclick="deleteItem('image', '{{ image['filename'] }}')">Delete</button>
+                        <small class="d-block text-truncate" style="font-size: 0.7rem;" title="{{ file['filename'] }}">{{ file['filename'][:15] }}...</small>
+                        <button class="btn btn-sm btn-danger mt-1" onclick="deleteItem('image', '{{ file['filename'] }}')">Delete</button>
                     </div>
                 </div>
             </div>
