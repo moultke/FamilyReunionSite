@@ -943,7 +943,7 @@ def handle_file_too_large(e):
     logging.error("File too large error")
     return jsonify({'error': 'File too large. Maximum size is 100MB.'}), 413
 
-# Temporary diagnostic endpoint - remove after migration
+# Temporary diagnostic endpoints - remove after migration
 @app.route('/debug/list-local-files')
 def list_local_files():
     """Temporary endpoint to list files in local uploads folder on server"""
@@ -963,6 +963,22 @@ def list_local_files():
             'path': os.path.abspath(UPLOAD_FOLDER)
         })
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/debug/serve-local/<filename>')
+def serve_local_file(filename):
+    """Temporary endpoint to serve files directly from local storage (bypass Azure)"""
+    try:
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'File not found on local storage'}), 404
+
+        file_ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+        mimetype = get_mime_type(file_ext)
+        return send_from_directory(UPLOAD_FOLDER, filename, mimetype=mimetype)
+    except Exception as e:
+        logging.error(f"Error serving local file: {e}")
         return jsonify({'error': str(e)}), 500
 
 
