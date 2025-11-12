@@ -427,13 +427,28 @@ document.addEventListener("DOMContentLoaded", function () {
                     col.className = "col-md-3 mb-3";
 
                     if (item.is_video) {
-                        // Display video
+                        // Display video with proper MIME type
+                        let mimeType = 'video/mp4';
+                        if (item.type === 'mov') {
+                            mimeType = 'video/quicktime';
+                        } else if (item.type === 'webm') {
+                            mimeType = 'video/webm';
+                        } else if (item.type === 'avi') {
+                            mimeType = 'video/x-msvideo';
+                        }
+
                         col.innerHTML = `
                             <div class="card gallery-card">
-                                <video class="card-img-top" controls style="width: 100%; height: 200px; object-fit: cover;">
-                                    <source src="${fullFileUrl}" type="video/${item.type}">
-                                    Your browser does not support the video tag.
+                                <video class="card-img-top" controls preload="metadata" playsinline style="width: 100%; height: 200px; object-fit: cover; background: #000;">
+                                    <source src="${fullFileUrl}" type="${mimeType}">
+                                    Your browser does not support this video format.
                                 </video>
+                                <div class="card-body text-center p-2">
+                                    <small class="text-muted d-block">${item.type.toUpperCase()} video</small>
+                                    <a href="${fullFileUrl}" download class="btn btn-sm btn-outline-primary mt-1">
+                                        <small>Download</small>
+                                    </a>
+                                </div>
                             </div>
                         `;
                     } else {

@@ -136,7 +136,26 @@ def upload_image():
 
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    """Serve uploaded files with proper MIME types for videos"""
+    import mimetypes
+
+    # Get the file extension and set proper MIME type
+    file_ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+    # Set proper MIME types for video files
+    if file_ext == 'mov':
+        mimetype = 'video/quicktime'
+    elif file_ext == 'mp4':
+        mimetype = 'video/mp4'
+    elif file_ext == 'webm':
+        mimetype = 'video/webm'
+    elif file_ext == 'avi':
+        mimetype = 'video/x-msvideo'
+    else:
+        # Let Flask guess the MIME type for images and other files
+        mimetype = mimetypes.guess_type(filename)[0]
+
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, mimetype=mimetype)
 
 
 def encode_image_to_base64(image_path):
