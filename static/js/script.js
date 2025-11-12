@@ -718,6 +718,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    let countdownInterval; // Declare at top level to avoid scoping issues
+
     function updateCountdown() {
         if (!countdownTimer) return;
 
@@ -740,7 +742,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize countdown timer if it exists
     if (countdownTimer) {
         updateCountdown(); // Initial call to display countdown immediately
-        const countdownInterval = setInterval(updateCountdown, 1000); // Update every second
+        countdownInterval = setInterval(updateCountdown, 1000); // Update every second
     }
 
     // Initialize the page features based on what's available
