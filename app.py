@@ -370,6 +370,14 @@ def admin():
         rsvps = db.execute('SELECT * FROM rsvps').fetchall()
         print(f"🟢 RSVPs Found: {len(rsvps)}")  # Debugging output
 
+        # Fetch birthdays
+        birthdays = db.execute('SELECT * FROM birthdays ORDER BY birth_date').fetchall()
+        print(f"🟢 Birthdays Found: {len(birthdays)}")  # Debugging output
+
+        # Fetch events
+        events = db.execute('SELECT * FROM events ORDER BY event_date DESC').fetchall()
+        print(f"🟢 Events Found: {len(events)}")  # Debugging output
+
         # Fetch images
         images = [
             {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
@@ -377,7 +385,12 @@ def admin():
         ]
         print(f"🟢 Images Found: {len(images)}")  # Debugging output
 
-        return render_template('admin.html', registrations=registrations, rsvps=rsvps, images=images)
+        return render_template('admin.html',
+                             registrations=registrations,
+                             rsvps=rsvps,
+                             birthdays=birthdays,
+                             events=events,
+                             images=images)
 
     except Exception as e:
         logging.error(f"❌ Admin Page Error: {e}")
