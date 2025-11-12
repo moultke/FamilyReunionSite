@@ -950,3 +950,25 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
 
 
+
+# Temporary diagnostic endpoint - remove after migration
+@app.route('/debug/list-local-files')
+def list_local_files():
+    """Temporary endpoint to list files in local uploads folder on server"""
+    try:
+        local_files = []
+        if os.path.exists(UPLOAD_FOLDER):
+            for f in os.listdir(UPLOAD_FOLDER):
+                file_path = os.path.join(UPLOAD_FOLDER, f)
+                if os.path.isfile(file_path):
+                    local_files.append({
+                        'name': f,
+                        'size': os.path.getsize(file_path)
+                    })
+        return jsonify({
+            'total_local_files': len(local_files),
+            'files': local_files,
+            'path': os.path.abspath(UPLOAD_FOLDER)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
