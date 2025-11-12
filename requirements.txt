@@ -23,4 +23,6 @@ typing_extensions==4.12.2
 urllib3==2.2.1
 Werkzeug==2.2.3
 setuptools==58.2.0
+azure-storage-blob==12.19.0
+Flask-Mail==0.9.1
 

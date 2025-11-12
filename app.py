@@ -17,6 +17,8 @@ from flask_session import Session
 from werkzeug.exceptions import RequestEntityTooLarge
 import os
 import platform
+from azure.storage.blob import BlobServiceClient, ContentSettings
+from io import BytesIO
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic', 'mp4', 'mov', 'avi', 'webm'}
@@ -31,6 +33,31 @@ if platform.system() == "Linux":
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
+
+# Azure Blob Storage configuration
+AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME", "familyreunion-uploads")
+USE_AZURE_STORAGE = bool(AZURE_STORAGE_CONNECTION_STRING)
+
+# Initialize Azure Blob Service Client if connection string is available
+blob_service_client = None
+if USE_AZURE_STORAGE:
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+        # Ensure container exists
+        try:
+            blob_service_client.create_container(AZURE_CONTAINER_NAME, public_access='blob')
+            logging.info(f"Created Azure container: {AZURE_CONTAINER_NAME}")
+        except Exception as e:
+            if "ContainerAlreadyExists" not in str(e):
+                logging.warning(f"Container creation note: {e}")
+            else:
+                logging.info(f"Using existing Azure container: {AZURE_CONTAINER_NAME}")
+    except Exception as e:
+        logging.error(f"Failed to initialize Azure Blob Storage: {e}")
+        USE_AZURE_STORAGE = False
+else:
+    logging.info("Azure Storage not configured - using local file storage")
 
 # Enhanced session configuration
 app.config["SESSION_TYPE"] = "filesystem"
@@ -87,7 +114,7 @@ def convert_heic_to_jpg(filepath):
 
 @app.route("/upload-image", methods=["POST"])
 def upload_image():
-    """Handles file uploads, ensuring correct processing and preventing overwrites."""
+    """Handles file uploads to Azure Blob Storage or local filesystem."""
     try:
         if 'image' not in request.files:
             logging.warning("No file part in request")
@@ -109,53 +136,103 @@ def upload_image():
     # Generate a unique filename to prevent overwriting
     file_ext = file.filename.rsplit(".", 1)[-1].lower()
     filename = f"{uuid.uuid4().hex}.{file_ext}"
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     try:
-        file.save(file_path)  # Save the uploaded file
+        if USE_AZURE_STORAGE and blob_service_client:
+            # Upload to Azure Blob Storage
+            logging.info(f"Uploading to Azure Blob Storage: {filename}")
 
-        if file_ext == 'heic':
-            converted_path = convert_heic_to_jpg(file_path)
-            if converted_path:
-                filename = os.path.basename(converted_path)
-                file_path = converted_path
-            else:
-                logging.error("HEIC conversion failed")
-                return jsonify({'error': 'HEIC conversion failed'}), 500
+            # Get MIME type for the file
+            mime_type = get_mime_type(file_ext)
 
-        logging.info(f"File successfully uploaded: {filename}")
-        return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+            # Read file data
+            file_data = file.read()
+
+            # Handle HEIC conversion if needed
+            if file_ext == 'heic':
+                # Save temporarily for conversion
+                temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                with open(temp_path, 'wb') as temp_file:
+                    temp_file.write(file_data)
+
+                converted_path = convert_heic_to_jpg(temp_path)
+                if converted_path:
+                    filename = os.path.basename(converted_path)
+                    with open(converted_path, 'rb') as converted_file:
+                        file_data = converted_file.read()
+                    os.remove(converted_path)
+                    mime_type = 'image/jpeg'
+                else:
+                    logging.error("HEIC conversion failed")
+                    return jsonify({'error': 'HEIC conversion failed'}), 500
+
+            # Upload to blob
+            blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=filename)
+            content_settings = ContentSettings(content_type=mime_type)
+            blob_client.upload_blob(file_data, overwrite=True, content_settings=content_settings)
+
+            # Get blob URL
+            blob_url = blob_client.url
+            logging.info(f"File successfully uploaded to Azure: {filename}")
+            return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
+
+        else:
+            # Fallback to local storage
+            logging.info(f"Uploading to local storage: {filename}")
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+
+            if file_ext == 'heic':
+                converted_path = convert_heic_to_jpg(file_path)
+                if converted_path:
+                    filename = os.path.basename(converted_path)
+                    file_path = converted_path
+                else:
+                    logging.error("HEIC conversion failed")
+                    return jsonify({'error': 'HEIC conversion failed'}), 500
+
+            logging.info(f"File successfully uploaded locally: {filename}")
+            return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
 
     except Exception as e:
         logging.error(f"File Upload Error: {e}")
-        # Clean up the file if it was created
-        if os.path.exists(file_path):
-            os.remove(file_path)
         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
+
+
+def get_mime_type(file_ext):
+    """Get MIME type for file extension."""
+    mime_types = {
+        'mov': 'video/quicktime',
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'avi': 'video/x-msvideo',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'heic': 'image/heic'
+    }
+    return mime_types.get(file_ext, 'application/octet-stream')
 
 
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
-    """Serve uploaded files with proper MIME types for videos"""
-    import mimetypes
-
-    # Get the file extension and set proper MIME type
+    """Serve uploaded files from Azure Blob Storage or local filesystem"""
     file_ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    mimetype = get_mime_type(file_ext)
 
-    # Set proper MIME types for video files
-    if file_ext == 'mov':
-        mimetype = 'video/quicktime'
-    elif file_ext == 'mp4':
-        mimetype = 'video/mp4'
-    elif file_ext == 'webm':
-        mimetype = 'video/webm'
-    elif file_ext == 'avi':
-        mimetype = 'video/x-msvideo'
+    if USE_AZURE_STORAGE and blob_service_client:
+        # Redirect to Azure Blob Storage URL
+        try:
+            blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=filename)
+            # Return redirect to blob URL (already public)
+            return redirect(blob_client.url)
+        except Exception as e:
+            logging.error(f"Error serving file from Azure: {e}")
+            return jsonify({'error': 'File not found'}), 404
     else:
-        # Let Flask guess the MIME type for images and other files
-        mimetype = mimetypes.guess_type(filename)[0]
-
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, mimetype=mimetype)
+        # Serve from local storage
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, mimetype=mimetype)
 
 
 def encode_image_to_base64(image_path):
@@ -170,33 +247,64 @@ def encode_image_to_base64(image_path):
 
 @app.route('/images')
 def get_images():
-    """Retrieve images and videos for display."""
+    """Retrieve images and videos for display from Azure Blob Storage or local filesystem."""
     limit = int(request.args.get('limit', 10))
     offset = int(request.args.get('offset', 0))
 
-    if not os.path.exists(UPLOAD_FOLDER):
-        return jsonify({'images': [], 'total_images': 0})
+    files = []
 
-    # Include both images and videos
-    files = [
-        f for f in os.listdir(UPLOAD_FOLDER)
-        if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and
-        f.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webm'))
-    ]
+    if USE_AZURE_STORAGE and blob_service_client:
+        # List blobs from Azure
+        try:
+            container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+            blob_list = container_client.list_blobs()
 
-    # Sort by modification time (newest first)
-    files.sort(key=lambda x: os.path.getmtime(os.path.join(UPLOAD_FOLDER, x)), reverse=True)
+            for blob in blob_list:
+                file_ext = blob.name.rsplit(".", 1)[-1].lower() if "." in blob.name else ""
+                if file_ext in ['png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webm']:
+                    files.append({
+                        'name': blob.name,
+                        'last_modified': blob.last_modified
+                    })
+
+            # Sort by last modified (newest first)
+            files.sort(key=lambda x: x['last_modified'], reverse=True)
+
+        except Exception as e:
+            logging.error(f"Error listing blobs: {e}")
+            return jsonify({'images': [], 'total_images': 0})
+    else:
+        # List from local storage
+        if not os.path.exists(UPLOAD_FOLDER):
+            return jsonify({'images': [], 'total_images': 0})
+
+        file_names = [
+            f for f in os.listdir(UPLOAD_FOLDER)
+            if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and
+            f.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webm'))
+        ]
+
+        for file_name in file_names:
+            file_path = os.path.join(UPLOAD_FOLDER, file_name)
+            files.append({
+                'name': file_name,
+                'last_modified': os.path.getmtime(file_path)
+            })
+
+        # Sort by modification time (newest first)
+        files.sort(key=lambda x: x['last_modified'], reverse=True)
 
     total_images = len(files)
     files_page = files[offset:offset + limit]
 
     file_data = []
     for file in files_page:
-        file_ext = file.rsplit(".", 1)[-1].lower()
+        file_name = file['name']
+        file_ext = file_name.rsplit(".", 1)[-1].lower()
         is_video = file_ext in ['mp4', 'mov', 'avi', 'webm']
 
         file_data.append({
-            'filename': file,
+            'filename': file_name,
             'is_video': is_video,
             'type': file_ext
         })
@@ -378,11 +486,21 @@ def admin():
         events = db.execute('SELECT * FROM events ORDER BY event_date DESC').fetchall()
         print(f"🟢 Events Found: {len(events)}")  # Debugging output
 
-        # Fetch images
-        images = [
-            {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
-            if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
-        ]
+        # Fetch images from Azure or local storage
+        images = []
+        if USE_AZURE_STORAGE and blob_service_client:
+            try:
+                container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+                blob_list = container_client.list_blobs()
+                images = [{"filename": blob.name} for blob in blob_list]
+            except Exception as e:
+                logging.error(f"Error listing blobs for admin: {e}")
+        else:
+            if os.path.exists(app.config["UPLOAD_FOLDER"]):
+                images = [
+                    {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
+                    if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
+                ]
         print(f"🟢 Images Found: {len(images)}")  # Debugging output
 
         return render_template('admin.html',
@@ -412,10 +530,20 @@ def view_admin():
         rsvps = db.execute('SELECT * FROM rsvps').fetchall()
         logging.info(f"🟢 RSVPs Found: {len(rsvps)}")
 
-        # Fetch images
-        images = [
-            {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
-            if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
+        # Fetch images from Azure or local storage
+        images = []
+        if USE_AZURE_STORAGE and blob_service_client:
+            try:
+                container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+                blob_list = container_client.list_blobs()
+                images = [{"filename": blob.name} for blob in blob_list]
+            except Exception as e:
+                logging.error(f"Error listing blobs for view-admin: {e}")
+        else:
+            if os.path.exists(app.config["UPLOAD_FOLDER"]):
+                images = [
+                    {"filename": f} for f in os.listdir(app.config["UPLOAD_FOLDER"])
+                    if os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))
         ]
         logging.info(f"🟢 Images Found: {len(images)}")
 
@@ -693,13 +821,22 @@ def delete_rsvp(rsvp_id):
 @app.route('/delete_image/<filename>', methods=['DELETE'])
 def delete_image(filename):
     try:
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(image_path):
-            os.remove(image_path)
+        if USE_AZURE_STORAGE and blob_service_client:
+            # Delete from Azure Blob Storage
+            blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=filename)
+            blob_client.delete_blob()
+            logging.info(f"Deleted blob from Azure: {filename}")
             return jsonify({'success': True, 'message': 'Image deleted successfully'})
         else:
-            return jsonify({'success': False, 'error': 'File not found'}), 404
+            # Delete from local storage
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+                return jsonify({'success': True, 'message': 'Image deleted successfully'})
+            else:
+                return jsonify({'success': False, 'error': 'File not found'}), 404
     except Exception as e:
+        logging.error(f"Error deleting file: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
