@@ -9,8 +9,6 @@ import uuid
 import sqlite3
 import stripe
 import time
-import cv2
-import numpy as np
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -20,7 +18,7 @@ import os
 import platform
 
 UPLOAD_FOLDER = "uploads"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic', 'mp4', 'mov', 'avi', 'webm'}
 
 # Load environment variables
 load_dotenv()
@@ -68,7 +66,7 @@ def index():
 
 
 def convert_heic_to_jpg(filepath):
-    """Convert HEIC to JPG using ImageMagick or OpenCV fallback."""
+    """Convert HEIC to JPG using ImageMagick."""
     jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"
 
     # Check if ImageMagick is installed
@@ -77,21 +75,11 @@ def convert_heic_to_jpg(filepath):
             subprocess.run(["magick", filepath, jpg_filepath], check=True)
             os.remove(filepath)  # Delete the original HEIC file
             return jpg_filepath
-        except subprocess.CalledProcessError:
-            logging.warning("ImageMagick conversion failed, attempting OpenCV.")
-
-    # OpenCV Fallback
-    try:
-        img = cv2.imread(filepath, cv2.IMREAD_COLOR)
-        if img is None:
-            logging.error(f"Error loading HEIC image {filepath}")
-            return None  # Avoid corrupt images
-
-        cv2.imwrite(jpg_filepath, img)
-        os.remove(filepath)  # Delete original HEIC file
-        return jpg_filepath
-    except Exception as e:
-        logging.error(f"Error converting HEIC to JPG with OpenCV: {e}")
+        except subprocess.CalledProcessError as e:
+            logging.error(f"ImageMagick conversion failed: {e}")
+            return None
+    else:
+        logging.error("ImageMagick not installed - cannot convert HEIC files")
         return None
 
 
@@ -107,13 +95,18 @@ def upload_image():
         logging.warning("No selected file")
         return jsonify({'error': 'No selected file'}), 400
 
+    # Check if file extension is allowed
+    if not allowed_file(file.filename):
+        logging.warning(f"File type not allowed: {file.filename}")
+        return jsonify({'error': 'File type not allowed. Please upload PNG, JPG, JPEG, GIF, HEIC, MP4, MOV, AVI, or WEBM files.'}), 400
+
     # Generate a unique filename to prevent overwriting
     file_ext = file.filename.rsplit(".", 1)[-1].lower()
     filename = f"{uuid.uuid4().hex}.{file_ext}"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     try:
-        file.save(file_path)  # Save the uploaded file before processing
+        file.save(file_path)  # Save the uploaded file
 
         if file_ext == 'heic':
             converted_path = convert_heic_to_jpg(file_path)
@@ -123,24 +116,15 @@ def upload_image():
             else:
                 logging.error("HEIC conversion failed")
                 return jsonify({'error': 'HEIC conversion failed'}), 500
-        else:
-            # OpenCV Processing: Read Image from File Stream Correctly
-            file.stream.seek(0)  # Ensure file is read from start
-            npimg = np.frombuffer(file.stream.read(), np.uint8)  # Convert file to NumPy array
-            img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # Decode image data
-
-            if img is None:
-                logging.error(f"Invalid image format: {filename}")
-                os.remove(file_path)  # ✅ Ensure bad file is deleted
-                return jsonify({'error': 'Invalid image format or corrupted file'}), 400
-
-            cv2.imwrite(file_path, img)
 
         logging.info(f"File successfully uploaded: {filename}")
         return jsonify({'success': True, 'image_url': url_for('uploaded_file', filename=filename)})
 
     except Exception as e:
         logging.error(f"File Upload Error: {e}")
+        # Clean up the file if it was created
+        if os.path.exists(file_path):
+            os.remove(file_path)
         return jsonify({'error': f"File upload failed: {str(e)}"}), 500
 
 
@@ -150,51 +134,49 @@ def uploaded_file(filename):
 
 
 def encode_image_to_base64(image_path):
-    """Convert an image to a base64 string using OpenCV."""
-    img = cv2.imread(image_path)
-    if img is None:
-        logging.error(f"Failed to read image for base64 encoding: {image_path}")
+    """Convert an image to a base64 string."""
+    try:
+        with open(image_path, 'rb') as img_file:
+            return base64.b64encode(img_file.read()).decode("utf-8")
+    except Exception as e:
+        logging.error(f"Failed to read image for base64 encoding: {image_path}, Error: {e}")
         return None
-
-    file_ext = image_path.rsplit(".", 1)[-1].lower()
-    valid_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-
-    if file_ext not in valid_extensions:
-        logging.error(f"Unsupported image format for base64 encoding: {file_ext}")
-        return None
-
-    _, buffer = cv2.imencode(f".{file_ext}", img)
-    return base64.b64encode(buffer).decode("utf-8")
 
 
 @app.route('/images')
 def get_images():
-    """Retrieve images and return base64 encoded versions for display."""
+    """Retrieve images and videos for display."""
     limit = int(request.args.get('limit', 10))
     offset = int(request.args.get('offset', 0))
 
     if not os.path.exists(UPLOAD_FOLDER):
         return jsonify({'images': [], 'total_images': 0})
 
-    images = [
+    # Include both images and videos
+    files = [
         f for f in os.listdir(UPLOAD_FOLDER)
-        if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and f.lower().endswith(('png', 'jpg', 'jpeg', 'gif'))
+        if os.path.isfile(os.path.join(UPLOAD_FOLDER, f)) and
+        f.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webm'))
     ]
-    total_images = len(images)
-    images_page = images[offset:offset + limit]
 
-    image_data = []
-    for image in images_page:
-        image_path = os.path.join(UPLOAD_FOLDER, image)
-        base64_image = encode_image_to_base64(image_path)
+    # Sort by modification time (newest first)
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(UPLOAD_FOLDER, x)), reverse=True)
 
-        if base64_image:
-            image_data.append({
-                'filename': image,
-                'data': f'data:image/{image_path.rsplit(".", 1)[-1]};base64,{base64_image}'
-            })
+    total_images = len(files)
+    files_page = files[offset:offset + limit]
 
-    return jsonify({'images': image_data, 'total_images': total_images})
+    file_data = []
+    for file in files_page:
+        file_ext = file.rsplit(".", 1)[-1].lower()
+        is_video = file_ext in ['mp4', 'mov', 'avi', 'webm']
+
+        file_data.append({
+            'filename': file,
+            'is_video': is_video,
+            'type': file_ext
+        })
+
+    return jsonify({'images': file_data, 'total_images': total_images})
 
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -252,6 +234,29 @@ def init_db():
                 email TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 attending TEXT NOT NULL
+            )
+            '''
+        )
+
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS birthdays (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                birth_date TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                event_date TEXT NOT NULL,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             '''
         )
@@ -660,7 +665,104 @@ def delete_image(filename):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# Initialize the database at startup
+# Birthday Routes
+@app.route('/birthdays', methods=['GET'])
+def get_birthdays():
+    try:
+        db = get_db()
+        birthdays = db.execute('SELECT * FROM birthdays ORDER BY birth_date').fetchall()
+        birthday_list = [{'id': b['id'], 'name': b['name'], 'birth_date': b['birth_date']} for b in birthdays]
+        return jsonify(birthday_list)
+    except Exception as e:
+        logging.error(f"Error fetching birthdays: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/birthdays', methods=['POST'])
+def add_birthday():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        birth_date = data.get('date')
+
+        if not all([name, birth_date]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        db = get_db()
+        with db:
+            db.execute(
+                'INSERT INTO birthdays (name, birth_date) VALUES (?, ?)',
+                (name, birth_date)
+            )
+            db.commit()
+
+        return jsonify({'success': True, 'message': 'Birthday added successfully'})
+    except Exception as e:
+        logging.error(f"Error adding birthday: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/delete_birthday/<int:birthday_id>', methods=['DELETE'])
+def delete_birthday(birthday_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM birthdays WHERE id = ?', (birthday_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Birthday deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Event Routes
+@app.route('/events', methods=['GET'])
+def get_events():
+    try:
+        db = get_db()
+        events = db.execute('SELECT * FROM events ORDER BY event_date DESC').fetchall()
+        event_list = [{'id': e['id'], 'title': e['title'], 'event_date': e['event_date'], 'description': e['description']} for e in events]
+        return jsonify(event_list)
+    except Exception as e:
+        logging.error(f"Error fetching events: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/events', methods=['POST'])
+def add_event():
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        event_date = data.get('date')
+        description = data.get('description')
+
+        if not all([title, event_date, description]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        db = get_db()
+        with db:
+            db.execute(
+                'INSERT INTO events (title, event_date, description) VALUES (?, ?, ?)',
+                (title, event_date, description)
+            )
+            db.commit()
+
+        return jsonify({'success': True, 'message': 'Event added successfully'})
+    except Exception as e:
+        logging.error(f"Error adding event: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/delete_event/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM events WHERE id = ?', (event_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Event deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Initialize the database at startup **force**
 init_db()
 
 if __name__ == "__main__":

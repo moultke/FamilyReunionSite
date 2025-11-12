@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="remove .env from Git and update .gitignore" />
+    <list default="true" id="12867960-95ae-4292-9ac4-dac205961e46" name="Changes" comment="update index.html">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,38 +33,39 @@
     &quot;assignee&quot;: &quot;moultke&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/moultke/FamilyReunionSite.git&quot;,
-    &quot;accountId&quot;: &quot;2e6c8717-f4c5-4b17-9370-91ad6ef148bd&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/moultke/FamilyReunionSite.git",
+    "accountId": "c50389da-2867-4d97-a7f9-f7794a3122c7"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="2sEelLw5FZwvLlkpiE4esiLdFPa" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+  <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;Python.appp.executor&quot;: &quot;Run&quot;,
-    &quot;Python.heic-test-file.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.testheic.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/moultke/PycharmProjects/FamilyReunionSite&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Python.app.executor": "Run",
+    "Python.appp.executor": "Run",
+    "Python.heic-test-file.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.testheic.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/moultke/PycharmProjects/FamilyReunionSite",
+    "run.code.analysis.last.selected.profile": "aDefault",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -68,7 +75,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-975db3bf15a3-31b6be0877a2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.18034.82" />
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
       </set>
     </attachedChunks>
   </component>
@@ -80,30 +87,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738025310711</updated>
-    </task>
-    <task id="LOCAL-00069" summary="html updates">
-      <option name="closed" value="true" />
-      <created>1738953466390</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1738953466390</updated>
-    </task>
-    <task id="LOCAL-00070" summary="html updates">
-      <option name="closed" value="true" />
-      <created>1738953583060</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1738953583060</updated>
-    </task>
-    <task id="LOCAL-00071" summary="uninstall pillow">
-      <option name="closed" value="true" />
-      <created>1738954539379</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1738954539379</updated>
     </task>
     <task id="LOCAL-00072" summary="contact us">
       <option name="closed" value="true" />
@@ -473,7 +456,31 @@
       <option name="project" value="LOCAL" />
       <updated>1744921205507</updated>
     </task>
-    <option name="localTasksCounter" value="118" />
+    <task id="LOCAL-00118" summary="remove .env from Git and update .gitignore">
+      <option name="closed" value="true" />
+      <created>1744922388653</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1744922388653</updated>
+    </task>
+    <task id="LOCAL-00119" summary="remove .env from Git and update .gitignore">
+      <option name="closed" value="true" />
+      <created>1744922724402</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1744922724402</updated>
+    </task>
+    <task id="LOCAL-00120" summary="remove .env from Git and update .gitignore">
+      <option name="closed" value="true" />
+      <created>1744922821833</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1744922821833</updated>
+    </task>
+    <option name="localTasksCounter" value="121" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

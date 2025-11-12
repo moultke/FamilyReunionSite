@@ -21,7 +21,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const galleryGrid = document.getElementById("galleryGrid");
     const uploadPhoto = document.getElementById("uploadPhoto");
     const galleryNotification = document.getElementById("galleryNotification");
+    const uploadProgress = document.getElementById("uploadProgress");
+    const uploadCount = document.getElementById("uploadCount");
+    const uploadTotal = document.getElementById("uploadTotal");
     const baseUrl = window.location.origin;
+
+    // Birthday and Event variables
+    const birthdayForm = document.getElementById("birthdayForm");
+    const birthdaysList = document.getElementById("birthdaysList");
+    const eventForm = document.getElementById("eventForm");
+    const eventsList = document.getElementById("eventsList");
 
     // Registration/Payment variables
     const stripe = Stripe("pk_live_51Qm6jDDeOdL1Uspnz81ANrY78bcjW5JeWMGd6uH92mgfsb3o6rHuPa4cZVql5y23KxIOUKcMr41ixK8a6kQ8n8uC00eq0uaMM3"); // Replace with your publishable key
@@ -412,15 +421,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                data.images.forEach(image => {
-                    const fullImageUrl = `${window.location.origin}/uploads/${image.filename}`;
+                data.images.forEach(item => {
+                    const fullFileUrl = `${window.location.origin}/uploads/${item.filename}`;
                     const col = document.createElement("div");
                     col.className = "col-md-3 mb-3";
-                    col.innerHTML = `
-                        <div class="card gallery-card">
-                            <img src="${fullImageUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullImageUrl}')" alt="Uploaded Image">
-                        </div>
-                    `;
+
+                    if (item.is_video) {
+                        // Display video
+                        col.innerHTML = `
+                            <div class="card gallery-card">
+                                <video class="card-img-top" controls style="width: 100%; height: 200px; object-fit: cover;">
+                                    <source src="${fullFileUrl}" type="video/${item.type}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        `;
+                    } else {
+                        // Display image
+                        col.innerHTML = `
+                            <div class="card gallery-card">
+                                <img src="${fullFileUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullFileUrl}')" alt="Uploaded Image">
+                            </div>
+                        `;
+                    }
                     galleryGrid.appendChild(col);
                 });
 
@@ -436,40 +459,76 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function uploadImage() {
-        const file = uploadPhoto.files[0];
-        if (!file) {
-            showNotification("Please select an image to upload.", "danger", galleryNotification);
+    async function uploadImage() {
+        const files = uploadPhoto.files;
+        if (!files || files.length === 0) {
+            showNotification("Please select files to upload.", "danger", galleryNotification);
             return;
         }
 
-        const formData = new FormData();
-        formData.append("image", file);
+        // Show progress bar
+        if (uploadProgress) {
+            uploadProgress.style.display = "block";
+            uploadTotal.textContent = files.length;
+            uploadCount.textContent = "0";
+        }
 
-        fetch("/upload-image", {
-            method: "POST",
-            body: formData
-        })
-            .then(response => {
+        let successCount = 0;
+        let failCount = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append("image", files[i]);
+
+            try {
+                const response = await fetch("/upload-image", {
+                    method: "POST",
+                    body: formData
+                });
+
                 if (!response.ok) {
-                    return response.text().then(err => {throw new Error(`HTTP error! status: ${response.status}, ${err}`);}); // Include error message from server
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Upload response:", data);
+
+                const data = await response.json();
                 if (data.success) {
-                    showNotification("Image uploaded successfully!", "success", galleryNotification);
-                    uploadPhoto.value = "";
-                    fetchGalleryImages();
+                    successCount++;
                 } else {
-                    showNotification("Image upload failed: " + data.error, "danger", galleryNotification); // Display server error
+                    failCount++;
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("❌ Upload error:", error);
-                showNotification("An error occurred during upload. Please try again. " + error.message, "danger", galleryNotification); // Include error message
-            });
+                failCount++;
+            }
+
+            // Update progress
+            const uploadedSoFar = i + 1;
+            if (uploadCount) uploadCount.textContent = uploadedSoFar;
+            if (uploadProgress) {
+                const progressBar = uploadProgress.querySelector(".progress-bar");
+                const percentage = (uploadedSoFar / files.length) * 100;
+                progressBar.style.width = percentage + "%";
+            }
+        }
+
+        // Hide progress bar after a delay
+        setTimeout(() => {
+            if (uploadProgress) uploadProgress.style.display = "none";
+        }, 2000);
+
+        // Show summary notification
+        let message = "";
+        if (successCount > 0) {
+            message += `${successCount} file(s) uploaded successfully! `;
+        }
+        if (failCount > 0) {
+            message += `${failCount} file(s) failed to upload.`;
+        }
+
+        showNotification(message, failCount > 0 ? "warning" : "success", galleryNotification);
+        uploadPhoto.value = "";
+        fetchGalleryImages();
     }
 
     // Functions for registration
@@ -692,9 +751,139 @@ document.addEventListener("DOMContentLoaded", function () {
     // Set up the upload photo event listener
     if (uploadPhoto) {
         uploadPhoto.addEventListener("change", uploadImage);
-
-
     }
 
+    // Birthday Functions
+    function fetchBirthdays() {
+        if (!birthdaysList) return;
+
+        fetch('/birthdays')
+            .then(response => response.json())
+            .then(birthdays => {
+                birthdaysList.innerHTML = '';
+                if (birthdays.length === 0) {
+                    birthdaysList.innerHTML = '<p class="text-muted">No birthdays added yet.</p>';
+                    return;
+                }
+
+                birthdays.forEach(birthday => {
+                    const date = new Date(birthday.birth_date + 'T00:00:00');
+                    const monthDay = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    item.innerHTML = `
+                        <div>
+                            <strong>${birthday.name}</strong>
+                            <br>
+                            <small class="text-muted">${monthDay}</small>
+                        </div>
+                    `;
+                    birthdaysList.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error fetching birthdays:', error));
+    }
+
+    if (birthdayForm) {
+        birthdayForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('birthdayName').value;
+            const date = document.getElementById('birthdayDate').value;
+
+            fetch('/birthdays', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, date })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Birthday added successfully!');
+                    birthdayForm.reset();
+                    fetchBirthdays();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    }
+
+    // Event Functions
+    function fetchEvents() {
+        if (!eventsList) return;
+
+        fetch('/events')
+            .then(response => response.json())
+            .then(events => {
+                eventsList.innerHTML = '';
+                if (events.length === 0) {
+                    eventsList.innerHTML = '<p class="text-muted">No events added yet.</p>';
+                    return;
+                }
+
+                events.forEach(event => {
+                    const date = new Date(event.event_date + 'T00:00:00');
+                    const formattedDate = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${event.title}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">${formattedDate}</h6>
+                            <p class="card-text">${event.description}</p>
+                        </div>
+                    `;
+                    eventsList.appendChild(card);
+                });
+            })
+            .catch(error => console.error('Error fetching events:', error));
+    }
+
+    if (eventForm) {
+        eventForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const description = document.getElementById('eventDescription').value;
+
+            fetch('/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, date, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Event added successfully!');
+                    eventForm.reset();
+                    fetchEvents();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    }
+
+    // Initialize birthday and event sections
+    if (birthdaysList) fetchBirthdays();
+    if (eventsList) fetchEvents();
+
 });
+
 
