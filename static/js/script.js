@@ -466,6 +466,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        console.log(`📤 Starting upload of ${files.length} file(s)`);
+
         // Show progress bar
         if (uploadProgress) {
             uploadProgress.style.display = "block";
@@ -475,10 +477,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let successCount = 0;
         let failCount = 0;
+        let errorMessages = [];
 
         for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            console.log(`📎 Uploading file ${i + 1}/${files.length}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
             const formData = new FormData();
-            formData.append("image", files[i]);
+            formData.append("image", file);
 
             try {
                 const response = await fetch("/upload-image", {
@@ -486,19 +492,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     body: formData
                 });
 
+                console.log(`📡 Response status: ${response.status} for ${file.name}`);
+
                 if (!response.ok) {
                     const errorText = await response.text();
+                    console.error(`❌ Upload failed for ${file.name}:`, errorText);
                     throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
                 }
 
                 const data = await response.json();
                 if (data.success) {
+                    console.log(`✅ Successfully uploaded: ${file.name}`);
                     successCount++;
                 } else {
+                    console.error(`❌ Server reported failure for ${file.name}:`, data.error);
+                    errorMessages.push(`${file.name}: ${data.error || 'Unknown error'}`);
                     failCount++;
                 }
             } catch (error) {
-                console.error("❌ Upload error:", error);
+                console.error(`❌ Upload error for ${file.name}:`, error);
+                errorMessages.push(`${file.name}: ${error.message}`);
                 failCount++;
             }
 
@@ -524,8 +537,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (failCount > 0) {
             message += `${failCount} file(s) failed to upload.`;
+            if (errorMessages.length > 0) {
+                console.error("Upload errors:", errorMessages);
+                // Show first error in notification
+                message += ` Error: ${errorMessages[0]}`;
+            }
         }
 
+        console.log(`📊 Upload complete: ${successCount} success, ${failCount} failed`);
         showNotification(message, failCount > 0 ? "warning" : "success", galleryNotification);
         uploadPhoto.value = "";
         fetchGalleryImages();

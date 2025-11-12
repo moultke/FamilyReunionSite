@@ -14,6 +14,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask_session import Session
+from werkzeug.exceptions import RequestEntityTooLarge
 import os
 import platform
 
@@ -29,6 +30,7 @@ if platform.system() == "Linux":
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 
 # Enhanced session configuration
 app.config["SESSION_TYPE"] = "filesystem"
@@ -86,19 +88,23 @@ def convert_heic_to_jpg(filepath):
 @app.route("/upload-image", methods=["POST"])
 def upload_image():
     """Handles file uploads, ensuring correct processing and preventing overwrites."""
-    if 'image' not in request.files:
-        logging.warning("No file part in request")
-        return jsonify({'error': 'No file part'}), 400
+    try:
+        if 'image' not in request.files:
+            logging.warning("No file part in request")
+            return jsonify({'error': 'No file part in request'}), 400
 
-    file = request.files['image']
-    if file.filename == '':
-        logging.warning("No selected file")
-        return jsonify({'error': 'No selected file'}), 400
+        file = request.files['image']
+        if file.filename == '':
+            logging.warning("No selected file")
+            return jsonify({'error': 'No selected file'}), 400
 
-    # Check if file extension is allowed
-    if not allowed_file(file.filename):
-        logging.warning(f"File type not allowed: {file.filename}")
-        return jsonify({'error': 'File type not allowed. Please upload PNG, JPG, JPEG, GIF, HEIC, MP4, MOV, AVI, or WEBM files.'}), 400
+        # Check if file extension is allowed
+        if not allowed_file(file.filename):
+            logging.warning(f"File type not allowed: {file.filename}")
+            return jsonify({'error': 'File type not allowed. Please upload PNG, JPG, JPEG, GIF, HEIC, MP4, MOV, AVI, or WEBM files.'}), 400
+    except Exception as e:
+        logging.error(f"Error processing upload request: {e}")
+        return jsonify({'error': f'Error processing request: {str(e)}'}), 400
 
     # Generate a unique filename to prevent overwriting
     file_ext = file.filename.rsplit(".", 1)[-1].lower()
@@ -761,6 +767,12 @@ def delete_event(event_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+# Error handler for file size limit
+@app.errorhandler(RequestEntityTooLarge)
+def handle_file_too_large(e):
+    logging.error("File too large error")
+    return jsonify({'error': 'File too large. Maximum size is 100MB.'}), 413
 
 # Initialize the database at startup **force**
 init_db()
