@@ -880,10 +880,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         let itemClass = 'birthday-item p-2 border rounded';
 
                         if (birthday.isMilestone) {
-                            milestoneIndicator = `<span class="milestone-badge">🎉 ${birthday.age}</span>`;
+                            milestoneIndicator = `<span class="milestone-badge">🎉</span>`;
                             itemClass += ' milestone-birthday';
-                        } else if (birthday.age) {
-                            milestoneIndicator = `<span class="age-badge">${birthday.age}</span>`;
                         }
 
                         col.innerHTML = `
