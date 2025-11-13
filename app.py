@@ -91,7 +91,9 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
-    return render_template('index.html', config=app.config)
+    db = get_db()
+    hero_slides = db.execute('SELECT * FROM hero_slides WHERE active = 1 ORDER BY display_order').fetchall()
+    return render_template('index.html', config=app.config, hero_slides=hero_slides)
 
 
 def convert_heic_to_jpg(filepath):
@@ -394,6 +396,36 @@ def init_db():
             '''
         )
 
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS hero_slides (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                image_url TEXT NOT NULL,
+                title TEXT NOT NULL,
+                caption TEXT,
+                display_order INTEGER NOT NULL DEFAULT 0,
+                active INTEGER NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
+        # Insert default hero slides if table is empty
+        count = db.execute('SELECT COUNT(*) FROM hero_slides').fetchone()[0]
+        if count == 0:
+            default_slides = [
+                ('static/images/family1.jpg', 'Staying Connected', 'Share your moments with family!', 1),
+                ('static/images/family2.jpg', 'Celebrate Together', 'Every milestone matters.', 2),
+                ('static/images/family3.jpg', 'Family First', 'Always and forever.', 3),
+                ('static/images/family4.jpg', 'Making Memories', 'One moment at a time.', 4)
+            ]
+            for image_url, title, caption, order in default_slides:
+                db.execute(
+                    'INSERT INTO hero_slides (image_url, title, caption, display_order) VALUES (?, ?, ?, ?)',
+                    (image_url, title, caption, order)
+                )
+            db.commit()
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -486,6 +518,10 @@ def admin():
         events = db.execute('SELECT * FROM events ORDER BY event_date DESC').fetchall()
         print(f"🟢 Events Found: {len(events)}")  # Debugging output
 
+        # Fetch hero slides
+        hero_slides = db.execute('SELECT * FROM hero_slides ORDER BY display_order').fetchall()
+        print(f"🟢 Hero Slides Found: {len(hero_slides)}")  # Debugging output
+
         # Fetch images from Azure or local storage
         images = []
         if USE_AZURE_STORAGE and blob_service_client:
@@ -508,6 +544,7 @@ def admin():
                              rsvps=rsvps,
                              birthdays=birthdays,
                              events=events,
+                             hero_slides=hero_slides,
                              images=images)
 
     except Exception as e:
@@ -933,6 +970,134 @@ def delete_event(event_id):
         db.execute('DELETE FROM events WHERE id = ?', (event_id,))
         db.commit()
         return jsonify({'success': True, 'message': 'Event deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Hero Slides Routes
+@app.route('/hero-slides', methods=['GET'])
+def get_hero_slides():
+    try:
+        db = get_db()
+        slides = db.execute('SELECT * FROM hero_slides WHERE active = 1 ORDER BY display_order').fetchall()
+        slide_list = [{
+            'id': s['id'],
+            'image_url': s['image_url'],
+            'title': s['title'],
+            'caption': s['caption'],
+            'display_order': s['display_order']
+        } for s in slides]
+        return jsonify(slide_list)
+    except Exception as e:
+        logging.error(f"Error fetching hero slides: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/hero-slides', methods=['POST'])
+def add_hero_slide():
+    try:
+        data = request.get_json()
+        image_url = data.get('image_url')
+        title = data.get('title')
+        caption = data.get('caption', '')
+
+        if not image_url or not title:
+            return jsonify({'error': 'Image URL and title are required'}), 400
+
+        db = get_db()
+        # Get the next display order
+        max_order = db.execute('SELECT MAX(display_order) FROM hero_slides').fetchone()[0]
+        next_order = (max_order or 0) + 1
+
+        db.execute(
+            'INSERT INTO hero_slides (image_url, title, caption, display_order) VALUES (?, ?, ?, ?)',
+            (image_url, title, caption, next_order)
+        )
+        db.commit()
+        return jsonify({'success': True, 'message': 'Hero slide added successfully'})
+    except Exception as e:
+        logging.error(f"Error adding hero slide: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/hero-slides/<int:slide_id>', methods=['PUT'])
+def update_hero_slide(slide_id):
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        caption = data.get('caption')
+        image_url = data.get('image_url')
+
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
+
+        db = get_db()
+        db.execute(
+            'UPDATE hero_slides SET title = ?, caption = ?, image_url = ? WHERE id = ?',
+            (title, caption, image_url, slide_id)
+        )
+        db.commit()
+        return jsonify({'success': True, 'message': 'Hero slide updated successfully'})
+    except Exception as e:
+        logging.error(f"Error updating hero slide: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/hero-slides/<int:slide_id>/reorder', methods=['PUT'])
+def reorder_hero_slide(slide_id):
+    try:
+        data = request.get_json()
+        new_order = data.get('display_order')
+
+        if new_order is None:
+            return jsonify({'error': 'Display order is required'}), 400
+
+        db = get_db()
+        # Get current order
+        current = db.execute('SELECT display_order FROM hero_slides WHERE id = ?', (slide_id,)).fetchone()
+        if not current:
+            return jsonify({'error': 'Slide not found'}), 404
+
+        current_order = current['display_order']
+
+        # Update orders of other slides
+        if new_order > current_order:
+            # Moving down: shift slides up
+            db.execute(
+                'UPDATE hero_slides SET display_order = display_order - 1 WHERE display_order > ? AND display_order <= ?',
+                (current_order, new_order)
+            )
+        else:
+            # Moving up: shift slides down
+            db.execute(
+                'UPDATE hero_slides SET display_order = display_order + 1 WHERE display_order >= ? AND display_order < ?',
+                (new_order, current_order)
+            )
+
+        # Update the slide being moved
+        db.execute('UPDATE hero_slides SET display_order = ? WHERE id = ?', (new_order, slide_id))
+        db.commit()
+
+        return jsonify({'success': True, 'message': 'Slide reordered successfully'})
+    except Exception as e:
+        logging.error(f"Error reordering hero slide: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/delete_hero_slide/<int:slide_id>', methods=['DELETE'])
+def delete_hero_slide(slide_id):
+    try:
+        db = get_db()
+        # Get the order of the slide being deleted
+        slide = db.execute('SELECT display_order FROM hero_slides WHERE id = ?', (slide_id,)).fetchone()
+        if slide:
+            order = slide['display_order']
+            # Delete the slide
+            db.execute('DELETE FROM hero_slides WHERE id = ?', (slide_id,))
+            # Shift remaining slides up
+            db.execute('UPDATE hero_slides SET display_order = display_order - 1 WHERE display_order > ?', (order,))
+            db.commit()
+        return jsonify({'success': True, 'message': 'Hero slide deleted successfully'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

@@ -41,34 +41,19 @@
     <header class="hero">
         <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="{{ url_for('static', filename='images/family1.jpg') }}" class="d-block w-100" alt="Family 1">
+                {% for slide in hero_slides %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    {% if slide[1].startswith('http') or slide[1].startswith('/uploads/') %}
+                    <img src="{{ slide[1] }}" class="d-block w-100" alt="{{ slide[2] }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename=slide[1].replace('static/', '')) }}" class="d-block w-100" alt="{{ slide[2] }}">
+                    {% endif %}
                     <div class="carousel-caption">
-                        <h3>Staying Connected</h3>
-                        <p>Share your moments with family!</p>
+                        <h3>{{ slide[2] }}</h3>
+                        <p>{{ slide[3] }}</p>
                     </div>
                 </div>
-                <div class="carousel-item">
-                    <img src="{{ url_for('static', filename='images/family2.jpg') }}" class="d-block w-100" alt="Family 2">
-                    <div class="carousel-caption">
-                        <h3>Celebrate Together</h3>
-                        <p>Every milestone matters.</p>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <img src="{{ url_for('static', filename='images/family3.jpg') }}" class="d-block w-100" alt="Family 3">
-                    <div class="carousel-caption">
-                        <h3>Family First</h3>
-                        <p>Always and forever.</p>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <img src="{{ url_for('static', filename='images/family4.jpg') }}" class="d-block w-100" alt="Family 4">
-                    <div class="carousel-caption">
-                        <h3>Making Memories</h3>
-                        <p>One moment at a time.</p>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
