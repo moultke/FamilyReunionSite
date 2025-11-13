@@ -244,16 +244,22 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Add a Birthday</h5>
-                        <p class="text-muted small">Include birth year to highlight milestone birthdays (ages ending in 0 or 5, plus 13, 16, 18, 21)</p>
+                        <div class="alert alert-info py-2 mb-3">
+                            <strong>📝 How to enter birthdays:</strong>
+                            <ul class="mb-0 mt-2 small">
+                                <li><strong>With birth year</strong> (e.g., 05/15/1990): Shows age and highlights milestone birthdays (ages ending in 0 or 5, plus 13, 16, 18, 21) with 🎉</li>
+                                <li><strong>Without birth year</strong> (just month/day): Shows only name and date, no age or milestone tracking</li>
+                            </ul>
+                        </div>
                         <form id="birthdayForm" class="row g-3">
                             <div class="col-md-5">
                                 <label for="birthdayName" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="birthdayName" name="name" required>
                             </div>
                             <div class="col-md-5">
-                                <label for="birthdayDate" class="form-label">Birthday (Full Date or Month/Day)</label>
+                                <label for="birthdayDate" class="form-label">Birthday</label>
                                 <input type="date" class="form-control" id="birthdayDate" name="date" required>
-                                <small class="text-muted">Enter full date with year for milestone tracking, or just month/day</small>
+                                <small class="text-muted">Include the year for milestone tracking</small>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">Add</button>
