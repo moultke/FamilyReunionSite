@@ -384,6 +384,12 @@ def init_db():
             '''
         )
 
+        # Add birth_year column if it doesn't exist (for milestone birthday tracking)
+        try:
+            db.execute("SELECT birth_year FROM birthdays LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE birthdays ADD COLUMN birth_year INTEGER")
+
         db.execute(
             '''
             CREATE TABLE IF NOT EXISTS events (
@@ -895,7 +901,12 @@ def get_birthdays():
     try:
         db = get_db()
         birthdays = db.execute('SELECT * FROM birthdays ORDER BY birth_date').fetchall()
-        birthday_list = [{'id': b['id'], 'name': b['name'], 'birth_date': b['birth_date']} for b in birthdays]
+        birthday_list = [{
+            'id': b['id'],
+            'name': b['name'],
+            'birth_date': b['birth_date'],
+            'birth_year': b['birth_year'] if len(b) > 3 and b['birth_year'] else None
+        } for b in birthdays]
         return jsonify(birthday_list)
     except Exception as e:
         logging.error(f"Error fetching birthdays: {e}")
@@ -908,16 +919,23 @@ def add_birthday():
         data = request.get_json()
         name = data.get('name')
         birth_date = data.get('date')
+        birth_year = data.get('birth_year')  # Optional
 
         if not all([name, birth_date]):
             return jsonify({'error': 'Missing required fields'}), 400
 
         db = get_db()
         with db:
-            db.execute(
-                'INSERT INTO birthdays (name, birth_date) VALUES (?, ?)',
-                (name, birth_date)
-            )
+            if birth_year:
+                db.execute(
+                    'INSERT INTO birthdays (name, birth_date, birth_year) VALUES (?, ?, ?)',
+                    (name, birth_date, int(birth_year))
+                )
+            else:
+                db.execute(
+                    'INSERT INTO birthdays (name, birth_date) VALUES (?, ?)',
+                    (name, birth_date)
+                )
             db.commit()
 
         return jsonify({'success': True, 'message': 'Birthday added successfully'})

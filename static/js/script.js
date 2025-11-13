@@ -802,6 +802,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                // Helper function to check if birthday is a milestone
+                function isMilestoneBirthday(birthYear, birthdayDate) {
+                    if (!birthYear) return false;
+
+                    const age = currentYear - birthYear;
+                    const milestones = [13, 16, 18, 21];
+
+                    // Check if age is milestone (13, 16, 18, 21, or ends in 0 or 5)
+                    if (milestones.includes(age)) return true;
+                    if (age % 10 === 0 || age % 10 === 5) return true;
+
+                    return false;
+                }
+
                 // Group birthdays by month
                 const monthGroups = {};
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -811,6 +828,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const date = new Date(birthday.birth_date + 'T00:00:00');
                     const month = date.getMonth(); // 0-11
                     const day = date.getDate();
+                    const age = birthday.birth_year ? currentYear - birthday.birth_year : null;
 
                     if (!monthGroups[month]) {
                         monthGroups[month] = [];
@@ -818,7 +836,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     monthGroups[month].push({
                         name: birthday.name,
                         day: day,
-                        date: date
+                        date: date,
+                        birthYear: birthday.birth_year,
+                        age: age,
+                        isMilestone: isMilestoneBirthday(birthday.birth_year, date)
                     });
                 });
 
@@ -831,12 +852,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 Object.keys(monthGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(monthIndex => {
                     const monthName = monthNames[monthIndex];
                     const birthdaysInMonth = monthGroups[monthIndex];
+                    const isCurrentMonth = parseInt(monthIndex) === currentMonth;
 
                     const monthCard = document.createElement('div');
                     monthCard.className = 'card mb-3';
+
+                    // Highlight current month card
+                    const headerClass = isCurrentMonth ? 'bg-warning text-dark' : 'bg-primary text-white';
+                    const currentMonthBadge = isCurrentMonth ? '<span class="badge bg-dark ms-2">This Month!</span>' : '';
+
                     monthCard.innerHTML = `
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">${monthName}</h5>
+                        <div class="card-header ${headerClass}">
+                            <h5 class="mb-0">${monthName}${currentMonthBadge}</h5>
                         </div>
                         <div class="card-body">
                             <div class="row g-2"></div>
@@ -847,15 +874,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     birthdaysInMonth.forEach(birthday => {
                         const col = document.createElement('div');
                         col.className = 'col-md-4 col-sm-6';
+
+                        // Build the birthday item with milestone indicators
+                        let milestoneIndicator = '';
+                        let itemClass = 'birthday-item p-2 border rounded';
+
+                        if (birthday.isMilestone) {
+                            milestoneIndicator = `<span class="milestone-badge">🎉 ${birthday.age}</span>`;
+                            itemClass += ' milestone-birthday';
+                        } else if (birthday.age) {
+                            milestoneIndicator = `<span class="age-badge">${birthday.age}</span>`;
+                        }
+
                         col.innerHTML = `
-                            <div class="birthday-item p-2 border rounded">
-                                <div class="d-flex align-items-center">
-                                    <div class="birthday-day me-2">
-                                        <span class="badge bg-secondary" style="font-size: 1rem;">${birthday.day}</span>
+                            <div class="${itemClass}">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="birthday-day me-2">
+                                            <span class="badge bg-secondary" style="font-size: 1rem;">${birthday.day}</span>
+                                        </div>
+                                        <div class="birthday-name">
+                                            <strong>${birthday.name}</strong>
+                                        </div>
                                     </div>
-                                    <div class="birthday-name">
-                                        <strong>${birthday.name}</strong>
-                                    </div>
+                                    ${milestoneIndicator}
                                 </div>
                             </div>
                         `;
@@ -874,11 +916,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const name = document.getElementById('birthdayName').value;
             const date = document.getElementById('birthdayDate').value;
+            const birthYear = document.getElementById('birthYear').value;
+
+            const payload = { name, date };
+            if (birthYear) {
+                payload.birth_year = birthYear;
+            }
 
             fetch('/birthdays', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, date })
+                body: JSON.stringify(payload)
             })
             .then(response => response.json())
             .then(data => {
@@ -886,6 +934,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('Birthday added successfully!');
                     birthdayForm.reset();
                     fetchBirthdays();
+                    // Collapse the form after successful submission
+                    const collapseElement = document.getElementById('addBirthdayForm');
+                    if (collapseElement) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
                 } else {
                     alert('Error: ' + data.error);
                 }
