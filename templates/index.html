@@ -244,19 +244,16 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Add a Birthday</h5>
-                        <p class="text-muted small">Add birth year to highlight milestone birthdays (ages ending in 0 or 5, plus 13, 16, 18, 21)</p>
+                        <p class="text-muted small">Include birth year to highlight milestone birthdays (ages ending in 0 or 5, plus 13, 16, 18, 21)</p>
                         <form id="birthdayForm" class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <label for="birthdayName" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="birthdayName" name="name" required>
                             </div>
-                            <div class="col-md-3">
-                                <label for="birthdayDate" class="form-label">Birthday (Month & Day)</label>
+                            <div class="col-md-5">
+                                <label for="birthdayDate" class="form-label">Birthday (Full Date or Month/Day)</label>
                                 <input type="date" class="form-control" id="birthdayDate" name="date" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="birthYear" class="form-label">Birth Year (Optional)</label>
-                                <input type="number" class="form-control" id="birthYear" name="birth_year" min="1900" max="2025" placeholder="e.g., 1990">
+                                <small class="text-muted">Enter full date with year for milestone tracking, or just month/day</small>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">Add</button>

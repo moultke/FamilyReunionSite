@@ -916,11 +916,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const name = document.getElementById('birthdayName').value;
             const date = document.getElementById('birthdayDate').value;
-            const birthYear = document.getElementById('birthYear').value;
 
+            // Extract year from the date if provided (format: YYYY-MM-DD)
             const payload = { name, date };
-            if (birthYear) {
-                payload.birth_year = birthYear;
+            if (date && date.length === 10) {
+                const year = parseInt(date.split('-')[0]);
+                // Only include birth_year if it's a reasonable year (not just month/day)
+                if (year >= 1900 && year <= new Date().getFullYear()) {
+                    payload.birth_year = year;
+                }
             }
 
             fetch('/birthdays', {
