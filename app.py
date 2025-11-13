@@ -410,6 +410,18 @@ def init_db():
             '''
         )
 
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS contacts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
         # Insert default hero slides if table is empty
         count = db.execute('SELECT COUNT(*) FROM hero_slides').fetchone()[0]
         if count == 0:
@@ -522,6 +534,10 @@ def admin():
         hero_slides = db.execute('SELECT * FROM hero_slides ORDER BY display_order').fetchall()
         print(f"🟢 Hero Slides Found: {len(hero_slides)}")  # Debugging output
 
+        # Fetch contacts
+        contacts = db.execute('SELECT * FROM contacts ORDER BY created_at DESC').fetchall()
+        print(f"🟢 Contacts Found: {len(contacts)}")  # Debugging output
+
         # Fetch images from Azure or local storage
         images = []
         if USE_AZURE_STORAGE and blob_service_client:
@@ -545,6 +561,7 @@ def admin():
                              birthdays=birthdays,
                              events=events,
                              hero_slides=hero_slides,
+                             contacts=contacts,
                              images=images)
 
     except Exception as e:
@@ -738,26 +755,21 @@ def contact():
         if not all([name, email, message]):
             return jsonify({'error': 'Missing required fields'}), 400
 
-        sender_email = os.getenv('MAIL_USERNAME')
-        receiver_email = "milliganaiken@gmail.com"  # Replace with your recipient email
-        password = os.getenv('MAIL_PASSWORD')
+        # Save contact form submission to database
+        db = get_db()
+        with db:
+            db.execute(
+                'INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)',
+                (name, email, message)
+            )
+            db.commit()
 
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = receiver_email
-        msg['Subject'] = f"New Contact Form Submission from {name}"
-        msg.attach(MIMEText(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}", 'plain'))
-
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-
-        return jsonify({'success': True, 'message': 'Email sent successfully!'})
+        logging.info(f"Contact form submitted: {name} | {email}")
+        return jsonify({'success': True, 'message': 'Message sent successfully!'})
 
     except Exception as e:
-        print(f"❌ Email Sending Error: {e}")
-        return jsonify({'error': 'Failed to send email'}), 500
+        logging.error(f"❌ Contact Form Error: {e}")
+        return jsonify({'error': 'Failed to send message'}), 500
 
 
 @app.route('/success')
@@ -970,6 +982,17 @@ def delete_event(event_id):
         db.execute('DELETE FROM events WHERE id = ?', (event_id,))
         db.commit()
         return jsonify({'success': True, 'message': 'Event deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/delete_contact/<int:contact_id>', methods=['DELETE'])
+def delete_contact(contact_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM contacts WHERE id = ?', (contact_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Contact deleted successfully'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
