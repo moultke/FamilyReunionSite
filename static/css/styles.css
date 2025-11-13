@@ -309,6 +309,7 @@ footer {
 /* Birthday Section Styles */
 #birthdays .card-header.bg-primary {
     background-color: #dc3545 !important;
+    color: white !important;
 }
 
 #birthdays .card-header.bg-warning {
