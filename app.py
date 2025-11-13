@@ -402,6 +402,12 @@ def init_db():
             '''
         )
 
+        # Add image_url column to events if it doesn't exist
+        try:
+            db.execute("SELECT image_url FROM events LIMIT 1")
+        except sqlite3.OperationalError:
+            db.execute("ALTER TABLE events ADD COLUMN image_url TEXT")
+
         db.execute(
             '''
             CREATE TABLE IF NOT EXISTS hero_slides (
@@ -961,7 +967,13 @@ def get_events():
     try:
         db = get_db()
         events = db.execute('SELECT * FROM events ORDER BY event_date DESC').fetchall()
-        event_list = [{'id': e['id'], 'title': e['title'], 'event_date': e['event_date'], 'description': e['description']} for e in events]
+        event_list = [{
+            'id': e['id'],
+            'title': e['title'],
+            'event_date': e['event_date'],
+            'description': e['description'],
+            'image_url': e['image_url'] if len(e) > 4 and e['image_url'] else None
+        } for e in events]
         return jsonify(event_list)
     except Exception as e:
         logging.error(f"Error fetching events: {e}")
@@ -975,16 +987,23 @@ def add_event():
         title = data.get('title')
         event_date = data.get('date')
         description = data.get('description')
+        image_url = data.get('image_url')  # Optional
 
         if not all([title, event_date, description]):
             return jsonify({'error': 'Missing required fields'}), 400
 
         db = get_db()
         with db:
-            db.execute(
-                'INSERT INTO events (title, event_date, description) VALUES (?, ?, ?)',
-                (title, event_date, description)
-            )
+            if image_url:
+                db.execute(
+                    'INSERT INTO events (title, event_date, description, image_url) VALUES (?, ?, ?, ?)',
+                    (title, event_date, description, image_url)
+                )
+            else:
+                db.execute(
+                    'INSERT INTO events (title, event_date, description) VALUES (?, ?, ?)',
+                    (title, event_date, description)
+                )
             db.commit()
 
         return jsonify({'success': True, 'message': 'Event added successfully'})

@@ -277,36 +277,93 @@
 
         <!-- Events Section -->
         <section id="events" class="mt-5">
-            <h2>Family Events & Celebrations</h2>
-            <p>Share and celebrate special moments together!</p>
-            <div class="row">
-                <div class="col-md-8">
-                    <div id="eventsList">
-                        <!-- Events will be loaded here -->
-                    </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2>Family Events & Celebrations</h2>
+                    <p class="text-muted mb-0">Share and celebrate special moments together!</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Add an Event</h5>
-                            <form id="eventForm">
-                                <div class="mb-3">
+                <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addEventForm">
+                    <i class="bi bi-plus-circle"></i> Add Event
+                </button>
+            </div>
+
+            <!-- Collapsible Add Event Form -->
+            <div class="collapse mb-4" id="addEventForm">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Add an Event</h5>
+                        <form id="eventForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
                                     <label for="eventTitle" class="form-label">Event Title</label>
                                     <input type="text" class="form-control" id="eventTitle" name="title" required>
                                 </div>
-                                <div class="mb-3">
+                                <div class="col-md-6">
                                     <label for="eventDate" class="form-label">Date</label>
                                     <input type="date" class="form-control" id="eventDate" name="date" required>
                                 </div>
-                                <div class="mb-3">
+                                <div class="col-12">
                                     <label for="eventDescription" class="form-label">Description</label>
                                     <textarea class="form-control" id="eventDescription" name="description" rows="3" required></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Add Event</button>
-                            </form>
+                                <div class="col-12">
+                                    <label for="eventImageSelect" class="form-label">Event Photo (Optional)</label>
+                                    <select class="form-select" id="eventImageSelect">
+                                        <option value="">-- No image --</option>
+                                        <!-- Will be populated with uploaded images -->
+                                    </select>
+                                    <small class="text-muted">Select from previously uploaded images in the gallery</small>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Add Event</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter and View Controls -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label for="eventMonthFilter" class="form-label me-2">Filter by Month:</label>
+                            <select class="form-select form-select-sm d-inline-block w-auto" id="eventMonthFilter">
+                                <option value="all">All Months</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="eventView" id="viewUpcoming" value="upcoming" checked>
+                                <label class="btn btn-outline-primary" for="viewUpcoming">Upcoming</label>
+
+                                <input type="radio" class="btn-check" name="eventView" id="viewPast" value="past">
+                                <label class="btn btn-outline-secondary" for="viewPast">Past</label>
+
+                                <input type="radio" class="btn-check" name="eventView" id="viewAll" value="all">
+                                <label class="btn btn-outline-info" for="viewAll">All</label>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Events Display -->
+            <div id="eventsList">
+                <!-- Events will be loaded here -->
             </div>
         </section>
 

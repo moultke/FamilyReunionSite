@@ -956,40 +956,127 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Event Functions
+    let allEvents = [];
+    let currentEventView = 'upcoming';
+    let currentMonthFilter = 'all';
+
     function fetchEvents() {
         if (!eventsList) return;
 
         fetch('/events')
             .then(response => response.json())
             .then(events => {
-                eventsList.innerHTML = '';
-                if (events.length === 0) {
-                    eventsList.innerHTML = '<p class="text-muted">No events added yet.</p>';
-                    return;
-                }
-
-                events.forEach(event => {
-                    const date = new Date(event.event_date + 'T00:00:00');
-                    const formattedDate = date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-
-                    const card = document.createElement('div');
-                    card.className = 'card mb-3';
-                    card.innerHTML = `
-                        <div class="card-body">
-                            <h5 class="card-title">${event.title}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">${formattedDate}</h6>
-                            <p class="card-text">${event.description}</p>
-                        </div>
-                    `;
-                    eventsList.appendChild(card);
-                });
+                allEvents = events;
+                displayFilteredEvents();
+                populateEventImageSelect();
             })
             .catch(error => console.error('Error fetching events:', error));
     }
+
+    function displayFilteredEvents() {
+        if (!eventsList) return;
+
+        eventsList.innerHTML = '';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Filter events
+        let filteredEvents = allEvents.filter(event => {
+            const eventDate = new Date(event.event_date + 'T00:00:00');
+            const eventMonth = eventDate.getMonth();
+
+            // Filter by view (upcoming/past/all)
+            if (currentEventView === 'upcoming' && eventDate < today) return false;
+            if (currentEventView === 'past' && eventDate >= today) return false;
+
+            // Filter by month
+            if (currentMonthFilter !== 'all' && eventMonth !== parseInt(currentMonthFilter)) return false;
+
+            return true;
+        });
+
+        // Sort events (upcoming: soonest first, past: most recent first)
+        filteredEvents.sort((a, b) => {
+            const dateA = new Date(a.event_date + 'T00:00:00');
+            const dateB = new Date(b.event_date + 'T00:00:00');
+            return currentEventView === 'past' ? dateB - dateA : dateA - dateB;
+        });
+
+        if (filteredEvents.length === 0) {
+            eventsList.innerHTML = '<p class="text-muted">No events found for this selection.</p>';
+            return;
+        }
+
+        filteredEvents.forEach(event => {
+            const eventDate = new Date(event.event_date + 'T00:00:00');
+            const formattedDate = eventDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const isPast = eventDate < today;
+
+            const card = document.createElement('div');
+            card.className = `card mb-3 ${isPast ? 'opacity-75' : ''}`;
+
+            let imageHtml = '';
+            if (event.image_url) {
+                imageHtml = `<img src="${event.image_url}" class="card-img-top" style="max-height: 300px; object-fit: cover;" alt="${event.title}">`;
+            }
+
+            card.innerHTML = `
+                ${imageHtml}
+                <div class="card-body">
+                    <h5 class="card-title">${event.title} ${isPast ? '<span class="badge bg-secondary">Past</span>' : ''}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">📅 ${formattedDate}</h6>
+                    <p class="card-text">${event.description}</p>
+                </div>
+            `;
+            eventsList.appendChild(card);
+        });
+    }
+
+    function populateEventImageSelect() {
+        const imageSelect = document.getElementById('eventImageSelect');
+        if (!imageSelect) return;
+
+        // Keep the "No image" option
+        imageSelect.innerHTML = '<option value="">-- No image --</option>';
+
+        // Fetch uploaded images
+        fetch('/images?limit=1000')
+            .then(response => response.json())
+            .then(data => {
+                if (data.images && data.images.length > 0) {
+                    // Only show actual images (not videos)
+                    data.images.filter(img => !img.is_video).forEach(img => {
+                        const option = document.createElement('option');
+                        option.value = `/uploads/${img.filename}`;
+                        option.textContent = img.filename;
+                        imageSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading images:', error));
+    }
+
+    // Event filters
+    const eventMonthFilter = document.getElementById('eventMonthFilter');
+    if (eventMonthFilter) {
+        eventMonthFilter.addEventListener('change', function() {
+            currentMonthFilter = this.value;
+            displayFilteredEvents();
+        });
+    }
+
+    const eventViewRadios = document.querySelectorAll('input[name="eventView"]');
+    eventViewRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            currentEventView = this.value;
+            displayFilteredEvents();
+        });
+    });
 
     if (eventForm) {
         eventForm.addEventListener('submit', function(event) {
@@ -998,11 +1085,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const title = document.getElementById('eventTitle').value;
             const date = document.getElementById('eventDate').value;
             const description = document.getElementById('eventDescription').value;
+            const imageUrl = document.getElementById('eventImageSelect').value;
+
+            const payload = { title, date, description };
+            if (imageUrl) {
+                payload.image_url = imageUrl;
+            }
 
             fetch('/events', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, date, description })
+                body: JSON.stringify(payload)
             })
             .then(response => response.json())
             .then(data => {
@@ -1010,6 +1103,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('Event added successfully!');
                     eventForm.reset();
                     fetchEvents();
+                    // Collapse the form after successful submission
+                    const collapseElement = document.getElementById('addEventForm');
+                    if (collapseElement) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
                 } else {
                     alert('Error: ' + data.error);
                 }
