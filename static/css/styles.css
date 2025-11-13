@@ -312,8 +312,16 @@ footer {
     color: white !important;
 }
 
+#birthdays .card-header.bg-primary h5 {
+    color: white !important;
+}
+
 #birthdays .card-header.bg-warning {
     background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+#birthdays .card-header.bg-warning h5 {
     color: #212529 !important;
 }
 
