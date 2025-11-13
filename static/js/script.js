@@ -802,20 +802,67 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
+                // Group birthdays by month
+                const monthGroups = {};
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+
                 birthdays.forEach(birthday => {
                     const date = new Date(birthday.birth_date + 'T00:00:00');
-                    const monthDay = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+                    const month = date.getMonth(); // 0-11
+                    const day = date.getDate();
 
-                    const item = document.createElement('div');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    item.innerHTML = `
-                        <div>
-                            <strong>${birthday.name}</strong>
-                            <br>
-                            <small class="text-muted">${monthDay}</small>
+                    if (!monthGroups[month]) {
+                        monthGroups[month] = [];
+                    }
+                    monthGroups[month].push({
+                        name: birthday.name,
+                        day: day,
+                        date: date
+                    });
+                });
+
+                // Sort birthdays within each month by day
+                Object.keys(monthGroups).forEach(month => {
+                    monthGroups[month].sort((a, b) => a.day - b.day);
+                });
+
+                // Create month cards in chronological order
+                Object.keys(monthGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(monthIndex => {
+                    const monthName = monthNames[monthIndex];
+                    const birthdaysInMonth = monthGroups[monthIndex];
+
+                    const monthCard = document.createElement('div');
+                    monthCard.className = 'card mb-3';
+                    monthCard.innerHTML = `
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">${monthName}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2"></div>
                         </div>
                     `;
-                    birthdaysList.appendChild(item);
+
+                    const row = monthCard.querySelector('.row');
+                    birthdaysInMonth.forEach(birthday => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-4 col-sm-6';
+                        col.innerHTML = `
+                            <div class="birthday-item p-2 border rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="birthday-day me-2">
+                                        <span class="badge bg-secondary" style="font-size: 1rem;">${birthday.day}</span>
+                                    </div>
+                                    <div class="birthday-name">
+                                        <strong>${birthday.name}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        row.appendChild(col);
+                    });
+
+                    birthdaysList.appendChild(monthCard);
                 });
             })
             .catch(error => console.error('Error fetching birthdays:', error));
