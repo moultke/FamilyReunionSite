@@ -665,16 +665,15 @@ document.addEventListener("DOMContentLoaded", function () {
                                     commentsLoaded = true;
                                 }
 
-                                // Position popup near the card
+                                // Position overlay centered over the image
                                 const rect = cardElement.getBoundingClientRect();
-                                commentsContainer.style.top = (rect.top + window.scrollY - 10) + 'px';
-                                commentsContainer.style.left = (rect.right + 10) + 'px';
+                                const overlayWidth = 350;
+                                const overlayHeight = 400;
 
-                                // Adjust if popup would go off screen
-                                const popupWidth = 400;
-                                if (rect.right + popupWidth + 10 > window.innerWidth) {
-                                    commentsContainer.style.left = (rect.left - popupWidth - 10) + 'px';
-                                }
+                                // Center horizontally and vertically over the card
+                                commentsContainer.style.left = (rect.left + (rect.width - overlayWidth) / 2) + 'px';
+                                commentsContainer.style.top = (rect.top + window.scrollY + (rect.height - overlayHeight) / 2) + 'px';
+                                commentsContainer.style.width = overlayWidth + 'px';
 
                                 commentsContainer.classList.add('show');
                             });
