@@ -1,6 +1,13 @@
 // Define openImageModal in the global scope (outside DOMContentLoaded)
-function openImageModal(imageUrl) {
+function openImageModal(imageUrl, filename) {
     document.getElementById("modalImage").src = imageUrl;
+    const modalComments = document.getElementById("modalComments");
+
+    // Load comments for this image
+    if (filename && modalComments) {
+        loadComments('photo', filename, modalComments);
+    }
+
     const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
     imageModal.show();
 }
@@ -630,77 +637,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         // Display image
                         col.innerHTML = `
-                            <div class="card gallery-card position-relative">
-                                <img src="${fullFileUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullFileUrl}')" alt="Uploaded Image">
-                                <div class="card-body p-2">
-                                    <div class="border-top pt-2">
-                                        <div id="reactions-photo-${item.filename}" class="mb-2"></div>
-                                        <div class="comments-trigger small text-muted" style="cursor: pointer;">
-                                            💬 <span class="comment-count-${item.filename}">Hover for comments</span>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card gallery-card">
+                                <img src="${fullFileUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullFileUrl}', '${item.filename}')" alt="Uploaded Image" style="cursor: pointer;">
                             </div>
                         `;
                     }
                     galleryGrid.appendChild(col);
-
-                    // Load reactions and comments for this photo
-                    if (!item.is_video) {
-                        const reactionsContainer = document.getElementById(`reactions-photo-${item.filename}`);
-                        if (reactionsContainer) {
-                            loadReactions('photo', item.filename, reactionsContainer);
-                        }
-
-                        // Create comments overlay and append to body
-                        const commentsOverlay = document.createElement('div');
-                        commentsOverlay.id = `comments-photo-${item.filename}`;
-                        commentsOverlay.className = 'comments-overlay';
-                        document.body.appendChild(commentsOverlay);
-
-                        // Load comments on hover
-                        const cardElement = col.querySelector('.gallery-card');
-                        const commentsContainer = commentsOverlay;
-                        let commentsLoaded = false;
-
-                        if (cardElement && commentsContainer) {
-                            cardElement.addEventListener('mouseenter', function(e) {
-                                if (!commentsLoaded) {
-                                    loadComments('photo', item.filename, commentsContainer);
-                                    commentsLoaded = true;
-                                }
-
-                                // Position overlay centered over the image
-                                const rect = cardElement.getBoundingClientRect();
-                                const overlayWidth = 350;
-                                const overlayHeight = 400;
-
-                                // Center horizontally and vertically over the card
-                                commentsContainer.style.left = (rect.left + (rect.width - overlayWidth) / 2) + 'px';
-                                commentsContainer.style.top = (rect.top + window.scrollY + (rect.height - overlayHeight) / 2) + 'px';
-                                commentsContainer.style.width = overlayWidth + 'px';
-
-                                commentsContainer.classList.add('show');
-                            });
-
-                            cardElement.addEventListener('mouseleave', function(e) {
-                                // Check if mouse is entering the comments overlay
-                                const relatedTarget = e.relatedTarget;
-                                if (!relatedTarget || !commentsContainer.contains(relatedTarget)) {
-                                    commentsContainer.classList.remove('show');
-                                }
-                            });
-
-                            // Keep popup visible when hovering over it
-                            commentsContainer.addEventListener('mouseenter', function() {
-                                commentsContainer.classList.add('show');
-                            });
-
-                            commentsContainer.addEventListener('mouseleave', function() {
-                                commentsContainer.classList.remove('show');
-                            });
-                        }
-                    }
                 });
 
                 totalImages = data.total_images || 0;
@@ -1272,26 +1214,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     <h5 class="card-title">${event.title} ${isPast ? '<span class="badge bg-secondary">Past</span>' : ''}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">📅 ${formattedDate}</h6>
                     <p class="card-text">${event.description}</p>
-
-                    <div class="border-top mt-3 pt-2">
-                        <div id="reactions-event-${event.id}" class="mb-2"></div>
-                        <details class="mt-2">
-                            <summary class="text-primary" style="cursor: pointer;">💬 Comments</summary>
-                            <div id="comments-event-${event.id}" class="mt-2"></div>
-                        </details>
-                    </div>
                 </div>
             `;
             eventsList.appendChild(card);
-
-            // Load reactions and comments
-            loadReactions('event', event.id.toString(), document.getElementById(`reactions-event-${event.id}`));
-            const commentsContainer = document.getElementById(`comments-event-${event.id}`);
-            commentsContainer.addEventListener('toggle', function(e) {
-                if (e.target.open) {
-                    loadComments('event', event.id.toString(), commentsContainer);
-                }
-            }, { once: true });
         });
     }
 
