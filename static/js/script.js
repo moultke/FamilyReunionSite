@@ -641,8 +641,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                     </div>
                                 </div>
                             </div>
-                            <div id="comments-photo-${item.filename}" class="comments-overlay"></div>
                         `;
+
+                        // Create comments overlay and append to body
+                        const commentsOverlay = document.createElement('div');
+                        commentsOverlay.id = `comments-photo-${item.filename}`;
+                        commentsOverlay.className = 'comments-overlay';
+                        document.body.appendChild(commentsOverlay);
                     }
                     galleryGrid.appendChild(col);
 
