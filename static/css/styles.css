@@ -377,3 +377,76 @@ footer {
     border-radius: 3px;
 }
 
+/* Comments and Reactions Styles */
+.reactions-display {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.reaction-btn {
+    border: 1px solid #dee2e6;
+    padding: 4px 10px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.reaction-btn:hover {
+    transform: scale(1.1);
+    background-color: #f8f9fa;
+    border-color: #dc3545;
+}
+
+.reaction-btn.opacity-50 {
+    opacity: 0.5;
+}
+
+.comments-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: background-color 0.2s ease;
+}
+
+.comment-item:hover {
+    background-color: #e9ecef;
+}
+
+.add-comment textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.add-comment .btn-primary {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.add-comment .btn-primary:hover {
+    background-color: #b02a37 !important;
+    border-color: #b02a37 !important;
+}
+
+details summary {
+    list-style: none;
+    user-select: none;
+}
+
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] summary {
+    margin-bottom: 0.5rem;
+}
+
+details summary:hover {
+    text-decoration: underline;
+}
+

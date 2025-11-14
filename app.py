@@ -408,6 +408,35 @@ def init_db():
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE events ADD COLUMN image_url TEXT")
 
+        # Comments table - for photos, events, etc.
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_type TEXT NOT NULL,
+                item_id TEXT NOT NULL,
+                commenter_name TEXT NOT NULL,
+                comment_text TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
+        # Reactions table - for photos, events, etc.
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS reactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_type TEXT NOT NULL,
+                item_id TEXT NOT NULL,
+                reactor_name TEXT NOT NULL,
+                reaction_type TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(item_type, item_id, reactor_name, reaction_type)
+            )
+            '''
+        )
+
         db.execute(
             '''
             CREATE TABLE IF NOT EXISTS hero_slides (
@@ -1160,6 +1189,119 @@ def delete_hero_slide(slide_id):
         return jsonify({'success': True, 'message': 'Hero slide deleted successfully'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Comments Routes
+@app.route('/comments/<item_type>/<item_id>', methods=['GET'])
+def get_comments(item_type, item_id):
+    try:
+        db = get_db()
+        comments = db.execute(
+            'SELECT * FROM comments WHERE item_type = ? AND item_id = ? ORDER BY created_at DESC',
+            (item_type, item_id)
+        ).fetchall()
+
+        comment_list = [{
+            'id': c['id'],
+            'commenter_name': c['commenter_name'],
+            'comment_text': c['comment_text'],
+            'created_at': c['created_at']
+        } for c in comments]
+
+        return jsonify(comment_list)
+    except Exception as e:
+        logging.error(f"Error fetching comments: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/comments', methods=['POST'])
+def add_comment():
+    try:
+        data = request.get_json()
+        item_type = data.get('item_type')
+        item_id = data.get('item_id')
+        commenter_name = data.get('commenter_name')
+        comment_text = data.get('comment_text')
+
+        if not all([item_type, item_id, commenter_name, comment_text]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        db = get_db()
+        with db:
+            cursor = db.execute(
+                'INSERT INTO comments (item_type, item_id, commenter_name, comment_text) VALUES (?, ?, ?, ?)',
+                (item_type, item_id, commenter_name, comment_text)
+            )
+            db.commit()
+            comment_id = cursor.lastrowid
+
+        return jsonify({'success': True, 'comment_id': comment_id})
+    except Exception as e:
+        logging.error(f"Error adding comment: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    try:
+        db = get_db()
+        db.execute('DELETE FROM comments WHERE id = ?', (comment_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Comment deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# Reactions Routes
+@app.route('/reactions/<item_type>/<item_id>', methods=['GET'])
+def get_reactions(item_type, item_id):
+    try:
+        db = get_db()
+        reactions = db.execute(
+            'SELECT reaction_type, COUNT(*) as count FROM reactions WHERE item_type = ? AND item_id = ? GROUP BY reaction_type',
+            (item_type, item_id)
+        ).fetchall()
+
+        reaction_dict = {r['reaction_type']: r['count'] for r in reactions}
+
+        return jsonify(reaction_dict)
+    except Exception as e:
+        logging.error(f"Error fetching reactions: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/reactions', methods=['POST'])
+def add_reaction():
+    try:
+        data = request.get_json()
+        item_type = data.get('item_type')
+        item_id = data.get('item_id')
+        reactor_name = data.get('reactor_name')
+        reaction_type = data.get('reaction_type')
+
+        if not all([item_type, item_id, reactor_name, reaction_type]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        db = get_db()
+        with db:
+            try:
+                db.execute(
+                    'INSERT INTO reactions (item_type, item_id, reactor_name, reaction_type) VALUES (?, ?, ?, ?)',
+                    (item_type, item_id, reactor_name, reaction_type)
+                )
+                db.commit()
+                return jsonify({'success': True, 'action': 'added'})
+            except sqlite3.IntegrityError:
+                # User already reacted with this type, remove it (toggle)
+                db.execute(
+                    'DELETE FROM reactions WHERE item_type = ? AND item_id = ? AND reactor_name = ? AND reaction_type = ?',
+                    (item_type, item_id, reactor_name, reaction_type)
+                )
+                db.commit()
+                return jsonify({'success': True, 'action': 'removed'})
+    except Exception as e:
+        logging.error(f"Error adding reaction: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 # Error handler for file size limit
