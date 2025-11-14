@@ -642,12 +642,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 </div>
                             </div>
                         `;
-
-                        // Create comments overlay and append to body
-                        const commentsOverlay = document.createElement('div');
-                        commentsOverlay.id = `comments-photo-${item.filename}`;
-                        commentsOverlay.className = 'comments-overlay';
-                        document.body.appendChild(commentsOverlay);
                     }
                     galleryGrid.appendChild(col);
 
@@ -658,9 +652,15 @@ document.addEventListener("DOMContentLoaded", function () {
                             loadReactions('photo', item.filename, reactionsContainer);
                         }
 
+                        // Create comments overlay and append to body
+                        const commentsOverlay = document.createElement('div');
+                        commentsOverlay.id = `comments-photo-${item.filename}`;
+                        commentsOverlay.className = 'comments-overlay';
+                        document.body.appendChild(commentsOverlay);
+
                         // Load comments on hover
                         const cardElement = col.querySelector('.gallery-card');
-                        const commentsContainer = document.getElementById(`comments-photo-${item.filename}`);
+                        const commentsContainer = commentsOverlay;
                         let commentsLoaded = false;
 
                         if (cardElement && commentsContainer) {
