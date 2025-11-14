@@ -6,8 +6,8 @@ cd "$(dirname "$0")"
 # Optional: list contents for debugging
 ls -la
 
-# Install dependencies (no venv — Azure installs globally in container)
-pip install -r requirements.txt
+# Dependencies are already installed by Oryx during deployment
+# No need to pip install here - it causes timeouts
 
 # Debugging output
 echo "FLASK_APP: $FLASK_APP"
