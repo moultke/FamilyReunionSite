@@ -75,18 +75,25 @@ function loadComments(itemType, itemId, containerElement) {
     fetch(`/comments/${itemType}/${itemId}`)
         .then(response => response.json())
         .then(comments => {
+            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
             let html = '<div class="comments-list mt-2">';
 
             comments.forEach(comment => {
                 const date = new Date(comment.created_at);
                 const timeAgo = getTimeAgo(date);
+                const deleteBtn = isAdmin ? `<button class="btn btn-sm btn-danger btn-delete-comment" onclick="deleteComment(${comment.id}, '${itemType}', '${itemId}')" title="Delete comment">×</button>` : '';
                 html += `
                     <div class="comment-item mb-2 p-2 bg-light rounded">
-                        <div class="d-flex justify-content-between">
-                            <strong>${comment.commenter_name}</strong>
-                            <small class="text-muted">${timeAgo}</small>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <strong>${comment.commenter_name}</strong>
+                                    <small class="text-muted">${timeAgo}</small>
+                                </div>
+                                <div>${comment.comment_text}</div>
+                            </div>
+                            ${deleteBtn}
                         </div>
-                        <div>${comment.comment_text}</div>
                     </div>
                 `;
             });
@@ -102,6 +109,29 @@ function loadComments(itemType, itemId, containerElement) {
             containerElement.innerHTML = html;
         })
         .catch(error => console.error('Error loading comments:', error));
+}
+
+function deleteComment(commentId, itemType, itemId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    fetch(`/comments/${commentId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const containerElement = document.getElementById(`comments-${itemType}-${itemId}`);
+            if (containerElement) {
+                loadComments(itemType, itemId, containerElement);
+            }
+        } else {
+            alert('Failed to delete comment: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting comment:', error);
+        alert('Error deleting comment');
+    });
 }
 
 function submitComment(itemType, itemId) {
@@ -600,15 +630,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         // Display image
                         col.innerHTML = `
-                            <div class="card gallery-card">
+                            <div class="card gallery-card position-relative">
                                 <img src="${fullFileUrl}" class="card-img-top img-thumbnail gallery-img" onclick="openImageModal('${fullFileUrl}')" alt="Uploaded Image">
                                 <div class="card-body p-2">
                                     <div class="border-top pt-2">
                                         <div id="reactions-photo-${item.filename}" class="mb-2"></div>
-                                        <details class="mt-2">
-                                            <summary class="text-primary small" style="cursor: pointer;">💬 Comments</summary>
-                                            <div id="comments-photo-${item.filename}" class="mt-2"></div>
-                                        </details>
+                                        <div class="comments-trigger small text-muted" style="cursor: pointer;">
+                                            💬 <span class="comment-count-${item.filename}">Hover for comments</span>
+                                        </div>
+                                        <div id="comments-photo-${item.filename}" class="comments-overlay"></div>
                                     </div>
                                 </div>
                             </div>
@@ -623,17 +653,22 @@ document.addEventListener("DOMContentLoaded", function () {
                             loadReactions('photo', item.filename, reactionsContainer);
                         }
 
-                        // Load comments when details are opened
-                        const detailsElement = col.querySelector('details');
-                        if (detailsElement) {
-                            detailsElement.addEventListener('toggle', function() {
-                                if (this.open) {
-                                    const commentsContainer = document.getElementById(`comments-photo-${item.filename}`);
-                                    if (commentsContainer && !commentsContainer.dataset.loaded) {
-                                        loadComments('photo', item.filename, commentsContainer);
-                                        commentsContainer.dataset.loaded = 'true';
-                                    }
+                        // Load comments on hover
+                        const cardElement = col.querySelector('.gallery-card');
+                        const commentsContainer = document.getElementById(`comments-photo-${item.filename}`);
+                        let commentsLoaded = false;
+
+                        if (cardElement && commentsContainer) {
+                            cardElement.addEventListener('mouseenter', function() {
+                                if (!commentsLoaded) {
+                                    loadComments('photo', item.filename, commentsContainer);
+                                    commentsLoaded = true;
                                 }
+                                commentsContainer.classList.add('show');
+                            });
+
+                            cardElement.addEventListener('mouseleave', function() {
+                                commentsContainer.classList.remove('show');
                             });
                         }
                     }

@@ -450,3 +450,38 @@ details summary:hover {
     text-decoration: underline;
 }
 
+
+/* Comments Overlay Styles */
+.comments-overlay {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.comments-overlay.show {
+    display: block;
+}
+
+.btn-delete-comment {
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
+    line-height: 1;
+    font-size: 18px;
+    margin-left: 0.5rem;
+}
+
+.gallery-card {
+    overflow: visible !important;
+}
