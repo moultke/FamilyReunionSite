@@ -17,3 +17,4 @@ output.jpg
 
 # Trigger deployment
 # Retry deployment
+# Force rebuild with dependencies
