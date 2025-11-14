@@ -435,7 +435,68 @@
                 });
             }
         }
+
+        function deleteComment(commentId) {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                fetch(`/comments/${commentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Comment deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting comment');
+                });
+            }
+        }
     </script>
+
+    <!-- Comments Management Section -->
+    <h2 class="mt-5">Comments Management</h2>
+    <p class="text-muted">View and manage all comments across the site.</p>
+
+    {% if comments %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Item Type</th>
+                    <th>Item ID</th>
+                    <th>Commenter Name</th>
+                    <th>Comment</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in comments %}
+                <tr>
+                    <td>{{ comment[0] }}</td>
+                    <td><span class="badge bg-info">{{ comment[1] }}</span></td>
+                    <td><small class="font-monospace">{{ comment[2] }}</small></td>
+                    <td><strong>{{ comment[3] }}</strong></td>
+                    <td>{{ comment[4] }}</td>
+                    <td><small>{{ comment[5] }}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteComment({{ comment[0] }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No comments found.</p>
+    {% endif %}
+
 </body>
 </html>
 

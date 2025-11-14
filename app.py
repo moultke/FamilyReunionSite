@@ -579,6 +579,10 @@ def admin():
         contacts = db.execute('SELECT * FROM contacts ORDER BY created_at DESC').fetchall()
         print(f"🟢 Contacts Found: {len(contacts)}")  # Debugging output
 
+        # Fetch all comments
+        comments = db.execute('SELECT * FROM comments ORDER BY created_at DESC').fetchall()
+        print(f"🟢 Comments Found: {len(comments)}")  # Debugging output
+
         # Fetch images from Azure or local storage
         images = []
         if USE_AZURE_STORAGE and blob_service_client:
@@ -603,6 +607,7 @@ def admin():
                              events=events,
                              hero_slides=hero_slides,
                              contacts=contacts,
+                             comments=comments,
                              images=images)
 
     except Exception as e:
