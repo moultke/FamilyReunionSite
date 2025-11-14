@@ -454,23 +454,23 @@ details summary:hover {
 /* Comments Overlay Styles */
 .comments-overlay {
     display: none;
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    right: 0;
+    position: fixed;
     background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    max-height: 300px;
+    border: 2px solid #dee2e6;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    max-height: 400px;
+    max-width: 400px;
+    min-width: 300px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 9999;
+    pointer-events: none;
 }
 
 .comments-overlay.show {
     display: block;
+    pointer-events: auto;
 }
 
 .btn-delete-comment {

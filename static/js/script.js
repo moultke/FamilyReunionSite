@@ -638,10 +638,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                         <div class="comments-trigger small text-muted" style="cursor: pointer;">
                                             💬 <span class="comment-count-${item.filename}">Hover for comments</span>
                                         </div>
-                                        <div id="comments-photo-${item.filename}" class="comments-overlay"></div>
                                     </div>
                                 </div>
                             </div>
+                            <div id="comments-photo-${item.filename}" class="comments-overlay"></div>
                         `;
                     }
                     galleryGrid.appendChild(col);
@@ -659,15 +659,40 @@ document.addEventListener("DOMContentLoaded", function () {
                         let commentsLoaded = false;
 
                         if (cardElement && commentsContainer) {
-                            cardElement.addEventListener('mouseenter', function() {
+                            cardElement.addEventListener('mouseenter', function(e) {
                                 if (!commentsLoaded) {
                                     loadComments('photo', item.filename, commentsContainer);
                                     commentsLoaded = true;
                                 }
+
+                                // Position popup near the card
+                                const rect = cardElement.getBoundingClientRect();
+                                commentsContainer.style.top = (rect.top + window.scrollY - 10) + 'px';
+                                commentsContainer.style.left = (rect.right + 10) + 'px';
+
+                                // Adjust if popup would go off screen
+                                const popupWidth = 400;
+                                if (rect.right + popupWidth + 10 > window.innerWidth) {
+                                    commentsContainer.style.left = (rect.left - popupWidth - 10) + 'px';
+                                }
+
                                 commentsContainer.classList.add('show');
                             });
 
-                            cardElement.addEventListener('mouseleave', function() {
+                            cardElement.addEventListener('mouseleave', function(e) {
+                                // Check if mouse is entering the comments overlay
+                                const relatedTarget = e.relatedTarget;
+                                if (!relatedTarget || !commentsContainer.contains(relatedTarget)) {
+                                    commentsContainer.classList.remove('show');
+                                }
+                            });
+
+                            // Keep popup visible when hovering over it
+                            commentsContainer.addEventListener('mouseenter', function() {
+                                commentsContainer.classList.add('show');
+                            });
+
+                            commentsContainer.addEventListener('mouseleave', function() {
                                 commentsContainer.classList.remove('show');
                             });
                         }
