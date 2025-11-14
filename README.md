@@ -153,4 +153,4 @@ This website is designed for the Family Reunion event scheduled for July 17-20, 
 -   Consider adding more robust form validation on both the frontend and backend.
 -   For production, use a more secure database like PostgreSQL.
 -   Implement email functionality for sending registration confirmations and other communications.
--   Add a mechanism for handling photo uploads to the gallery (consider using a cloud storage service like AWS S3).
+-   Add a mechanism for handling photo uploads to the gallery (consider using a cloud storage service like AWS S3).# Trigger fresh deployment
