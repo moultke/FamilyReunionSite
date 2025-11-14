@@ -23,7 +23,7 @@ from io import BytesIO
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic', 'mp4', 'mov', 'avi', 'webm'}
 
-# Load environment variables
+# Load environment variablesss
 load_dotenv()
 
 # Check if running on Linux before executing apt-get
