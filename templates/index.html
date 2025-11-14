@@ -212,14 +212,22 @@
             </div>
 
             <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="imageModalLabel">View Image</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-center">
-                            <img id="modalImage" class="img-fluid" alt="Uploaded Image">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-8 text-center">
+                                    <img id="modalImage" class="img-fluid" alt="Uploaded Image">
+                                </div>
+                                <div class="col-lg-4">
+                                    <h6 class="mb-3">Comments</h6>
+                                    <div id="modalComments"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -267,6 +275,12 @@
                         </form>
                     </div>
                 </div>
+            </div>
+
+            <!-- Temporary Notice -->
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>⚠️ Notice:</strong> Due to recent server updates, birthdays may need to be re-entered. We apologize for the inconvenience!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
             <!-- Birthdays Display -->
