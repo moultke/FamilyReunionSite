@@ -1,5 +1,7 @@
 # Ignore Python virtual environment
 .venv/
+.venv1/
+venv/
 
 # Ignore database files
 *.db
@@ -10,10 +12,28 @@ __pycache__/
 # Ignore macOS system files
 .DS_Store
 
+# Ignore environment and secrets
 .env
 
+# Ignore uploads and large media
 uploads/
 output.jpg
+input.heic
+
+# Ignore Flask session files
+.flask_session/
+
+# Ignore IDE settings
+.idea/
+
+# Ignore webapp logs
+webapp_logs*/
+
+# Ignore shell scripts not part of the app
+setup-azure-storage.sh
+
+# Ignore BFG and bare repo artifacts
+*.bfg-report/
 
 # Trigger deployment
 # Retry deployment
