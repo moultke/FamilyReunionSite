@@ -414,14 +414,22 @@ class DatabaseWrapper:
 
 def get_db():
     """Get a database connection (PostgreSQL if configured, SQLite otherwise)."""
+    global USE_POSTGRES
     try:
         db = getattr(g, "_database", None)
         if db is None:
             if USE_POSTGRES:
-                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                conn.autocommit = False
-                db = g._database = DatabaseWrapper(conn, is_postgres=True)
-                logging.debug("Connected to PostgreSQL")
+                try:
+                    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                    conn.autocommit = False
+                    db = g._database = DatabaseWrapper(conn, is_postgres=True)
+                    logging.debug("Connected to PostgreSQL")
+                except Exception as pg_err:
+                    logging.error(f"PostgreSQL connection failed, falling back to SQLite: {pg_err}")
+                    USE_POSTGRES = False
+                    conn = sqlite3.connect(DATABASE, check_same_thread=False)
+                    conn.row_factory = sqlite3.Row
+                    db = g._database = DatabaseWrapper(conn, is_postgres=False)
             else:
                 conn = sqlite3.connect(DATABASE, check_same_thread=False)
                 conn.row_factory = sqlite3.Row
@@ -444,8 +452,14 @@ def _pg_column_exists(cursor, table, column):
 
 def init_db():
     """Initialize database tables once at startup."""
+    global USE_POSTGRES
     if USE_POSTGRES:
-        _init_db_postgres()
+        try:
+            _init_db_postgres()
+        except Exception as e:
+            logging.error(f"PostgreSQL init failed, falling back to SQLite: {e}")
+            USE_POSTGRES = False
+            _init_db_sqlite()
     else:
         _init_db_sqlite()
 
