@@ -96,6 +96,11 @@ def index():
     return render_template('index.html', config=app.config, hero_slides=hero_slides)
 
 
+@app.route('/family-tree')
+def family_tree():
+    return render_template('family_tree.html')
+
+
 def convert_heic_to_jpg(filepath):
     """Convert HEIC to JPG using ImageMagick."""
     jpg_filepath = filepath.rsplit(".", 1)[0] + ".jpg"

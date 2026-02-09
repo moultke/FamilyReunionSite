@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree - Milligan Aiken Family</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Family Tree Page Styles */
+        .family-tree-hero {
+            background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .family-tree-hero h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .family-tree-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Matriarch Card */
+        .matriarch-card {
+            background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            max-width: 400px;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
+        }
+
+        .matriarch-card h3 {
+            color: white;
+            font-size: 1.6rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .matriarch-card .subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .matriarch-card .dates {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Vertical connector from matriarch */
+        .root-connector {
+            width: 3px;
+            height: 40px;
+            background-color: #dc3545;
+            margin: 0 auto;
+        }
+
+        /* Generation Section */
+        .generation-section {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .generation-header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .generation-header:hover {
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .generation-header h3 {
+            color: white;
+            font-size: 1.15rem;
+            margin: 0;
+        }
+
+        .generation-header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+
+        .generation-header .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .generation-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Parent group */
+        .parent-group {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #dc3545;
+            border-radius: 0 10px 10px 0;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .parent-group:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .parent-name {
+            font-weight: 600;
+            color: #dc3545;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .parent-name .deceased-tag {
+            font-size: 0.7rem;
+            background-color: #f8d7da;
+            color: #842029;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        /* Child pill */
+        .child-pill {
+            display: inline-block;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 4px 14px;
+            margin: 3px 4px;
+            font-size: 0.85rem;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .child-pill:hover {
+            background-color: #fce4e6;
+            border-color: #dc3545;
+            transform: translateY(-1px);
+        }
+
+        .child-pill.deceased {
+            opacity: 0.65;
+            text-decoration: line-through;
+            text-decoration-color: #999;
+        }
+
+        /* First Generation - direct children cards */
+        .gen1-card {
+            background: white;
+            border: 2px solid #dc3545;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .gen1-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.2);
+        }
+
+        .gen1-card .name {
+            font-weight: 700;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .gen1-card .relation {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .gen1-card.deceased {
+            border-color: #e9a0a7;
+            background: #fefafa;
+        }
+
+        /* Info callout */
+        .tree-info {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #dc3545;
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .tree-info h5 {
+            color: #dc3545;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .tree-info p {
+            margin-bottom: 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        /* Back to home button */
+        .btn-back {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background-color: #b02a37;
+            border-color: #b02a37;
+            color: white;
+        }
+
+        /* Legend */
+        .tree-legend {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .tree-legend h5 {
+            color: #dc3545;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+        }
+
+        .legend-swatch {
+            width: 24px;
+            height: 16px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* Stats bar */
+        .family-stats {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #dc3545;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .family-tree-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .matriarch-card {
+                padding: 1.5rem;
+            }
+
+            .matriarch-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .generation-header h3 {
+                font-size: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Milligan Aiken Family</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#gallery">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#birthdays">Birthdays</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#events">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('family_tree') }}">Family Tree</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="family-tree-hero">
+        <div class="container">
+            <h1>Our Family Tree</h1>
+            <p>Five generations of the Milligan &amp; Aiken family</p>
+        </div>
+    </div>
+
+    <main class="container py-4">
+        <!-- Info Callout -->
+        <div class="tree-info">
+            <h5>About Our Family Tree</h5>
+            <p>This family tree traces the descendants of our matriarch, <strong>Rebecca Milligan Aiken</strong> (1901&ndash;1961),
+               across five generations. If you have information to add or corrections to share, please use the
+               <a href="{{ url_for('index') }}#contact" style="color: #dc3545; font-weight: 600;">Contact</a> form.</p>
+        </div>
+
+        <!-- Family Stats -->
+        <div class="family-stats">
+            <div class="row">
+                <div class="col-4 col-md stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Generations</div>
+                </div>
+                <div class="col-4 col-md stat-item">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Children</div>
+                </div>
+                <div class="col-4 col-md stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Grandchildren</div>
+                </div>
+                <div class="col-6 col-md stat-item mt-2 mt-md-0">
+                    <div class="stat-number">22</div>
+                    <div class="stat-label">Great Grandchildren</div>
+                </div>
+                <div class="col-6 col-md stat-item mt-2 mt-md-0">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">4th &amp; 5th Gen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== THE MATRIARCH ========== -->
+        <div class="matriarch-card">
+            <div class="subtitle">The Matriarch</div>
+            <h3>Rebecca Milligan Aiken</h3>
+            <div class="dates">1901 &ndash; 1961</div>
+        </div>
+        <div class="root-connector"></div>
+
+        <!-- ========== FIRST GENERATION: Children of Rebecca ========== -->
+        <div class="generation-section">
+            <div class="generation-header" data-bs-toggle="collapse" data-bs-target="#gen1">
+                <div>
+                    <h3>The First Generation</h3>
+                    <span class="subtitle">Children of Rebecca Milligan Aiken</span>
+                </div>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="collapse show" id="gen1">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card deceased">
+                            <div class="name">Arthur Lee Rivers Brantley</div>
+                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card deceased">
+                            <div class="name">Arthur Milligan</div>
+                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card deceased">
+                            <div class="name">Dorothy Milligan Moultrie</div>
+                            <div class="relation">Daughter <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card deceased">
+                            <div class="name">John Milligan</div>
+                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card">
+                            <div class="name">Merita Aiken</div>
+                            <div class="relation">Daughter</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="gen1-card">
+                            <div class="name">Isaac Aiken</div>
+                            <div class="relation">Son</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SECOND GENERATION: Grandchildren ========== -->
+        <div class="generation-section">
+            <div class="generation-header" data-bs-toggle="collapse" data-bs-target="#gen2">
+                <div>
+                    <h3>The Second Generation</h3>
+                    <span class="subtitle">Grandchildren of Rebecca Milligan Aiken</span>
+                </div>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="collapse show" id="gen2">
+                <!-- Arthur's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Arthur Milligan's Children <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill deceased">Roslyn Milligan</span>
+                    <span class="child-pill">Willie Powell</span>
+                </div>
+
+                <!-- Dorothy's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Dorothy Milligan Moultrie's Children <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">Jean Milligan Richards</span>
+                    <span class="child-pill">Rubin Kenneth Moultrie</span>
+                    <span class="child-pill deceased">Carl Moultrie</span>
+                    <span class="child-pill">Priscilla Moultrie Green</span>
+                </div>
+
+                <!-- John's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">John Milligan's Child <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">John Milligan</span>
+                </div>
+
+                <!-- Merita's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Merita Aiken's Children</div>
+                    <span class="child-pill">Constance Aiken Wright</span>
+                    <span class="child-pill">Donita Aiken</span>
+                </div>
+
+                <!-- Isaac's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Isaac Aiken's Children</div>
+                    <span class="child-pill">Robin Aiken Matthews Brown</span>
+                    <span class="child-pill">Isaac Aiken III</span>
+                    <span class="child-pill">Antonio Aiken</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== THIRD GENERATION: Great Grandchildren ========== -->
+        <div class="generation-section">
+            <div class="generation-header" data-bs-toggle="collapse" data-bs-target="#gen3">
+                <div>
+                    <h3>The Third Generation</h3>
+                    <span class="subtitle">Great Grandchildren of Rebecca Milligan Aiken</span>
+                </div>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="collapse show" id="gen3">
+                <!-- Roslyn's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Roslyn Milligan's Child <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">Jovene Lashaun Milligan</span>
+                </div>
+
+                <!-- Jean's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Jean Milligan Richards' Children</div>
+                    <span class="child-pill deceased">Cornelius Richards</span>
+                    <span class="child-pill">Delano (Mark) Richards Sr.</span>
+                    <span class="child-pill">James Richards</span>
+                    <span class="child-pill">Shawn Richards</span>
+                </div>
+
+                <!-- Rubin's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Rubin Kenneth Moultrie's Children</div>
+                    <span class="child-pill">Kenneth Brian Moultrie</span>
+                    <span class="child-pill">Kimberly Moultrie Brundidge</span>
+                </div>
+
+                <!-- Priscilla's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Priscilla Moultrie Green's Children</div>
+                    <span class="child-pill">Damon Green</span>
+                    <span class="child-pill">Joy Green Irving</span>
+                </div>
+
+                <!-- Carl's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Carl Moultrie's Child <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">Martin Desaussure</span>
+                </div>
+
+                <!-- Donita's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Donita Aiken's Child</div>
+                    <span class="child-pill">Tajh Aiken</span>
+                </div>
+
+                <!-- Robin's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Robin Aiken Matthews Brown's Children</div>
+                    <span class="child-pill deceased">Jerel Matthews</span>
+                    <span class="child-pill">Derel Mathews</span>
+                    <span class="child-pill">Brittany Little</span>
+                </div>
+
+                <!-- Isaac III's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Isaac Aiken III's Children</div>
+                    <span class="child-pill">Isaac Aiken IV</span>
+                    <span class="child-pill">Eddie Aiken</span>
+                </div>
+
+                <!-- Antonio's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Antonio Aiken's Child</div>
+                    <span class="child-pill">Imani Scott</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== FOURTH GENERATION: Great Great Grandchildren ========== -->
+        <div class="generation-section">
+            <div class="generation-header" data-bs-toggle="collapse" data-bs-target="#gen4">
+                <div>
+                    <h3>The Fourth Generation</h3>
+                    <span class="subtitle">Great Great Grandchildren of Rebecca Milligan Aiken</span>
+                </div>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="collapse show" id="gen4">
+                <!-- Jovene's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Jovene Lashaun Milligan's Child</div>
+                    <span class="child-pill">Ghiana Gardner</span>
+                </div>
+
+                <!-- Cornelius's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Cornelius Richards' Children <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">Tamara Richards</span>
+                    <span class="child-pill">Cornelius Richards Jr.</span>
+                    <span class="child-pill deceased">Latarsha Richards</span>
+                    <span class="child-pill">Faith Richards</span>
+                    <span class="child-pill deceased">Joshua Richards</span>
+                    <span class="child-pill">Amber Richards</span>
+                    <span class="child-pill">Joy Richards</span>
+                    <span class="child-pill">Simone Richards</span>
+                    <span class="child-pill deceased">Michael Richards</span>
+                    <span class="child-pill">Cyrus Richards</span>
+                </div>
+
+                <!-- Delano's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Delano (Mark) Richards Sr.'s Children</div>
+                    <span class="child-pill">Delano Richards Jr.</span>
+                    <span class="child-pill">Dionte Richards</span>
+                    <span class="child-pill">Dasmen Richards</span>
+                    <span class="child-pill">Divinity Richards</span>
+                    <span class="child-pill">Deion Richards</span>
+                </div>
+
+                <!-- Shawn's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Shawn Richards' Children</div>
+                    <span class="child-pill">Dashawn Richards</span>
+                    <span class="child-pill">Amora Richards</span>
+                </div>
+
+                <!-- Kenneth's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Kenneth Brian Moultrie's Child</div>
+                    <span class="child-pill">Braylon Kenneth Moultrie</span>
+                </div>
+
+                <!-- Kimberly's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Kimberly Moultrie Brundidge's Child</div>
+                    <span class="child-pill">Jrue Brundidge</span>
+                </div>
+
+                <!-- Joy Irving's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Joy Green Irving's Children</div>
+                    <span class="child-pill">Remonte Green</span>
+                    <span class="child-pill">Marquez Rice</span>
+                </div>
+
+                <!-- Jerel's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Jerel Matthews' Children <span class="deceased-tag">Deceased</span></div>
+                    <span class="child-pill">Kerhyl Mathews</span>
+                    <span class="child-pill">Jeremiah Mathews</span>
+                </div>
+
+                <!-- Derel's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Derel Mathews' Children</div>
+                    <span class="child-pill">TiQuan Matthews</span>
+                    <span class="child-pill">Daumarion Matthews</span>
+                    <span class="child-pill">Da'vonte Matthews</span>
+                </div>
+
+                <!-- Brittany's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Brittany Little's Children</div>
+                    <span class="child-pill">Chloe Little</span>
+                    <span class="child-pill">Caleb Little</span>
+                </div>
+
+                <!-- Isaac IV's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Isaac Aiken IV's Children</div>
+                    <span class="child-pill">Alana Aiken</span>
+                    <span class="child-pill">Breanna Aiken</span>
+                </div>
+
+                <!-- Eddie's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Eddie Aiken's Children</div>
+                    <span class="child-pill">Eddie Aiken Jr.</span>
+                    <span class="child-pill">Rennedy Aiken</span>
+                    <span class="child-pill">Re'za Aiken</span>
+                </div>
+
+                <!-- Imani's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Imani Scott's Child</div>
+                    <span class="child-pill">Kehlani</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== FIFTH GENERATION: Great Great Great Grandchildren ========== -->
+        <div class="generation-section">
+            <div class="generation-header" data-bs-toggle="collapse" data-bs-target="#gen5">
+                <div>
+                    <h3>The Fifth Generation</h3>
+                    <span class="subtitle">Great Great Great Grandchildren of Rebecca Milligan Aiken</span>
+                </div>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="collapse show" id="gen5">
+                <!-- Ghiana's Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Ghiana Gardner's Child</div>
+                    <span class="child-pill">Ryan Magnus</span>
+                </div>
+
+                <!-- Cornelius Jr.'s Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Cornelius Richards Jr.'s Children</div>
+                    <span class="child-pill">Jadon Richards</span>
+                    <span class="child-pill">Janiyah Richards</span>
+                    <span class="child-pill">Jayla Richards</span>
+                </div>
+
+                <!-- Joy Richards' Child -->
+                <div class="parent-group">
+                    <div class="parent-name">Joy Richards' Child</div>
+                    <span class="child-pill">Madison Richards</span>
+                </div>
+
+                <!-- Delano Jr.'s Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Delano Richards Jr.'s Children</div>
+                    <span class="child-pill">Delano Richards III</span>
+                    <span class="child-pill">Jean Richards</span>
+                </div>
+
+                <!-- Dashawn's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Dashawn Richards' Children</div>
+                    <span class="child-pill">Dashawn Richards Jr.</span>
+                    <span class="child-pill">King Richards</span>
+                    <span class="child-pill">Azuram Richards</span>
+                </div>
+
+                <!-- Marquez's Children -->
+                <div class="parent-group">
+                    <div class="parent-name">Marquez Rice's Children</div>
+                    <span class="child-pill">Cayden Whitney</span>
+                    <span class="child-pill">Nadia Rice</span>
+                    <span class="child-pill">Akira Rice</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="tree-legend">
+            <h5>Legend</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: linear-gradient(135deg, #dc3545, #a71d2a); border: none;"></div>
+                        <span>Matriarch / Generation Header</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: #f8f9fa; border: 1px solid #dee2e6;"></div>
+                        <span>Family Member</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: #f8f9fa; border: 1px solid #dee2e6; opacity: 0.5; text-decoration: line-through;"></div>
+                        <span>Deceased</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center my-4">
+            <p class="text-muted">Know more about our family history? Help us fill in the blanks!</p>
+            <a href="{{ url_for('index') }}#contact" class="btn btn-back me-2">Share Family Info</a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
+        </div>
+    </main>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Milligan Aiken Family Reunion</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle icon rotation on collapse/expand
+        document.querySelectorAll('.generation-header').forEach(header => {
+            const target = document.querySelector(header.getAttribute('data-bs-target'));
+            if (target) {
+                target.addEventListener('hide.bs.collapse', () => {
+                    header.classList.add('collapsed');
+                });
+                target.addEventListener('show.bs.collapse', () => {
+                    header.classList.remove('collapsed');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
