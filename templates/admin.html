@@ -41,24 +41,24 @@
         {% if hero_slides %}
         <div id="heroSlidesList" class="row">
             {% for slide in hero_slides %}
-            <div class="col-md-3 mb-3" data-slide-id="{{ slide[0] }}" data-order="{{ slide[4] }}">
+            <div class="col-md-3 mb-3" data-slide-id="{{ slide['id'] }}" data-order="{{ slide['display_order'] }}">
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <span class="badge bg-light text-dark">Order #{{ slide[4] }}</span>
+                        <span class="badge bg-light text-dark">Order #{{ slide['display_order'] }}</span>
                         <div>
-                            <button class="btn btn-sm btn-light" onclick="moveSlide({{ slide[0] }}, 'up')" title="Move Up">▲</button>
-                            <button class="btn btn-sm btn-light" onclick="moveSlide({{ slide[0] }}, 'down')" title="Move Down">▼</button>
+                            <button class="btn btn-sm btn-light" onclick="moveSlide({{ slide['id'] }}, 'up')" title="Move Up">▲</button>
+                            <button class="btn btn-sm btn-light" onclick="moveSlide({{ slide['id'] }}, 'down')" title="Move Down">▼</button>
                         </div>
                     </div>
-                    {% if slide[1].startswith('http') or slide[1].startswith('/uploads/') %}
-                    <img src="{{ slide[1] }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ slide[2] }}">
+                    {% if slide['image_url'].startswith('http') or slide['image_url'].startswith('/uploads/') %}
+                    <img src="{{ slide['image_url'] }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ slide['title'] }}">
                     {% else %}
-                    <img src="{{ url_for('static', filename=slide[1].replace('static/', '')) }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ slide[2] }}">
+                    <img src="{{ url_for('static', filename=slide['image_url'].replace('static/', '')) }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ slide['title'] }}">
                     {% endif %}
                     <div class="card-body">
-                        <h6 class="card-title">{{ slide[2] }}</h6>
-                        <p class="card-text"><small>{{ slide[3] }}</small></p>
-                        <button class="btn btn-sm btn-danger w-100" onclick="deleteSlide({{ slide[0] }})">Delete</button>
+                        <h6 class="card-title">{{ slide['title'] }}</h6>
+                        <p class="card-text"><small>{{ slide['caption'] }}</small></p>
+                        <button class="btn btn-sm btn-danger w-100" onclick="deleteSlide({{ slide['id'] }})">Delete</button>
                     </div>
                 </div>
             </div>

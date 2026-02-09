@@ -46,14 +46,14 @@
             <div class="carousel-inner">
                 {% for slide in hero_slides %}
                 <div class="carousel-item {% if loop.first %}active{% endif %}">
-                    {% if slide[1].startswith('http') or slide[1].startswith('/uploads/') %}
-                    <img src="{{ slide[1] }}" class="d-block w-100" alt="{{ slide[2] }}">
+                    {% if slide['image_url'].startswith('http') or slide['image_url'].startswith('/uploads/') %}
+                    <img src="{{ slide['image_url'] }}" class="d-block w-100" alt="{{ slide['title'] }}">
                     {% else %}
-                    <img src="{{ url_for('static', filename=slide[1].replace('static/', '')) }}" class="d-block w-100" alt="{{ slide[2] }}">
+                    <img src="{{ url_for('static', filename=slide['image_url'].replace('static/', '')) }}" class="d-block w-100" alt="{{ slide['title'] }}">
                     {% endif %}
                     <div class="carousel-caption">
-                        <h3>{{ slide[2] }}</h3>
-                        <p>{{ slide[3] }}</p>
+                        <h3>{{ slide['title'] }}</h3>
+                        <p>{{ slide['caption'] }}</p>
                     </div>
                 </div>
                 {% endfor %}
