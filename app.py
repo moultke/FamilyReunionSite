@@ -15,10 +15,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask_session import Session
 from werkzeug.exceptions import RequestEntityTooLarge
-import os
 import platform
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from io import BytesIO
+
+# PostgreSQL support
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic', 'mp4', 'mov', 'avi', 'webm'}
@@ -328,26 +335,253 @@ app.secret_key = secret_key
 
 # Database initialization
 DATABASE = 'reunion.db'
+DATABASE_URL = os.getenv('DATABASE_URL')
+USE_POSTGRES = bool(DATABASE_URL) and HAS_PSYCOPG2
+
+
+class DatabaseWrapper:
+    """Unified database wrapper that works with both SQLite and PostgreSQL.
+
+    Provides a consistent interface so all route code can use db.execute()
+    and db.fetchall() / db.fetchone() regardless of backend.
+    SQL uses '?' placeholders which are auto-converted to '%s' for PostgreSQL.
+    """
+
+    def __init__(self, connection, is_postgres=False):
+        self._conn = connection
+        self._cursor = None
+        self._is_postgres = is_postgres
+
+    def _convert_query(self, query):
+        """Convert SQLite-style '?' placeholders to PostgreSQL '%s'."""
+        if self._is_postgres:
+            return query.replace('?', '%s')
+        return query
+
+    def execute(self, query, params=None):
+        """Execute a query. Returns self for chaining."""
+        converted = self._convert_query(query)
+        if self._is_postgres:
+            self._cursor = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            self._cursor.execute(converted, params or ())
+        else:
+            self._cursor = self._conn.execute(converted, params or ())
+        return self
+
+    def fetchall(self):
+        """Fetch all results from the last query."""
+        if self._cursor is None:
+            return []
+        rows = self._cursor.fetchall()
+        if self._is_postgres:
+            # RealDictCursor returns RealDictRow objects which already support ['key'] access
+            return rows
+        return rows
+
+    def fetchone(self):
+        """Fetch one result from the last query."""
+        if self._cursor is None:
+            return None
+        row = self._cursor.fetchone()
+        return row
+
+    @property
+    def lastrowid(self):
+        """Get the last inserted row ID."""
+        if self._is_postgres:
+            # For PostgreSQL, the INSERT must use RETURNING id
+            # This is handled by using RETURNING in the query
+            return self._cursor.fetchone()['id'] if self._cursor else None
+        return self._cursor.lastrowid if self._cursor else None
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            self._conn.rollback()
+        return False
 
 
 def get_db():
-    """Get a database connection."""
+    """Get a database connection (PostgreSQL if configured, SQLite otherwise)."""
     try:
         db = getattr(g, "_database", None)
         if db is None:
-            db = g._database = sqlite3.connect(DATABASE, check_same_thread=False)
-            db.row_factory = sqlite3.Row  # Enables dictionary-style row access
+            if USE_POSTGRES:
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                conn.autocommit = False
+                db = g._database = DatabaseWrapper(conn, is_postgres=True)
+                logging.debug("Connected to PostgreSQL")
+            else:
+                conn = sqlite3.connect(DATABASE, check_same_thread=False)
+                conn.row_factory = sqlite3.Row
+                db = g._database = DatabaseWrapper(conn, is_postgres=False)
+                logging.debug("Connected to SQLite")
         return db
-    except sqlite3.Error as e:
+    except Exception as e:
         logging.error(f"Database connection error: {e}")
         return None
 
 
+def _pg_column_exists(cursor, table, column):
+    """Check if a column exists in a PostgreSQL table."""
+    cursor.execute(
+        "SELECT 1 FROM information_schema.columns WHERE table_name = %s AND column_name = %s",
+        (table, column)
+    )
+    return cursor.fetchone() is not None
+
+
 def init_db():
     """Initialize database tables once at startup."""
+    if USE_POSTGRES:
+        _init_db_postgres()
+    else:
+        _init_db_sqlite()
+
+
+def _init_db_postgres():
+    """Initialize PostgreSQL database tables."""
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    try:
+        with conn.cursor() as cur:
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS registrations (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    tshirt_size TEXT,
+                    age_group TEXT,
+                    price REAL,
+                    session_id TEXT,
+                    stripe_session_id TEXT
+                )
+            ''')
+
+            if not _pg_column_exists(cur, 'registrations', 'stripe_session_id'):
+                cur.execute("ALTER TABLE registrations ADD COLUMN stripe_session_id TEXT")
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS rsvps (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    attending TEXT NOT NULL
+                )
+            ''')
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS birthdays (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    birth_date TEXT NOT NULL,
+                    birth_year INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            if not _pg_column_exists(cur, 'birthdays', 'birth_year'):
+                cur.execute("ALTER TABLE birthdays ADD COLUMN birth_year INTEGER")
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS events (
+                    id SERIAL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    event_date TEXT NOT NULL,
+                    description TEXT,
+                    image_url TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            if not _pg_column_exists(cur, 'events', 'image_url'):
+                cur.execute("ALTER TABLE events ADD COLUMN image_url TEXT")
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS comments (
+                    id SERIAL PRIMARY KEY,
+                    item_type TEXT NOT NULL,
+                    item_id TEXT NOT NULL,
+                    commenter_name TEXT NOT NULL,
+                    comment_text TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS reactions (
+                    id SERIAL PRIMARY KEY,
+                    item_type TEXT NOT NULL,
+                    item_id TEXT NOT NULL,
+                    reactor_name TEXT NOT NULL,
+                    reaction_type TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(item_type, item_id, reactor_name, reaction_type)
+                )
+            ''')
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS hero_slides (
+                    id SERIAL PRIMARY KEY,
+                    image_url TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    caption TEXT,
+                    display_order INTEGER NOT NULL DEFAULT 0,
+                    active INTEGER NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS contacts (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            # Insert default hero slides if table is empty
+            cur.execute('SELECT COUNT(*) FROM hero_slides')
+            count = cur.fetchone()[0]
+            if count == 0:
+                default_slides = [
+                    ('static/images/family1.jpg', 'Staying Connected', 'Share your moments with family!', 1),
+                    ('static/images/family2.jpg', 'Celebrate Together', 'Every milestone matters.', 2),
+                    ('static/images/family3.jpg', 'Family First', 'Always and forever.', 3),
+                    ('static/images/family4.jpg', 'Making Memories', 'One moment at a time.', 4)
+                ]
+                for image_url, title, caption, order in default_slides:
+                    cur.execute(
+                        'INSERT INTO hero_slides (image_url, title, caption, display_order) VALUES (%s, %s, %s, %s)',
+                        (image_url, title, caption, order)
+                    )
+
+        conn.commit()
+        logging.info("PostgreSQL database initialized successfully")
+    except Exception as e:
+        conn.rollback()
+        logging.error(f"PostgreSQL initialization error: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def _init_db_sqlite():
+    """Initialize SQLite database tables (local development)."""
     with sqlite3.connect(DATABASE) as db:
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS registrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -357,17 +591,14 @@ def init_db():
                 session_id TEXT,
                 stripe_session_id TEXT
             )
-            '''
-        )
+        ''')
 
-        # Add stripe_session_id column if missing
         try:
             db.execute("SELECT stripe_session_id FROM registrations LIMIT 1")
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE registrations ADD COLUMN stripe_session_id TEXT")
 
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS rsvps (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -375,28 +606,23 @@ def init_db():
                 phone TEXT NOT NULL,
                 attending TEXT NOT NULL
             )
-            '''
-        )
+        ''')
 
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS birthdays (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 birth_date TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            '''
-        )
+        ''')
 
-        # Add birth_year column if it doesn't exist (for milestone birthday tracking)
         try:
             db.execute("SELECT birth_year FROM birthdays LIMIT 1")
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE birthdays ADD COLUMN birth_year INTEGER")
 
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
@@ -404,18 +630,14 @@ def init_db():
                 description TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            '''
-        )
+        ''')
 
-        # Add image_url column to events if it doesn't exist
         try:
             db.execute("SELECT image_url FROM events LIMIT 1")
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE events ADD COLUMN image_url TEXT")
 
-        # Comments table - for photos, events, etc.
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS comments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 item_type TEXT NOT NULL,
@@ -424,12 +646,9 @@ def init_db():
                 comment_text TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            '''
-        )
+        ''')
 
-        # Reactions table - for photos, events, etc.
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS reactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 item_type TEXT NOT NULL,
@@ -439,11 +658,9 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(item_type, item_id, reactor_name, reaction_type)
             )
-            '''
-        )
+        ''')
 
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS hero_slides (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 image_url TEXT NOT NULL,
@@ -453,11 +670,9 @@ def init_db():
                 active INTEGER NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            '''
-        )
+        ''')
 
-        db.execute(
-            '''
+        db.execute('''
             CREATE TABLE IF NOT EXISTS contacts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -465,10 +680,8 @@ def init_db():
                 message TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            '''
-        )
+        ''')
 
-        # Insert default hero slides if table is empty
         count = db.execute('SELECT COUNT(*) FROM hero_slides').fetchone()[0]
         if count == 0:
             default_slides = [
@@ -483,6 +696,8 @@ def init_db():
                     (image_url, title, caption, order)
                 )
             db.commit()
+
+    logging.info("SQLite database initialized successfully")
 
 
 @app.teardown_appcontext
@@ -780,7 +995,7 @@ def get_attendees():
 
         # Fetch only attendees who RSVP'd with "Yes"
         attendees = db.execute(
-            'SELECT name FROM rsvps WHERE LOWER(attending) = "yes"'
+            "SELECT name FROM rsvps WHERE LOWER(attending) = 'yes'"
         ).fetchall()
 
         attendee_list = [attendee['name'] for attendee in attendees]
@@ -950,7 +1165,7 @@ def get_birthdays():
             'id': b['id'],
             'name': b['name'],
             'birth_date': b['birth_date'],
-            'birth_year': b['birth_year'] if len(b) > 3 and b['birth_year'] else None
+            'birth_year': b.get('birth_year') if hasattr(b, 'get') else (b['birth_year'] if 'birth_year' in b.keys() else None)
         } for b in birthdays]
         return jsonify(birthday_list)
     except Exception as e:
@@ -1011,7 +1226,7 @@ def get_events():
             'title': e['title'],
             'event_date': e['event_date'],
             'description': e['description'],
-            'image_url': e['image_url'] if len(e) > 4 and e['image_url'] else None
+            'image_url': e.get('image_url') if hasattr(e, 'get') else (e['image_url'] if 'image_url' in e.keys() else None)
         } for e in events]
         return jsonify(event_list)
     except Exception as e:
@@ -1105,7 +1320,8 @@ def add_hero_slide():
 
         db = get_db()
         # Get the next display order
-        max_order = db.execute('SELECT MAX(display_order) FROM hero_slides').fetchone()[0]
+        result = db.execute('SELECT MAX(display_order) as max_order FROM hero_slides').fetchone()
+        max_order = result['max_order'] if result else 0
         next_order = (max_order or 0) + 1
 
         db.execute(
@@ -1238,12 +1454,19 @@ def add_comment():
 
         db = get_db()
         with db:
-            cursor = db.execute(
-                'INSERT INTO comments (item_type, item_id, commenter_name, comment_text) VALUES (?, ?, ?, ?)',
-                (item_type, item_id, commenter_name, comment_text)
-            )
+            if USE_POSTGRES:
+                result = db.execute(
+                    'INSERT INTO comments (item_type, item_id, commenter_name, comment_text) VALUES (?, ?, ?, ?) RETURNING id',
+                    (item_type, item_id, commenter_name, comment_text)
+                ).fetchone()
+                comment_id = result['id']
+            else:
+                cursor = db.execute(
+                    'INSERT INTO comments (item_type, item_id, commenter_name, comment_text) VALUES (?, ?, ?, ?)',
+                    (item_type, item_id, commenter_name, comment_text)
+                )
+                comment_id = cursor.lastrowid
             db.commit()
-            comment_id = cursor.lastrowid
 
         return jsonify({'success': True, 'comment_id': comment_id})
     except Exception as e:
@@ -1301,8 +1524,11 @@ def add_reaction():
                 )
                 db.commit()
                 return jsonify({'success': True, 'action': 'added'})
-            except sqlite3.IntegrityError:
+            except (sqlite3.IntegrityError, Exception) as integrity_err:
+                if 'unique' not in str(integrity_err).lower() and 'integrity' not in str(type(integrity_err).__name__).lower():
+                    raise
                 # User already reacted with this type, remove it (toggle)
+                db.rollback()
                 db.execute(
                     'DELETE FROM reactions WHERE item_type = ? AND item_id = ? AND reactor_name = ? AND reaction_type = ?',
                     (item_type, item_id, reactor_name, reaction_type)
