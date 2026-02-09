@@ -98,9 +98,13 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
-    db = get_db()
-    hero_slides = db.execute('SELECT * FROM hero_slides WHERE active = 1 ORDER BY display_order').fetchall()
-    return render_template('index.html', config=app.config, hero_slides=hero_slides)
+    try:
+        db = get_db()
+        hero_slides = db.execute('SELECT * FROM hero_slides WHERE active = 1 ORDER BY display_order').fetchall()
+        return render_template('index.html', config=app.config, hero_slides=hero_slides)
+    except Exception as e:
+        logging.error(f"Index route error: {e}")
+        return f"Error loading page: {e}", 500
 
 
 @app.route('/family-tree')
