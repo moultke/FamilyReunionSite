@@ -413,32 +413,25 @@ class DatabaseWrapper:
 
 
 def get_db():
-    """Get a database connection (PostgreSQL if configured, SQLite otherwise)."""
-    global USE_POSTGRES
-    try:
-        db = getattr(g, "_database", None)
-        if db is None:
-            if USE_POSTGRES:
-                try:
-                    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                    conn.autocommit = False
-                    db = g._database = DatabaseWrapper(conn, is_postgres=True)
-                    logging.debug("Connected to PostgreSQL")
-                except Exception as pg_err:
-                    logging.error(f"PostgreSQL connection failed, falling back to SQLite: {pg_err}")
-                    USE_POSTGRES = False
-                    conn = sqlite3.connect(DATABASE, check_same_thread=False)
-                    conn.row_factory = sqlite3.Row
-                    db = g._database = DatabaseWrapper(conn, is_postgres=False)
-            else:
-                conn = sqlite3.connect(DATABASE, check_same_thread=False)
-                conn.row_factory = sqlite3.Row
-                db = g._database = DatabaseWrapper(conn, is_postgres=False)
-                logging.debug("Connected to SQLite")
-        return db
-    except Exception as e:
-        logging.error(f"Database connection error: {e}")
-        return None
+    """Get a database connection (PostgreSQL if configured, SQLite otherwise).
+
+    Never falls back from PostgreSQL to SQLite to prevent data loss.
+    If PostgreSQL is configured but unreachable, raises the error so
+    routes can return a proper 503 to the user.
+    """
+    db = getattr(g, "_database", None)
+    if db is None:
+        if USE_POSTGRES:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            conn.autocommit = False
+            db = g._database = DatabaseWrapper(conn, is_postgres=True)
+            logging.debug("Connected to PostgreSQL")
+        else:
+            conn = sqlite3.connect(DATABASE, check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            db = g._database = DatabaseWrapper(conn, is_postgres=False)
+            logging.debug("Connected to SQLite")
+    return db
 
 
 def _pg_column_exists(cursor, table, column):
@@ -451,15 +444,28 @@ def _pg_column_exists(cursor, table, column):
 
 
 def init_db():
-    """Initialize database tables once at startup."""
-    global USE_POSTGRES
+    """Initialize database tables once at startup.
+
+    If PostgreSQL is configured, retries the connection up to 3 times
+    before giving up. Never falls back to SQLite in production to
+    prevent data loss from split-brain databases.
+    """
     if USE_POSTGRES:
-        try:
-            _init_db_postgres()
-        except Exception as e:
-            logging.error(f"PostgreSQL init failed, falling back to SQLite: {e}")
-            USE_POSTGRES = False
-            _init_db_sqlite()
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                _init_db_postgres()
+                return
+            except Exception as e:
+                logging.error(f"PostgreSQL init attempt {attempt}/{max_retries} failed: {e}")
+                if attempt < max_retries:
+                    import time as _time
+                    _time.sleep(2 * attempt)  # backoff: 2s, 4s
+                else:
+                    logging.warning(
+                        "All PostgreSQL connection attempts failed. "
+                        "The app will start but database operations will retry on each request."
+                    )
     else:
         _init_db_sqlite()
 
@@ -1599,8 +1605,94 @@ def serve_local_file(filename):
         return jsonify({'error': str(e)}), 500
 
 
-# Initialize the database at startup **force**
+def seed_birthdays():
+    """Seed birthdays from birthday.txt if they don't already exist in the database.
+
+    Parses lines in the format: 'Name M/D/YY' or 'Name M/D' (year optional).
+    Two-digit years are interpreted as 1900s (00-99 -> 1900-1999).
+    """
+    birthday_file = os.path.join(os.path.dirname(__file__), 'birthday.txt')
+    if not os.path.exists(birthday_file):
+        logging.info("No birthday.txt found, skipping seed")
+        return
+
+    entries = []
+    with open(birthday_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            # Split from the right to get the date portion (last token)
+            parts = line.rsplit(' ', 1)
+            if len(parts) != 2:
+                continue
+            name = parts[0].strip()
+            date_str = parts[1].strip()
+
+            date_parts = date_str.split('/')
+            if len(date_parts) == 2:
+                # Month/Day only, no year
+                month, day = int(date_parts[0]), int(date_parts[1])
+                birth_date = f"{month:02d}-{day:02d}"
+                entries.append((name, birth_date, None))
+            elif len(date_parts) == 3:
+                month, day = int(date_parts[0]), int(date_parts[1])
+                year_str = date_parts[2]
+                year = int(year_str)
+                # Two-digit year: interpret as 1900s since these are birth years
+                if year < 100:
+                    year += 1900
+                birth_date = f"{month:02d}-{day:02d}"
+                entries.append((name, birth_date, year))
+
+    if not entries:
+        return
+
+    try:
+        if USE_POSTGRES:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            try:
+                with conn.cursor() as cur:
+                    for name, birth_date, birth_year in entries:
+                        # Check if already exists (by name and birth_date)
+                        cur.execute(
+                            "SELECT 1 FROM birthdays WHERE name = %s AND birth_date = %s",
+                            (name, birth_date)
+                        )
+                        if cur.fetchone() is None:
+                            cur.execute(
+                                "INSERT INTO birthdays (name, birth_date, birth_year) VALUES (%s, %s, %s)",
+                                (name, birth_date, birth_year)
+                            )
+                            logging.info(f"Seeded birthday: {name} ({birth_date})")
+                conn.commit()
+            finally:
+                conn.close()
+        else:
+            conn = sqlite3.connect(DATABASE)
+            try:
+                for name, birth_date, birth_year in entries:
+                    existing = conn.execute(
+                        "SELECT 1 FROM birthdays WHERE name = ? AND birth_date = ?",
+                        (name, birth_date)
+                    ).fetchone()
+                    if existing is None:
+                        conn.execute(
+                            "INSERT INTO birthdays (name, birth_date, birth_year) VALUES (?, ?, ?)",
+                            (name, birth_date, birth_year)
+                        )
+                        logging.info(f"Seeded birthday: {name} ({birth_date})")
+                conn.commit()
+            finally:
+                conn.close()
+        logging.info(f"Birthday seeding complete ({len(entries)} entries processed)")
+    except Exception as e:
+        logging.error(f"Error seeding birthdays: {e}")
+
+
+# Initialize the database at startup
 init_db()
+seed_birthdays()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
