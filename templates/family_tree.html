@@ -135,15 +135,7 @@
             border-bottom: 1px solid #f0f0f0;
         }
 
-        .parent-name .deceased-tag {
-            font-size: 0.7rem;
-            background-color: #f8d7da;
-            color: #842029;
-            padding: 1px 6px;
-            border-radius: 3px;
-            margin-left: 6px;
-            font-weight: 500;
-        }
+
 
         /* Child pill */
         .child-pill {
@@ -164,10 +156,16 @@
             transform: translateY(-1px);
         }
 
-        .child-pill.deceased {
-            opacity: 0.65;
-            text-decoration: line-through;
-            text-decoration-color: #999;
+        .child-pill.in-memory {
+            background-color: #f3e8f0;
+            border-color: #d4b8cc;
+            color: #555;
+        }
+
+        .child-pill.in-memory::after {
+            content: ' \2661';
+            font-size: 0.75rem;
+            color: #b08da6;
         }
 
         /* First Generation - direct children cards */
@@ -198,9 +196,15 @@
             margin-top: 2px;
         }
 
-        .gen1-card.deceased {
-            border-color: #e9a0a7;
-            background: #fefafa;
+        .gen1-card.in-memory {
+            border-color: #d4b8cc;
+            background: #faf5f8;
+        }
+
+        .gen1-card.in-memory .name::after {
+            content: ' \2661';
+            font-size: 0.8rem;
+            color: #b08da6;
         }
 
         /* Info callout */
@@ -411,27 +415,27 @@
             <div class="collapse show" id="gen1">
                 <div class="row g-3">
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="gen1-card deceased">
+                        <div class="gen1-card in-memory">
                             <div class="name">Arthur Lee Rivers Brantley</div>
-                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                            <div class="relation">Son</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="gen1-card deceased">
+                        <div class="gen1-card in-memory">
                             <div class="name">Arthur Milligan</div>
-                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                            <div class="relation">Son</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="gen1-card deceased">
+                        <div class="gen1-card in-memory">
                             <div class="name">Dorothy Milligan Moultrie</div>
-                            <div class="relation">Daughter <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                            <div class="relation">Daughter</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="gen1-card deceased">
+                        <div class="gen1-card in-memory">
                             <div class="name">John Milligan</div>
-                            <div class="relation">Son <span class="badge bg-secondary" style="font-size:0.6rem;">Deceased</span></div>
+                            <div class="relation">Son</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-2">
@@ -462,23 +466,23 @@
             <div class="collapse show" id="gen2">
                 <!-- Arthur's Children -->
                 <div class="parent-group">
-                    <div class="parent-name">Arthur Milligan's Children <span class="deceased-tag">Deceased</span></div>
-                    <span class="child-pill deceased">Roslyn Milligan</span>
+                    <div class="parent-name">Arthur Milligan's Children</div>
+                    <span class="child-pill in-memory">Roslyn Milligan</span>
                     <span class="child-pill">Willie Powell</span>
                 </div>
 
                 <!-- Dorothy's Children -->
                 <div class="parent-group">
-                    <div class="parent-name">Dorothy Milligan Moultrie's Children <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">Dorothy Milligan Moultrie's Children</div>
                     <span class="child-pill">Jean Milligan Richards</span>
                     <span class="child-pill">Rubin Kenneth Moultrie</span>
-                    <span class="child-pill deceased">Carl Moultrie</span>
+                    <span class="child-pill in-memory">Carl Moultrie</span>
                     <span class="child-pill">Priscilla Moultrie Green</span>
                 </div>
 
                 <!-- John's Child -->
                 <div class="parent-group">
-                    <div class="parent-name">John Milligan's Child <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">John Milligan's Child</div>
                     <span class="child-pill">John Milligan</span>
                 </div>
 
@@ -511,14 +515,14 @@
             <div class="collapse show" id="gen3">
                 <!-- Roslyn's Child -->
                 <div class="parent-group">
-                    <div class="parent-name">Roslyn Milligan's Child <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">Roslyn Milligan's Child</div>
                     <span class="child-pill">Jovene Lashaun Milligan</span>
                 </div>
 
                 <!-- Jean's Children -->
                 <div class="parent-group">
                     <div class="parent-name">Jean Milligan Richards' Children</div>
-                    <span class="child-pill deceased">Cornelius Richards</span>
+                    <span class="child-pill in-memory">Cornelius Richards</span>
                     <span class="child-pill">Delano (Mark) Richards Sr.</span>
                     <span class="child-pill">James Richards</span>
                     <span class="child-pill">Shawn Richards</span>
@@ -540,7 +544,7 @@
 
                 <!-- Carl's Child -->
                 <div class="parent-group">
-                    <div class="parent-name">Carl Moultrie's Child <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">Carl Moultrie's Child</div>
                     <span class="child-pill">Martin Desaussure</span>
                 </div>
 
@@ -553,7 +557,7 @@
                 <!-- Robin's Children -->
                 <div class="parent-group">
                     <div class="parent-name">Robin Aiken Matthews Brown's Children</div>
-                    <span class="child-pill deceased">Jerel Matthews</span>
+                    <span class="child-pill in-memory">Jerel Matthews</span>
                     <span class="child-pill">Derel Mathews</span>
                     <span class="child-pill">Brittany Little</span>
                 </div>
@@ -591,16 +595,16 @@
 
                 <!-- Cornelius's Children -->
                 <div class="parent-group">
-                    <div class="parent-name">Cornelius Richards' Children <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">Cornelius Richards' Children</div>
                     <span class="child-pill">Tamara Richards</span>
                     <span class="child-pill">Cornelius Richards Jr.</span>
-                    <span class="child-pill deceased">Latarsha Richards</span>
+                    <span class="child-pill in-memory">Latarsha Richards</span>
                     <span class="child-pill">Faith Richards</span>
-                    <span class="child-pill deceased">Joshua Richards</span>
+                    <span class="child-pill in-memory">Joshua Richards</span>
                     <span class="child-pill">Amber Richards</span>
                     <span class="child-pill">Joy Richards</span>
                     <span class="child-pill">Simone Richards</span>
-                    <span class="child-pill deceased">Michael Richards</span>
+                    <span class="child-pill in-memory">Michael Richards</span>
                     <span class="child-pill">Cyrus Richards</span>
                 </div>
 
@@ -642,7 +646,7 @@
 
                 <!-- Jerel's Children -->
                 <div class="parent-group">
-                    <div class="parent-name">Jerel Matthews' Children <span class="deceased-tag">Deceased</span></div>
+                    <div class="parent-name">Jerel Matthews' Children</div>
                     <span class="child-pill">Kerhyl Mathews</span>
                     <span class="child-pill">Jeremiah Mathews</span>
                 </div>
@@ -758,8 +762,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="legend-item">
-                        <div class="legend-swatch" style="background: #f8f9fa; border: 1px solid #dee2e6; opacity: 0.5; text-decoration: line-through;"></div>
-                        <span>Deceased</span>
+                        <div class="legend-swatch" style="background: #f3e8f0; border: 1px solid #d4b8cc;"></div>
+                        <span>In Loving Memory &#9825;</span>
                     </div>
                 </div>
             </div>
