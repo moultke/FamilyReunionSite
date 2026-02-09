@@ -989,7 +989,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const currentYear = new Date().getFullYear();
 
                 // Helper function to check if birthday is a milestone
-                function isMilestoneBirthday(birthYear, birthdayDate) {
+                function isMilestoneBirthday(birthYear) {
                     if (!birthYear) return false;
 
                     const age = currentYear - birthYear;
@@ -1008,9 +1008,18 @@ document.addEventListener("DOMContentLoaded", function () {
                                    'July', 'August', 'September', 'October', 'November', 'December'];
 
                 birthdays.forEach(birthday => {
-                    const date = new Date(birthday.birth_date + 'T00:00:00');
-                    const month = date.getMonth(); // 0-11
-                    const day = date.getDate();
+                    // birth_date can be "MM-DD" (seeded) or "YYYY-MM-DD" (form-added)
+                    const dateParts = birthday.birth_date.split('-');
+                    let month, day;
+                    if (dateParts.length === 3) {
+                        // YYYY-MM-DD format
+                        month = parseInt(dateParts[1], 10) - 1;
+                        day = parseInt(dateParts[2], 10);
+                    } else {
+                        // MM-DD format
+                        month = parseInt(dateParts[0], 10) - 1;
+                        day = parseInt(dateParts[1], 10);
+                    }
                     const age = birthday.birth_year ? currentYear - birthday.birth_year : null;
 
                     if (!monthGroups[month]) {
@@ -1019,10 +1028,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     monthGroups[month].push({
                         name: birthday.name,
                         day: day,
-                        date: date,
+                        month: month,
                         birthYear: birthday.birth_year,
                         age: age,
-                        isMilestone: isMilestoneBirthday(birthday.birth_year, date)
+                        isMilestone: isMilestoneBirthday(birthday.birth_year)
                     });
                 });
 
